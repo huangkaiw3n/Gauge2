@@ -3,12 +3,15 @@ package org.gauge;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.apache.log4j.Logger;
 
 /**
  * Unit test for simple App.
  */
-public class AppTest
-        extends TestCase {
+public class AppTest extends TestCase {
+
+  static final Logger log = Logger.getLogger(Misc.class);
+
   /**
    * Create the test case
    *
@@ -29,7 +32,7 @@ public class AppTest
    * Rigourous Test :-)
    */
   public void testApp() {
-    System.out.println("Ran client test");
+    log.info("Ran client test");
     assertTrue(true);
   }
 

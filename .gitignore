@@ -125,3 +125,6 @@ hs_err_pid*
 core/src/main/resources/log4j.properties
 client/src/main/resources/log4j.properties
 server/src/main/resources/log4j.properties
+
+### Log files
+*.log
