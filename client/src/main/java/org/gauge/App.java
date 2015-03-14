@@ -1,5 +1,7 @@
 package org.gauge;
 
+import org.gauge.ui.MainView;
+
 /**
  * Hello world!
  */
@@ -16,6 +18,7 @@ public class App {
 
   public static void main(String[] args) {
     exampleUseCoreUtility();
+    MainView.runForm(args);
     System.out.println("Hello World!");
   }
 }
