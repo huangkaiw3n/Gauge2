@@ -1,7 +1,0 @@
-13:14:38,449 DEBUG org.gauge.Misc:20 - Hello world
-13:26:02,355 DEBUG org.gauge.Misc:20 - Hello world
-13:27:09,602 DEBUG org.gauge.Misc:20 - Hello world
-13:32:43,844 DEBUG org.gauge.Misc:20 - Hello world
-13:32:54,213 DEBUG org.gauge.Misc:20 - Hello world
-13:42:51,428  INFO org.gauge.Misc:35 - Ran client test
-13:42:51,435 DEBUG org.gauge.Misc:20 - Hello world
