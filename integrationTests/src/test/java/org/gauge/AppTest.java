@@ -1,17 +1,12 @@
 package org.gauge;
 
-/**
- * Created by joel on 3/14/15.
- */
-
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ServerClientTests {
+public class AppTest {
 
   @Before
   public void setUp() throws Exception {
@@ -24,10 +19,7 @@ public class ServerClientTests {
   }
 
   @Test
-  public void testCanConnectToServer() throws Exception {
-    Server server = new Server(9000);
-    server.start();
-    Thread.sleep(2000);
-    server.stop();
+  public void testMain() throws Exception {
+
   }
 }

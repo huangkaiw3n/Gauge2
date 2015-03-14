@@ -34,10 +34,12 @@
         <dependency>
             <groupId>org.gauge</groupId>
             <artifactId>server</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.gauge</groupId>
             <artifactId>client</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
