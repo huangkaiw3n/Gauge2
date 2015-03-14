@@ -9,6 +9,7 @@
         <module>core</module>
         <module>server</module>
         <module>client</module>
+        <module>integrationTests</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -30,6 +31,16 @@
             <dependency>
                 <groupId>org.gauge</groupId>
                 <artifactId>core</artifactId>
+                <version>1.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gauge</groupId>
+                <artifactId>server</artifactId>
+                <version>1.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gauge</groupId>
+                <artifactId>client</artifactId>
                 <version>1.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -93,6 +104,25 @@
                         </goals>
                         <configuration>
                             <outputDirectory>server/src/main/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>resources</directory>
+                                    <includes>
+                                        <include>log4j.properties</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>copy-log4j-integrationTests</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>integrationTests/src/main/resources</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>resources</directory>
