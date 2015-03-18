@@ -64,18 +64,18 @@ public class ClientDaemon {
 
 
   public ClientDaemon ping() {
-    sendMessage("Ping!!\n");
+    sendPacket(new Packet("PING", "123"));
     return this;
   }
 
 
-  private void sendMessage(String message) {
-    log.debug("Sending message: " + message);
+  private void sendPacket(Packet packet) {
+    log.debug("Sending message: " + packet.toString());
     DataOutputStream dos;
 
     try {
       dos = new DataOutputStream(sock.getOutputStream());
-      byte[] buffer = message.getBytes("UTF-8");
+      byte[] buffer = packet.toBytes();
       int length = buffer.length;
       dos.writeInt(length);
       dos.write(buffer, 0, length);

@@ -1,5 +1,6 @@
 package org.gauge;
 
+import java.io.DataInputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
@@ -98,6 +99,6 @@ public class Packet {
 
   @Override
   public String toString() {
-    return "header=" + header + " payload=" + payload;
+    return "<<PACKET>> header=" + header + " payload=" + payload;
   }
 }

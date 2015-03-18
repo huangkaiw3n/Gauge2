@@ -19,7 +19,6 @@ public class Server {
 
   private volatile boolean isRunning;
   private volatile ServerSocket socket;
-
   private int port;
 
   public Server(int port) {
@@ -36,11 +35,11 @@ public class Server {
   private void pollConnection() {
     Socket s;
     try {
-      s  = socket.accept();
+      s = socket.accept();
       log.info("New Connection from: " + socket.getInetAddress());
 
-      String payload = getPayload(s);
-      process(payload);
+      Packet packet = getPacket(s);
+      process(packet);
 
     } catch (IOException e) {
       e.printStackTrace();
@@ -48,22 +47,37 @@ public class Server {
     }
   }
 
-  private String getPayload(Socket s) throws IOException {
-    String payload;
+
+  /**
+   * Used to poll the socket for the packet.
+   * <p/>
+   * This adds another layer of abstraction over packet class,
+   * number of bytes is receiived and bytes retrieved.  It is then
+   * generated into a Packet instance.
+   * <p/>
+   * In this way, encryption can be added without altering
+   * structure of packet.
+   *
+   * @param s
+   * @return
+   * @throws IOException
+   */
+  private Packet getPacket(Socket s) throws IOException {
+    Packet result;
     DataInputStream dis;
     int length = 0;
     byte[] buffer;
+
     dis = new DataInputStream(s.getInputStream());
     length = dis.readInt();
     buffer = new byte[length];
     dis.read(buffer, 0, length);
-
-    payload = new String(buffer, "UTF-8");
-    return payload;
+    result = new Packet(buffer);
+    return result;
   }
 
-  private void process(String s) {
-    log.info("Got message: " + s);
+  private void process(Packet packet) {
+    log.info("Got Message: " + packet.toString());
   }
 
 
@@ -87,7 +101,7 @@ public class Server {
 
     Runnable daemon = new Runnable() {
       public void run() {
-        while(isRunning) {
+        while (isRunning) {
           pollConnection();
         }
         log.info("Server stopped.");
@@ -98,8 +112,6 @@ public class Server {
     log.info("Server started.");
     return this;
   }
-
-
 
 
   public Server stop() {
