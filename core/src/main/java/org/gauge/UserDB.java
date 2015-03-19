@@ -18,9 +18,11 @@ import java.util.Map;
 public class UserDB {
 
     private Hashtable<String, User> userData;
+    private String csvPath;//Eg "C:\\Users\\Kaiwen\\Desktop\\test.csv";
 
-    public UserDB() {
+    public UserDB(String csvPath) {
         userData = new Hashtable<String, User>();
+        this.csvPath = csvPath;
     }
 
     /**
@@ -55,8 +57,7 @@ public class UserDB {
     }
 
     public boolean toCSV() throws java.io.IOException{
-        String csv = "C:\\Users\\Kaiwen\\Desktop\\test.csv";
-        CSVWriter writer = new CSVWriter(new FileWriter(csv));
+        CSVWriter writer = new CSVWriter(new FileWriter(csvPath));
         List<String[]> csvData = new ArrayList<String[]>();
 
         for(Map.Entry<String, User> it : userData.entrySet()){
@@ -70,8 +71,7 @@ public class UserDB {
     }
 
     public boolean fromCSV() throws java.io.IOException{
-        String csv = "C:\\Users\\Kaiwen\\Desktop\\test.csv";
-        CSVReader reader = new CSVReader(new FileReader(csv));
+        CSVReader reader = new CSVReader(new FileReader(csvPath));
         String [] row = null;
 
         while((row = reader.readNext()) != null) {
@@ -80,6 +80,15 @@ public class UserDB {
         }
         reader.close();
         return true;
+    }
+
+    public boolean authenticate(String username, String password){
+        if(!userData.containsKey(username))
+            return false;
+        if(userData.get(username).getPassword().compareTo(password) == 0)
+            return true;
+        else
+            return false;
     }
 
     public JSONArray toJSONArray(){

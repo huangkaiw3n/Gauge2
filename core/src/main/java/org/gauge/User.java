@@ -6,7 +6,7 @@ import org.json.JSONObject;
  * Created by Kaiwen on 19/3/2015.
  */
 public class User {
-    private String username, password, email;
+    private String username, password, email, ip;
 
     public User(){}
 
@@ -37,6 +37,10 @@ public class User {
         this.email = email;
     }
 
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -53,6 +57,7 @@ public class User {
         JSONObject obj = new JSONObject();
         obj.put("username", username);
         obj.put("email", email);
+        obj.put("ip", ip);
         return obj;
     }
 }
