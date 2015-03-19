@@ -97,9 +97,23 @@ public class Handlers {
   }
 
 
-  public static class Auth_GET implements HttpHandler {
+  public static class Auth_GET extends GetHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
-
+      JSONObject response = new JSONObject();
+      try {
+        response.append("status", (String) "success");
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+      JSONObject params;
+      try {
+        params = getParams(httpExchange);
+        System.out.println(params.toString());
+      } catch (JSONException e) {
+        e.printStackTrace();
+      } finally {
+        sendJSONResponse(httpExchange, 200, response);
+      }
     }
   }
 
