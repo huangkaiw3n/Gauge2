@@ -23,6 +23,8 @@ public class UserDB {
     public UserDB(String csvPath) {
         userData = new Hashtable<String, User>();
         this.csvPath = csvPath;
+
+        try{fromCSV();} catch (java.io.IOException e){}
     }
 
     /**
