@@ -1,10 +1,14 @@
 package org.gauge;
 
+import org.json.JSONObject;
+
 /**
  * Created by Kaiwen on 19/3/2015.
  */
 public class User {
-    private String username, password, email, ip;
+    private String username, password, email;
+
+    public User(){}
 
     public User(String username) {
         this.username = username;
@@ -21,13 +25,6 @@ public class User {
         this.email = email;
     }
 
-    public User(String username, String password, String email, String ip) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.ip = ip;
-    }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -38,10 +35,6 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
     }
 
     public String getUsername() {
@@ -56,7 +49,10 @@ public class User {
         return email;
     }
 
-    public String getIp() {
-        return ip;
+    public JSONObject toJSON(){//username email
+        JSONObject obj = new JSONObject();
+        obj.put("username", username);
+        obj.put("email", email);
+        return obj;
     }
 }
