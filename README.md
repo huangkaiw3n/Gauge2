@@ -65,5 +65,12 @@ To create a JAR with dependencies included, run:
     $ mvn install
 
 The created `jars` will be in the respective sub-project `target/` directories.
+
+
+## Backlog
+
+- Implemented HTTP server for GET and POST requests
+- Implemented post and get request wrappers
+- Implemented framework to support different layers of abstraction among packets
     
 
