@@ -2,15 +2,18 @@ package org.gauge;
 
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by joel on 3/14/15.
+ * Created by joel on 3/18/15.
  */
 public class ClientDaemonTCP {
 
-  static final Logger log = Logger.getLogger(ClientDaemonTCP.class);
+  static final Logger log = Logger.getLogger(ClientDaemonTCPLegacy.class);
   private String hostname;
 
   private volatile boolean isRunning;
@@ -19,6 +22,17 @@ public class ClientDaemonTCP {
   private volatile Socket sock;
   private int port;
 
+  private enum OperationState {
+    NOP, LOGIN, LIST, PING
+  }
+  private OperationState state;
+
+  private LinkedBlockingQueue<Exchange> exchanges;
+
+  public interface Exchange {
+    public Packet request();
+    public void response(Packet p);
+  }
 
   public ClientDaemonTCP(String hostname, int port) {
     init(hostname, port);
@@ -37,6 +51,8 @@ public class ClientDaemonTCP {
     this.hostname = hostname;
     this.port = port;
     this.pq = new PacketQueue();
+    this.state = OperationState.NOP;
+    this.exchanges = new LinkedBlockingQueue<Exchange>();
   }
 
 
@@ -46,15 +62,11 @@ public class ClientDaemonTCP {
       return this;
     }
 
-    connectToServer(hostname, port);
 
     isRunning = true;
     Runnable daemon = new Runnable() {
       public void run() {
         while (isRunning) {
-          sendPacket(pq.dequeSend());
-          recvPacket();
-          processPackets();
 //          log.info("PACKET: " + p.toString());
 //          if (p != null) {
 //            sendPacket(p);
@@ -76,112 +88,52 @@ public class ClientDaemonTCP {
   }
 
 
-  public ClientDaemonTCP ping() {
-    send(new Packet("PING", "123"));
-    return this;
-  }
+  void poll() {
+    Exchange curr;
+    while(!exchanges.isEmpty()) {
+      curr = exchanges.poll();
 
+      try {
+        Packet reqP, recvP;
+        Socket sock = new Socket(hostname, port);
+        reqP = curr.request();
+        sendPacket(sock, reqP);
+        recvP = recvPacket(sock);
+        curr.response(recvP);
+        sock.close();
 
-  /**
-   * Public function to send packets.
-   * <p/>
-   * This implementation uses a queue, so that multi-threaded servers
-   * can be used in future iterations.
-   *
-   * @param packet
-   * @return
-   */
-  public ClientDaemonTCP send(Packet packet) {
-    pq.enqueueSend(packet);
-    return this;
-  }
-
-
-  /**
-   * Internal function to send packets.
-   *
-   * @param packet
-   */
-  private void sendPacket(Packet packet) {
-    if (packet == null) {
-      return;  // do not block
-    }
-    log.debug("Sending message: " + packet.toString());
-    DataOutputStream dos;
-
-    try {
-      dos = new DataOutputStream(sock.getOutputStream());
-      byte[] buffer = packet.toBytes();
-      int length = buffer.length;
-      dos.writeInt(length);
-      dos.write(buffer, 0, length);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-
-  /**
-   * Non-blocking way to retrieve a packet
-   *
-   * @return
-   */
-  private Packet getPacket() {
-    DataInputStream dis;
-    Packet packet = null;
-    try {
-      dis = new DataInputStream(sock.getInputStream());
-      if (dis.available() == 0) {
-        return null;
+      } catch (IOException e) {
+        e.printStackTrace();
       }
-      int size = dis.readInt();
-      byte[] buffer = new byte[size];
-      dis.read(buffer);
-      packet = new Packet(buffer);
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    return packet;
-  }
-
-
-  private void recvPacket() {
-    Packet p = getPacket();
-    if (p != null) {
-      pq.enqueueRecv(p);
     }
   }
 
+  private Packet recvPacket(Socket sock) {
+    // TODO: Implement
+    return null;
+  }
 
-  private void processPackets() {
-    while(pq.recvQueueSize() > 0) {
-      Packet p = pq.dequeRecv();
-      log.debug("Client packet received: " + p.toString());
-    }
+  private void sendPacket(Socket sock, Packet p) {
+    // TODO: Implement
+
   }
 
 
-  private void connectToServer(String hostname, int port) {
-    try {
-      sock = new Socket(hostname, port);
-    } catch (IOException e) {
-      e.printStackTrace();
-      return;
-    }
-  }
+  private ClientDaemonTCP login() {
+    exchanges.offer(new Exchange() {
+      public Packet request() {
+        //TODO IMPLEMENT
+        return new Packet("LOGIN", "username password and change this");
+      }
 
-
-  /**
-   * Stops the client raw daemon,
-   *
-   * @return
-   */
-  public ClientDaemonTCP stop() {
-    isRunning = false;
+      public void response(Packet p) {
+        // TODO IMPLEMENT
+      }
+    });
     return this;
   }
+
+  //TODO: Implement a list retrieval method here
 
 
 }

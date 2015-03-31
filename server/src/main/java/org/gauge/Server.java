@@ -95,6 +95,7 @@ public class Server {
     String header = packet.getHeader();
     if (header.equals("PING")) {
       sendPacket(s, new Packet("PING", "ACK"));
+
     } else if (header.equals("LOGIN")) {
 
     }
