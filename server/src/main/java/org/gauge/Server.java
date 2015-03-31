@@ -2,10 +2,7 @@ package org.gauge;
 
 import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
@@ -39,7 +36,10 @@ public class Server {
       log.info("New Connection from: " + socket.getInetAddress());
 
       Packet packet = getPacket(s);
-      process(packet);
+      process(s, packet);
+
+      // close the socket when done; other sockets can now connect
+      s.close();
 
     } catch (IOException e) {
       e.printStackTrace();
@@ -77,8 +77,27 @@ public class Server {
     return result;
   }
 
-  private void process(Packet packet) {
+
+  private void sendPacket(Socket s, Packet packet) throws IOException {
+    DataOutputStream dos;
+    byte[] buffer = packet.toBytes();
+    int length = buffer.length;
+
+    dos = new DataOutputStream(s.getOutputStream());
+    dos.writeInt(length);
+    dos.write(buffer);
+  }
+
+
+
+  private void process(Socket s, Packet packet) throws IOException {
     log.info("Got Message: " + packet.toString());
+    String header = packet.getHeader();
+    if (header.equals("PING")) {
+      sendPacket(s, new Packet("PING", "ACK"));
+    } else if (header.equals("LOGIN")) {
+
+    }
   }
 
 
