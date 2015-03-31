@@ -5,8 +5,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class ServerClientTest {
 
   static final Logger log = Logger.getLogger(ServerClientTest.class);
@@ -25,7 +23,7 @@ public class ServerClientTest {
   public void testCanConnectToServer() throws Exception {
 //    log.info("Ran a test");
     Server server = new Server(1832);
-    ClientDaemon client = new ClientDaemon("localhost", 1832);
+    ClientDaemonTCP client = new ClientDaemonTCP("localhost", 1832);
 
     server.start();
     client.start();

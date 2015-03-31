@@ -2,33 +2,30 @@ package org.gauge;
 
 import org.apache.log4j.Logger;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 /**
  * Created by joel on 3/14/15.
  */
-public class ClientDaemon {
+public class ClientDaemonTCP {
 
-  static final Logger log = Logger.getLogger(ClientDaemon.class);
+  static final Logger log = Logger.getLogger(ClientDaemonTCP.class);
   private String hostname;
 
   private volatile boolean isRunning;
-  private PacketQueue pq;
+  private volatile PacketQueue pq;
 
-  private int port;
   private volatile Socket sock;
+  private int port;
 
 
-  public ClientDaemon(String hostname, int port) {
+  public ClientDaemonTCP(String hostname, int port) {
     init(hostname, port);
   }
 
 
-  public ClientDaemon() {
+  public ClientDaemonTCP() {
     String hostname = "localhost";
     int port = 9000;
     init(hostname, port);
@@ -43,7 +40,7 @@ public class ClientDaemon {
   }
 
 
-  public ClientDaemon start() {
+  public ClientDaemonTCP start() {
     // exit and return if already running
     if (isRunning) {
       return this;
@@ -55,9 +52,9 @@ public class ClientDaemon {
     Runnable daemon = new Runnable() {
       public void run() {
         while (isRunning) {
-          if (pq != null) {
-            sendPacket(pq.dequeSend());
-          }
+          sendPacket(pq.dequeSend());
+          recvPacket();
+          processPackets();
 //          log.info("PACKET: " + p.toString());
 //          if (p != null) {
 //            sendPacket(p);
@@ -79,7 +76,7 @@ public class ClientDaemon {
   }
 
 
-  public ClientDaemon ping() {
+  public ClientDaemonTCP ping() {
     send(new Packet("PING", "123"));
     return this;
   }
@@ -94,10 +91,8 @@ public class ClientDaemon {
    * @param packet
    * @return
    */
-  public ClientDaemon send(Packet packet) {
-    if (pq != null) {
-      pq.enqueueSend(packet);
-    }
+  public ClientDaemonTCP send(Packet packet) {
+    pq.enqueueSend(packet);
     return this;
   }
 
@@ -126,6 +121,48 @@ public class ClientDaemon {
   }
 
 
+  /**
+   * Non-blocking way to retrieve a packet
+   *
+   * @return
+   */
+  private Packet getPacket() {
+    DataInputStream dis;
+    Packet packet = null;
+    try {
+      dis = new DataInputStream(sock.getInputStream());
+      if (dis.available() == 0) {
+        return null;
+      }
+      int size = dis.readInt();
+      byte[] buffer = new byte[size];
+      dis.read(buffer);
+      packet = new Packet(buffer);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return packet;
+  }
+
+
+  private void recvPacket() {
+    Packet p = getPacket();
+    if (p != null) {
+      pq.enqueueRecv(p);
+    }
+  }
+
+
+  private void processPackets() {
+    while(pq.recvQueueSize() > 0) {
+      Packet p = pq.dequeRecv();
+      log.debug("Client packet received: " + p.toString());
+    }
+  }
+
+
   private void connectToServer(String hostname, int port) {
     try {
       sock = new Socket(hostname, port);
@@ -141,7 +178,7 @@ public class ClientDaemon {
    *
    * @return
    */
-  public ClientDaemon stop() {
+  public ClientDaemonTCP stop() {
     isRunning = false;
     return this;
   }

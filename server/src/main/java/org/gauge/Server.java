@@ -73,6 +73,7 @@ public class Server {
     buffer = new byte[length];
     dis.read(buffer, 0, length);
     result = new Packet(buffer);
+
     return result;
   }
 
