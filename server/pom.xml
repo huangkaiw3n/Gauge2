@@ -57,8 +57,8 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <!--<mainClass>org.gauge.App</mainClass>-->
-                            <mainClass>org.gauge.SimpleHttpServer</mainClass>
+                            <mainClass>org.gauge.App</mainClass>
+                            <!--<mainClass>org.gauge.SimpleHttpServer</mainClass>-->
                         </manifest>
                     </archive>
                 </configuration>

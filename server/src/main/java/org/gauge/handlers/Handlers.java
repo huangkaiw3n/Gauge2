@@ -19,6 +19,7 @@ public class Handlers {
     public void handle(HttpExchange httpExchange) throws IOException {
       String response = "Welcome to my page!";
       Headers h = httpExchange.getResponseHeaders();
+      System.out.println("header:" + h.toString());
       h.set("Content-Type", "text/html; charset=iso-8859-1");
       httpExchange.sendResponseHeaders(200, response.length());
       OutputStream os = httpExchange.getResponseBody();
