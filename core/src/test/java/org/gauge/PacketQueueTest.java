@@ -12,7 +12,6 @@ public class PacketQueueTest {
 
   @Before
   public void setUp() throws Exception {
-
   }
 
   @After
@@ -22,7 +21,16 @@ public class PacketQueueTest {
 
   @Test
   public void testEnqueueSend() throws Exception {
-
+    q = new PacketQueue();
+    q.enqueueSend(new Packet("hello", "world"));
+    q.enqueueSend(new Packet("hello", "world"));
+    q.enqueueSend(new Packet("hello", "world"));
+    q.enqueueSend(new Packet("hello", "world"));
+    q.dequeSend();
+    q.dequeSend();
+    q.dequeSend();
+    assertNotNull(q.dequeSend());
+    assertNull(q.dequeSend());
   }
 
   @Test

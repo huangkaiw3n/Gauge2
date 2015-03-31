@@ -17,20 +17,29 @@ public class ClientDaemon {
   private String hostname;
 
   private volatile boolean isRunning;
+  private PacketQueue pq;
 
   private int port;
   private volatile Socket sock;
 
+
   public ClientDaemon(String hostname, int port) {
+    init(hostname, port);
+  }
+
+
+  public ClientDaemon() {
+    String hostname = "localhost";
+    int port = 9000;
+    init(hostname, port);
+  }
+
+
+  private void init(String hostname, int port) {
     isRunning = false;
     this.hostname = hostname;
     this.port = port;
-  }
-
-  public ClientDaemon() {
-    isRunning = false;
-    this.hostname = "localhost";
-    this.port = 9000;
+    this.pq = new PacketQueue();
   }
 
 
@@ -46,6 +55,13 @@ public class ClientDaemon {
     Runnable daemon = new Runnable() {
       public void run() {
         while (isRunning) {
+          if (pq != null) {
+            sendPacket(pq.dequeSend());
+          }
+//          log.info("PACKET: " + p.toString());
+//          if (p != null) {
+//            sendPacket(p);
+//          }
         }
         log.info("ClientDaemon stopped.");
       }
@@ -64,12 +80,37 @@ public class ClientDaemon {
 
 
   public ClientDaemon ping() {
-    sendPacket(new Packet("PING", "123"));
+    send(new Packet("PING", "123"));
     return this;
   }
 
 
+  /**
+   * Public function to send packets.
+   * <p/>
+   * This implementation uses a queue, so that multi-threaded servers
+   * can be used in future iterations.
+   *
+   * @param packet
+   * @return
+   */
+  public ClientDaemon send(Packet packet) {
+    if (pq != null) {
+      pq.enqueueSend(packet);
+    }
+    return this;
+  }
+
+
+  /**
+   * Internal function to send packets.
+   *
+   * @param packet
+   */
   private void sendPacket(Packet packet) {
+    if (packet == null) {
+      return;  // do not block
+    }
     log.debug("Sending message: " + packet.toString());
     DataOutputStream dos;
 
@@ -95,6 +136,11 @@ public class ClientDaemon {
   }
 
 
+  /**
+   * Stops the client raw daemon,
+   *
+   * @return
+   */
   public ClientDaemon stop() {
     isRunning = false;
     return this;
