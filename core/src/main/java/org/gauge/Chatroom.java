@@ -1,8 +1,14 @@
 package org.gauge;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
@@ -11,6 +17,8 @@ import java.util.UUID;
  * Created by joel on 4/1/15.
  */
 public class Chatroom {
+
+  static final Logger log = Logger.getLogger(Chatroom.class);
 
   private String id;
   private String title;
@@ -123,6 +131,22 @@ public class Chatroom {
             .append(Arrays.toString(users.toArray()));
 
     return sb.toString();
-
   }
+
+
+  void broadcast(Packet packet, DatagramSocket sock, int port) {
+    byte[] data = packet.toBytes();
+    for (User user : users) {
+      try {
+        InetAddress address = user.getIp() == null ? InetAddress.getByName(user.getIp()) : null;
+        DatagramPacket datagram = new DatagramPacket(data, data.length, address, port);
+        sock.send(datagram);
+      } catch (UnknownHostException e) {
+        // fail silently if no IP information available
+      } catch (IOException e) {
+        log.error("Oops.  Cannot send message to fellow client.  Is socket closed?");
+      }
+    }
+  }
+
 }
