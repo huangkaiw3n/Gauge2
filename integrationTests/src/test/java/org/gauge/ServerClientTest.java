@@ -23,7 +23,7 @@ public class ServerClientTest {
   public void testCanConnectToServer() throws Exception {
 //    log.info("Ran a test");
     Server server = new Server(1832);
-    ClientDaemonTCPLegacy client = new ClientDaemonTCPLegacy("localhost", 1832);
+    ClientDaemonTCP client = new ClientDaemonTCP("localhost", 1832);
 
     server.start();
     client.start();

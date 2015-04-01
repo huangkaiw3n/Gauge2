@@ -2,6 +2,8 @@ package org.gauge;
 
 import org.apache.log4j.Logger;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -13,7 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class ClientDaemonTCP {
 
-  static final Logger log = Logger.getLogger(ClientDaemonTCPLegacy.class);
+  static final Logger log = Logger.getLogger(ClientDaemonTCP.class);
   private String hostname;
 
   private volatile boolean isRunning;
@@ -25,12 +27,14 @@ public class ClientDaemonTCP {
   private enum OperationState {
     NOP, LOGIN, LIST, PING
   }
+
   private OperationState state;
 
   private LinkedBlockingQueue<Exchange> exchanges;
 
   public interface Exchange {
     public Packet request();
+
     public void response(Packet p);
   }
 
@@ -67,6 +71,7 @@ public class ClientDaemonTCP {
     Runnable daemon = new Runnable() {
       public void run() {
         while (isRunning) {
+          poll();
 //          log.info("PACKET: " + p.toString());
 //          if (p != null) {
 //            sendPacket(p);
@@ -88,38 +93,105 @@ public class ClientDaemonTCP {
   }
 
 
-  void poll() {
-    Exchange curr;
-    while(!exchanges.isEmpty()) {
-      curr = exchanges.poll();
+  private void processExchange(Exchange exchange) {
+    try {
+      Packet reqP = null, recvP = null;
+      Socket sock = null;
+      sock = new Socket(hostname, port);
+      reqP = exchange.request();
+      sendPacket(sock, reqP);
+      recvP = recvPacketBlocking(sock);
+      exchange.response(recvP);
 
-      try {
-        Packet reqP, recvP;
-        Socket sock = new Socket(hostname, port);
-        reqP = curr.request();
-        sendPacket(sock, reqP);
-        recvP = recvPacket(sock);
-        curr.response(recvP);
-        sock.close();
-
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
+  private Packet recvPacketBlocking(Socket sock) {
+    Packet recvP = null;
+    while (recvP == null) {
+      recvP = recvPacket(sock);
+    }
+    return recvP;
+  }
+
+
+  void poll() {
+    Exchange curr;
+    while (!exchanges.isEmpty()) {
+      curr = exchanges.poll();
+      processExchange(curr);
+    }
+  }
+
+
+  /**
+   * Non-blocking way to retrieve a packet
+   *
+   * @return
+   */
   private Packet recvPacket(Socket sock) {
-    // TODO: Implement
-    return null;
+    DataInputStream dis;
+    Packet packet = null;
+    try {
+      dis = new DataInputStream(sock.getInputStream());
+      if (dis.available() == 0) {
+        return null;
+      }
+      int size = dis.readInt();
+      byte[] buffer = new byte[size];
+      dis.read(buffer);
+      packet = new Packet(buffer);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return packet;
   }
 
-  private void sendPacket(Socket sock, Packet p) {
-    // TODO: Implement
 
+  /**
+   * Internal function to send packets.
+   *
+   * @param packet
+   */
+  private void sendPacket(Socket sock, Packet packet) {
+    if (packet == null) {
+      return;  // do not block
+    }
+    DataOutputStream dos;
+
+    try {
+      dos = new DataOutputStream(sock.getOutputStream());
+      byte[] buffer = packet.toBytes();
+      int length = buffer.length;
+      dos.writeInt(length);
+      dos.write(buffer, 0, length);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
 
-  private ClientDaemonTCP login() {
+  public ClientDaemonTCP ping() {
+    exchanges.offer(new Exchange() {
+      public Packet request() {
+        log.debug("SENT A PING PACKET");
+        return new Packet("PING", "oo");
+      }
+
+      public void response(Packet p) {
+        log.debug("Packet: " + p.toString());
+        log.debug("RECEIVED A PING PACKET");
+      }
+    });
+    return this;
+  }
+
+
+  public ClientDaemonTCP login() {
     exchanges.offer(new Exchange() {
       public Packet request() {
         //TODO IMPLEMENT
