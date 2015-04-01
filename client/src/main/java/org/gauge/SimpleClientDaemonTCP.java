@@ -6,44 +6,31 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by joel on 3/18/15.
  */
-public class ClientDaemonTCP {
+public class SimpleClientDaemonTCP {
 
-  static final Logger log = Logger.getLogger(ClientDaemonTCP.class);
-  private String hostname;
-
+  static final Logger log = Logger.getLogger(SimpleClientDaemonTCP.class);
   private volatile boolean isRunning;
-  private volatile PacketQueue pq;
 
-  private volatile Socket sock;
-  private int port;
+  protected int port;
+  protected String hostname;
 
-  private enum OperationState {
-    NOP, LOGIN, LIST, PING
-  }
-
-  private OperationState state;
-
-  private LinkedBlockingQueue<Exchange> exchanges;
+  protected LinkedBlockingQueue<Exchange> exchanges;
 
   public interface Exchange {
     public Packet request();
-
     public void response(Packet p);
   }
 
-  public ClientDaemonTCP(String hostname, int port) {
+  public SimpleClientDaemonTCP(String hostname, int port) {
     init(hostname, port);
   }
 
-
-  public ClientDaemonTCP() {
+  public SimpleClientDaemonTCP() {
     String hostname = "localhost";
     int port = 9000;
     init(hostname, port);
@@ -54,13 +41,11 @@ public class ClientDaemonTCP {
     isRunning = false;
     this.hostname = hostname;
     this.port = port;
-    this.pq = new PacketQueue();
-    this.state = OperationState.NOP;
     this.exchanges = new LinkedBlockingQueue<Exchange>();
   }
 
 
-  public ClientDaemonTCP start() {
+  public SimpleClientDaemonTCP start() {
     // exit and return if already running
     if (isRunning) {
       return this;
@@ -93,12 +78,22 @@ public class ClientDaemonTCP {
   }
 
 
+  public SimpleClientDaemonTCP stop() {
+    isRunning = false;
+    return this;
+  }
+
+
   private void processExchange(Exchange exchange) {
     try {
       Packet reqP = null, recvP = null;
       Socket sock = null;
       sock = new Socket(hostname, port);
       reqP = exchange.request();
+      // do not proceed and process if null
+      if (reqP == null) {
+        return;
+      }
       sendPacket(sock, reqP);
       recvP = recvPacketBlocking(sock);
       exchange.response(recvP);
@@ -175,8 +170,13 @@ public class ClientDaemonTCP {
   }
 
 
-  public ClientDaemonTCP ping() {
-    exchanges.offer(new Exchange() {
+  protected void queueExchange(Exchange exchange) {
+    exchanges.offer(exchange);
+  }
+
+
+  public SimpleClientDaemonTCP ping() {
+    Exchange exchange = new Exchange() {
       public Packet request() {
         log.debug("SENT A PING PACKET");
         return new Packet("PING", "oo");
@@ -186,26 +186,10 @@ public class ClientDaemonTCP {
         log.debug("Packet: " + p.toString());
         log.debug("RECEIVED A PING PACKET");
       }
-    });
+    };
+    queueExchange(exchange);
     return this;
   }
-
-
-  public ClientDaemonTCP login() {
-    exchanges.offer(new Exchange() {
-      public Packet request() {
-        //TODO IMPLEMENT
-        return new Packet("LOGIN", "username password and change this");
-      }
-
-      public void response(Packet p) {
-        // TODO IMPLEMENT
-      }
-    });
-    return this;
-  }
-
-  //TODO: Implement a list retrieval method here
 
 
 }

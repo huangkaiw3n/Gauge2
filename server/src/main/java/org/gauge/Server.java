@@ -42,7 +42,8 @@ public class Server {
       s.close();
 
     } catch (IOException e) {
-      e.printStackTrace();
+      //TODO if socket is closed, socket.accept() should not be sent.  Fail silently.
+//      e.printStackTrace();
       return;
     }
   }
@@ -97,7 +98,7 @@ public class Server {
       sendPacket(s, new Packet("PING", "ACK"));
 
     } else if (header.equals("LOGIN")) {
-
+      sendPacket(s, new Packet("LOGIN", "ACK"));
     }
   }
 
@@ -137,6 +138,11 @@ public class Server {
 
   public Server stop() {
     isRunning = false;
+    try {
+      socket.close();
+    } catch (IOException e) {
+      // fail silently; does not seem important
+    }
     return this;
   }
 

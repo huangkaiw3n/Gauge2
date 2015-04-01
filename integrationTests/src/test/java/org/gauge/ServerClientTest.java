@@ -20,10 +20,9 @@ public class ServerClientTest {
   }
 
   @Test
-  public void testCanConnectToServer() throws Exception {
-//    log.info("Ran a test");
+  public void testCanPing() throws Exception {
     Server server = new Server(1832);
-    ClientDaemonTCP client = new ClientDaemonTCP("localhost", 1832);
+    GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1832);
 
     server.start();
     client.start();
@@ -33,6 +32,25 @@ public class ServerClientTest {
     client.ping();
 
     Thread.sleep(2000);
+    client.stop();
     server.stop();
+  }
+
+  @Test
+  public void testCanLogin() throws Exception {
+    Server server = new Server(1832);
+    GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1832);
+
+    server.start();
+    client.start();
+
+    client.ping();
+
+    client.login(new User("jhtong, 123"));
+
+    Thread.sleep(2000);
+    client.stop();
+    server.stop();
+
   }
 }
