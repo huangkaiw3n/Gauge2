@@ -45,6 +45,14 @@ public class User {
     this.email = email;
   }
 
+
+  public User(String username, String password, String email, String ip) {
+    this.username = username;
+    this.password = password;
+    this.email = email;
+    this.ip = ip;
+  }
+
   public void setUsername(String username) {
     this.username = username;
   }

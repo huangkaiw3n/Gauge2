@@ -51,9 +51,9 @@ public class ServerClientTest {
 
     client.ping();
 
-    client.login(new User("jhtong", "123"));  // should pass
-    client.login(new User("jhtong", "abc"));  // should fail
-    client.login(new User("jhtong", "122"));  // should fail
+    client.login(new User("jhtong", "123","", "192.168.0.1"));  // should pass
+    client.login(new User("jhtong", "abc", "", "192.168.0.2"));  // should fail
+    client.login(new User("jhtong", "122", "", "192.168.0.3"));  // should fail
 
     Thread.sleep(2000);
     client.stop();
