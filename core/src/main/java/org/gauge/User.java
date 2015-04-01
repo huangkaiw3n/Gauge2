@@ -11,6 +11,25 @@ public class User {
   public User() {
   }
 
+  public User(JSONObject json) {
+    super();
+    if (json.has("username")) {
+      this.username = (String) json.get("username");
+    }
+
+    if (json.has("password")) {
+      this.password = (String) json.get("password");
+    }
+
+    if (json.has("email")) {
+      this.email = (String) json.get("email");
+    }
+
+    if (json.has("ip")) {
+      this.ip = (String) json.get("ip");
+    }
+  }
+
   public User(String username) {
     this.username = username;
   }
@@ -59,6 +78,12 @@ public class User {
     obj.put("username", username);
     obj.put("email", email);
     obj.put("ip", ip);
+    return obj;
+  }
+
+  public JSONObject toJSONWithPassword() {
+    JSONObject obj = this.toJSON();
+    obj.put("password", password);
     return obj;
   }
 

@@ -39,6 +39,11 @@ public class ServerClientTest {
   @Test
   public void testCanLogin() throws Exception {
     Server server = new Server(1832);
+
+    // for mocking purposes
+    server.db.add("jhtong", new User("jhtong", "123"), false);
+    server.db.add("mary", new User("mary", "abc"), false);
+
     GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1832);
 
     server.start();
@@ -46,11 +51,12 @@ public class ServerClientTest {
 
     client.ping();
 
-    client.login(new User("jhtong, 123"));
+    client.login(new User("jhtong", "123"));  // should pass
+    client.login(new User("jhtong", "abc"));  // should fail
+    client.login(new User("jhtong", "122"));  // should fail
 
     Thread.sleep(2000);
     client.stop();
     server.stop();
-
   }
 }

@@ -1,11 +1,14 @@
 package org.gauge;
 
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.Charset;
 
 /**
  * Created by joel on 3/14/15.
@@ -18,14 +21,26 @@ public class Server {
   private volatile ServerSocket socket;
   private int port;
 
+  public UserDB db;
+
   public Server(int port) {
-    isRunning = false;
     this.port = port;
+    init();
   }
 
   public Server() {
-    isRunning = false;
     this.port = 9000;
+    init();
+  }
+
+  private void init() {
+    isRunning = false;
+    db = new UserDB();
+  }
+
+
+  public UserDB getDb() {
+    return db;
   }
 
 
@@ -90,7 +105,6 @@ public class Server {
   }
 
 
-
   private void process(Socket s, Packet packet) throws IOException {
     log.info("Got Message: " + packet.toString());
     String header = packet.getHeader();
@@ -98,8 +112,42 @@ public class Server {
       sendPacket(s, new Packet("PING", "ACK"));
 
     } else if (header.equals("LOGIN")) {
-      sendPacket(s, new Packet("LOGIN", "ACK"));
+      JSONObject resJson = makeAuthRes(packet);
+      sendPacket(s, new Packet("LOGIN", resJson.toString()));
     }
+  }
+
+
+  private JSONObject makeAuthRes(Packet packet) {
+    String reqString = packet.getPayload();
+    boolean status = authenticate(reqString);
+
+    JSONObject resJson = new JSONObject();
+    try {
+      if (status) {
+        resJson.put("status", "success");
+      } else {
+        resJson.put("status", "fail");
+      }
+    } catch (JSONException e) {
+    }
+    return resJson;
+  }
+
+
+  private boolean authenticate(String reqString) {
+    User userAuth = null;
+    try {
+      userAuth = new User(new JSONObject(reqString));
+    } catch (JSONException e) {
+      return false;
+    }
+
+    if (db.authenticate(userAuth.getUsername(), userAuth.getPassword())) {
+      return true;
+    }
+
+    return false;
   }
 
 

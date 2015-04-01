@@ -40,10 +40,10 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
   public GaugeClientDaemonTCP login(final User user) {
     Exchange exchange = new Exchange() {
       public Packet request() {
-        if (user.getUsername() == null && user.getPassword() == null) {
+        if (user.getUsername() == null || user.getPassword() == null) {
           return null;
         }
-        return new Packet("LOGIN", user.toJSON().toString());
+        return new Packet("LOGIN", user.toJSONWithPassword().toString());
       }
 
       public void response(Packet p) {
