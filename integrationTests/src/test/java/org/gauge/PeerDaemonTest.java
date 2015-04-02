@@ -2,7 +2,10 @@ package org.gauge;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,7 +22,6 @@ public class PeerDaemonTest {
    */
   @Before
   public void setUp() throws Exception {
-
     User userA, userB, userC;
     userA = new User("john", "", "", "localhost", 14000);
     userB = new User("mary", "", "", "localhost", 14001);
@@ -32,7 +34,11 @@ public class PeerDaemonTest {
 
   @After
   public void tearDown() throws Exception {
-
+    a.stop();
+    b.stop();
+    c.stop();
+    a = b = c = null;
+    Thread.sleep(200);
   }
 
   @Test
@@ -62,16 +68,44 @@ public class PeerDaemonTest {
 
   @Test
   public void testStart() throws Exception {
+  }
+
+  @Test
+  public void testStop() throws Exception {
+
+  }
+
+  @Test
+  public void testCreate() throws Exception {
     a.start();
     b.start();
     c.start();
 
     a.create("Hobbies", b.getUser());
 
+    a.printChatroomActive();
+    Thread.sleep(200);
+    b.printChatroomActive();
+
+    assertEquals(a.chatroomsActive.size(), b.chatroomsActive.size());
   }
 
   @Test
-  public void testStop() throws Exception {
+  public void testCreateMany() throws Exception {
+    a.start();
+    b.start();
+    c.start();
 
+    User[] users = {b.getUser(), c.getUser()};
+
+    a.create("Hobbies", users);
+
+    a.printChatroomActive();
+    Thread.sleep(200);
+    b.printChatroomActive();
+    c.printChatroomActive();
+
+    assertEquals(a.chatroomsActive.size(), b.chatroomsActive.size());
+    assertEquals(a.chatroomsActive.size(), c.chatroomsActive.size());
   }
 }

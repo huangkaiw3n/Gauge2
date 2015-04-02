@@ -2,10 +2,13 @@ package org.gauge;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,7 +93,6 @@ public class PeerDaemon {
     Chatroom chatroom = new Chatroom(title, ArrayUtils.addAll(singleUser, users));
     log.debug(prettyUsername() + " Created chatroom: " + chatroom.toJSON());
     chatroomsActive.put(chatroom.getId(), chatroom);
-    log.debug("Got here");
     Packet createPacket = new Packet("CREATE", chatroom.toJSON().toString());
     enqueSend(chatroom.getId(), createPacket);
     return this;
@@ -217,7 +219,9 @@ public class PeerDaemon {
     Runnable incomingDaemon = new Runnable() {
       public void run() {
         try {
-          incoming = new DatagramSocket(port);
+          incoming = new DatagramSocket(null);
+          incoming.setReuseAddress(true);
+          incoming.bind(new InetSocketAddress(port));
         } catch (SocketException e) {
           e.printStackTrace();
         }
@@ -236,8 +240,10 @@ public class PeerDaemon {
           }
 
         }
+        if (incoming != null) incoming.close();
       }
     };
+
 
     Runnable outgoingDaemon = new Runnable() {
       public void run() {
@@ -250,13 +256,25 @@ public class PeerDaemon {
           // deque send queue and broacast to relevant chatroomsActive
           executeSend();
         }
+        if (outgoing != null) outgoing.close();
+      }
+    };
+
+
+    Runnable processRequests = new Runnable() {
+      public void run() {
+        while (isRunning) {
+          poll();
+        }
       }
     };
 
     new Thread(incomingDaemon).start();
-    log.debug(prettyUsername() + " Starting incoming daemon.");
+    log.debug(prettyUsername() + " Starting incoming thread.");
     new Thread(outgoingDaemon).start();
-    log.debug(prettyUsername() + " Starting outgoing daemon.");
+    log.debug(prettyUsername() + " Starting outgoing thread.");
+    new Thread(processRequests).start();
+    log.debug(prettyUsername() + " Starting processRequests thread.");
     try {
       Thread.sleep(500);
       log.info("PeerDaemon started.");
@@ -266,8 +284,55 @@ public class PeerDaemon {
     return this;
   }
 
-  private void poll() {
 
+  private void poll() {
+    while (!inboxMain().isEmpty()) {
+      Packet packet = inboxMain().poll();
+      try {
+        processPacket(packet);
+      } catch (JSONException e) {
+        log.error("Error processing packet?  Is it formatted correctly?");
+      }
+
+    }
+  }
+
+
+  private void processPacket(Packet packet) throws JSONException {
+    String header = packet.getHeader();
+    String payload = packet.getPayload();
+
+    if (header.equals("CREATE")) {
+      JSONObject obj = new JSONObject(payload);
+      Chatroom chatroom = new Chatroom(obj);
+      appendChatroom(chatroom);
+    }
+  }
+
+
+  private void appendChatroom(Chatroom chatroom) {
+    log.debug(prettyUsername() + " I GOT HERE");
+    String id = chatroom.getId();
+    if (!chatroomsActive.containsKey(id)) {
+      chatroomsActive.put(id, chatroom);
+    }
+
+    if (!chatroomsAll.containsKey(id)) {
+      chatroomsActive.put(id, chatroom);
+    }
+  }
+
+
+  public PeerDaemon printChatroomActive() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(prettyUsername() + " --- Active Chatrooms ---\n");
+    for (String key : chatroomsActive.keySet()) {
+      Chatroom chatroom = chatroomsActive.get(key);
+      sb.append(chatroom.toString() + "\n");
+    }
+    sb.append("--- ---\n");
+    log.info(sb.toString());
+    return this;
   }
 
 

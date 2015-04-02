@@ -123,6 +123,6 @@ public class Packet {
 
   @Override
   public String toString() {
-    return "<<PACKET>> header=" + header + "destId=" + destId + " payload=" + payload;
+    return "<<PACKET>> header=" + header + " destId=" + destId + " payload=" + payload;
   }
 }
