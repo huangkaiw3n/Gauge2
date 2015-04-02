@@ -25,28 +25,10 @@ public class PeerDaemonTest {
     userB = new User("mary", "", "", "localhost");
     userC = new User("david", "", "", "localhost");
 
-    User[] users = {
-            userA, userB
-    };
-
-    Chatroom chatroom = new Chatroom("holidays", users);
-
     a = new PeerDaemon(userA, 7000);
     b = new PeerDaemon(userB, 7001);
     c = new PeerDaemon(userC, 7002);
 
-    ConcurrentHashMap<String, Chatroom> listActive = new ConcurrentHashMap<String, Chatroom>();
-    listActive.put(chatroom.getTitle(), chatroom);
-
-    ConcurrentHashMap<String, Chatroom> listAll = new ConcurrentHashMap<String, Chatroom>();
-    listAll.put(chatroom.getTitle(), chatroom);
-
-    a.setChatroomsList(listAll);
-    b.setChatroomsList(listAll);
-    c.setChatroomsList(listAll);
-
-    a.setActiveChatroomsList(listActive);
-    b.setActiveChatroomsList(listActive);
   }
 
   @After

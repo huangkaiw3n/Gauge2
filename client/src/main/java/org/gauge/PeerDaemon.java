@@ -1,8 +1,6 @@
 package org.gauge;
 
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -25,8 +23,8 @@ public class PeerDaemon {
 
   protected volatile User user;
   protected volatile DatagramSocket incoming, outgoing;
-  protected volatile ConcurrentHashMap<String, Chatroom> chatroomsActive;
-  protected volatile ConcurrentHashMap<String, Chatroom> chatroomsAll;
+  protected volatile ConcurrentHashMap<String, Chatroom> chatroomsActive; // use ID as key
+  protected volatile ConcurrentHashMap<String, Chatroom> chatroomsAll; // use ID as key
 
   protected class ChatroomPacket {
     public String destId;
@@ -39,7 +37,8 @@ public class PeerDaemon {
 
   // this is needed between threads to not corrupt buffer
   protected volatile LinkedBlockingQueue<ChatroomPacket> sendQueue;
-  // a Map of linked-list message queues
+  // a Map of linked-list message queues, separated by rooms
+  // the main key refers to the main message queue, intended for daemon.
   protected volatile ConcurrentHashMap<String, LinkedBlockingQueue<Packet>> recvQueue;
 
   public PeerDaemon(User user, int port) {
@@ -57,6 +56,7 @@ public class PeerDaemon {
     this.user = user;
     sendQueue = new LinkedBlockingQueue<ChatroomPacket>();
     recvQueue = new ConcurrentHashMap<String, LinkedBlockingQueue<Packet>>();
+    recvQueue.put("main", new LinkedBlockingQueue<Packet>());
     chatroomsAll = new ConcurrentHashMap<String, Chatroom>();
     chatroomsActive = new ConcurrentHashMap<String, Chatroom>();
   }
@@ -64,32 +64,39 @@ public class PeerDaemon {
 
   /**
    *
-   * Injection function to set the chatrooms state.  useful for testing and mocking.
+   * Creates a chatroom with a single user
    *
-   * @param list
+   * @param user
    * @return
    */
-  public PeerDaemon setChatroomsList(ConcurrentHashMap<String, Chatroom> list) {
-    this.chatroomsAll = list;
-    return this;
-  }
-
-
-  /**
-   * Dependency injection to inject active chatrooms
-   *
-   * @param list
-   * @return
-   */
-  public PeerDaemon setActiveChatroomsList(ConcurrentHashMap<String, Chatroom> list) {
-    this.chatroomsActive = list;
+  public PeerDaemon create(String title, User user) {
+    User[] users = {user};
+    create(title, users);
     return this;
   }
 
 
   /**
    *
-   * Method to join a chatroom.  The list should be loaded.
+   * Crates a chatroom with multiple users
+   *
+   * Sends a create packet
+   *
+   * @param users
+   * @return
+   */
+  public PeerDaemon create(String title, User[] users) {
+    Chatroom chatroom = new Chatroom(title, users);
+    chatroomsActive.put(chatroom.getId(), chatroom);
+    Packet createPacket = new Packet("CREATE", chatroom.toJSON().toString());
+    enqueSend(chatroom.getId(), createPacket);
+    return this;
+  }
+
+
+  /**
+   *
+   * Method to join a chatroom by ID.  The list should be loaded.
    *
    * @return
    */
@@ -98,8 +105,8 @@ public class PeerDaemon {
       // share the reference, to save resources.
       Chatroom curr = chatroomsAll.get(chatroomId);
       chatroomsActive.put(chatroomId, curr);
-
-      curr.broadcast(new Packet("JOIN", user.toJSON().toString()), outgoing, PORT_INCOMING);
+      Packet joinPacket = new Packet("JOIN", user.toJSON().toString());
+      enqueSend(chatroomId, joinPacket);
     }
     return this;
   }
@@ -107,7 +114,7 @@ public class PeerDaemon {
 
   /**
    *
-   * Method to leave a chatroom.
+   * Method to leave a chatroom by ID
    *
    * @param chatroomId
    * @return
@@ -115,7 +122,8 @@ public class PeerDaemon {
   public PeerDaemon leave(String chatroomId) {
     if (chatroomsActive.containsKey(chatroomId)) {
       Chatroom curr = chatroomsActive.get(chatroomId);
-      curr.broadcast(new Packet("LEAVE", user.toJSON().toString()), outgoing, PORT_INCOMING);
+      Packet leavePacket = new Packet("LEAVE", user.toJSON().toString());
+      enqueSend(chatroomId, leavePacket);
     }
     return this;
   }
@@ -146,6 +154,13 @@ public class PeerDaemon {
 
 
   private void enqueRecv(Packet packet) {
+    String header = packet.getHeader();
+    // if message intended for daemon ops, put it here
+    if (header.equals("JOIN") || header.equals("LEAVE") || header.equals("CREATE")) {
+      recvQueue.get("main").offer(packet);
+    }
+
+    // if message intended for rooms, put it here
     String destId = packet.getDestId();
     if (recvQueue.containsKey(destId)) {
     } else {
@@ -162,7 +177,7 @@ public class PeerDaemon {
    * @param chatroomId
    * @return
    */
-  public LinkedBlockingQueue<Packet> inbox(String chatroomId) {
+  public LinkedBlockingQueue<Packet> inboxRoom(String chatroomId) {
     if (recvQueue.containsKey(chatroomId)) {
       return recvQueue.get(chatroomId);
     }
@@ -170,6 +185,23 @@ public class PeerDaemon {
   }
 
 
+  /**
+   *
+   * Retrieve a linked list of messages for daemon only i.e. "main"
+   *
+   * @return
+   */
+  public LinkedBlockingQueue<Packet> inboxMain() {
+    return recvQueue.get("main");
+  }
+
+
+  /**
+   *
+   * Starts the daemon.
+   *
+   * @return
+   */
   public PeerDaemon start() {
     // exit and return if already running
     if (isRunning) {
@@ -232,6 +264,12 @@ public class PeerDaemon {
   }
 
 
+  /**
+   *
+   * Stops the daemon.
+   *
+   * @return
+   */
   public PeerDaemon stop() {
     isRunning = false;
     log.info("PeerDaemon stopped.");
