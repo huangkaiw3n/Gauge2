@@ -20,7 +20,24 @@ public class Chatroom {
 
   static final Logger log = Logger.getLogger(Chatroom.class);
 
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
   private String id;
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
   private String title;
   private ArrayList<User> users;
 
