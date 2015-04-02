@@ -1,7 +1,6 @@
 package org.gauge;
 
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 /**
  * Created by joel on 4/1/15.
@@ -12,6 +11,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
   private enum OperationState {
     NOP, LOGIN, LIST, PING;
   }
+
   private OperationState state;
 
 
@@ -55,11 +55,18 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
   }
 
   //TODO: Implement a list retrieval method here
+  public GaugeClientDaemonTCP getUsers() {
+    Exchange exchange = new Exchange() {
+      public Packet request() {
+        return null;
+      }
 
+      public void response(Packet p) {
 
-
-
-
+      }
+    };
+    return this;
+  }
 
 
 }
