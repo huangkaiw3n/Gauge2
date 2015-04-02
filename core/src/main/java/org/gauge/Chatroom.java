@@ -5,10 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
@@ -50,14 +47,14 @@ public class Chatroom {
 
   public Chatroom(String title, User[] users) {
     this.title = title;
-    init();
+    init(null, users);
   }
 
 
   public Chatroom(JSONObject obj) {
     this.id = obj.has("id") ? obj.getString("id") : null;
     this.title = obj.has("title") ? obj.getString("title") : null;
-    init(this.id);
+    init(this.id, null);
     JSONArray jsonUsers;
     jsonUsers = obj.has("users") ? obj.getJSONArray("users") : null;
     int len = jsonUsers.length();
@@ -68,14 +65,18 @@ public class Chatroom {
 
 
   private void init() {
-    init(null);
+    init(null, null);
   }
 
 
-  private void init(String id) {
-    users = new ArrayList<User>();
+  private void init(String id, User[] users) {
+    if (users != null) {
+      this.users = new ArrayList<User>(Arrays.asList(users));
+    } else {
+      this.users = new ArrayList<User>();
+    }
     if (id == null) {
-      id = UUID.randomUUID().toString();
+      this.id = UUID.randomUUID().toString();
     }
   }
 
@@ -90,7 +91,7 @@ public class Chatroom {
 
   public User get(String username) {
     for (User curr : users) {
-      String name  = curr.getUsername();
+      String name = curr.getUsername();
       if (name.equals(username)) {
         return curr;
       }
@@ -151,12 +152,37 @@ public class Chatroom {
   }
 
 
-  void broadcast(Packet packet, DatagramSocket sock, int port) {
+  private InetAddress getInetAddress(String address) throws MalformedURLException, UnknownHostException {
+    InetAddress result = null;
+    try {
+      result = InetAddress.getByName(address);
+    } catch (UnknownHostException e) {
+      result = InetAddress.getByName(new URL(address).getHost());
+    }
+    return result;
+  }
+
+
+  void broadcast(Packet packet, DatagramSocket sock) {
+    broadcast(packet, sock, null);
+  }
+
+
+  /**
+   *
+   * Function to broadcast to everyone except a given user.
+   *
+   * @param packet
+   * @param sock
+   * @param port
+   * @param exceptUser
+   */
+  void broadcast(Packet packet, DatagramSocket sock, User exceptUser) {
     byte[] data = packet.toBytes();
-    for (User user : users) {
+    for (User user : users) if (exceptUser != null && !user.equals(exceptUser)) {
       try {
-        InetAddress address = user.getIp() == null ? InetAddress.getByName(user.getIp()) : null;
-        DatagramPacket datagram = new DatagramPacket(data, data.length, address, port);
+        InetAddress address = getInetAddress(user.getIp());
+        DatagramPacket datagram = new DatagramPacket(data, data.length, address, user.getPort());
         sock.send(datagram);
       } catch (UnknownHostException e) {
         // fail silently if no IP information available

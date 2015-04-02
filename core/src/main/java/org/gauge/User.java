@@ -12,6 +12,8 @@ public class User {
 
   private String ip;
 
+  private int port; // incoming port
+
   public User() {
   }
 
@@ -57,9 +59,18 @@ public class User {
   }
 
 
+  public User(String username, String password, String email, String ip, int port) {
+    this.username = username;
+    this.password = password;
+    this.email = email;
+    this.ip = ip;
+    this.port = port;
+  }
+
   public void setUsername(String username) {
     this.username = username;
   }
+
 
   public void setPassword(String password) {
     this.password = password;
@@ -89,11 +100,20 @@ public class User {
     return ip;
   }
 
+  public int getPort() {
+    return port;
+  }
+
+  public void setPort(int port) {
+    this.port = port;
+  }
+
   public JSONObject toJSON() {//username email
     JSONObject obj = new JSONObject();
     obj.put("username", username);
     obj.put("email", email);
     obj.put("ip", ip);
+    obj.put("port", port);
     return obj;
   }
 
@@ -101,6 +121,18 @@ public class User {
     JSONObject obj = this.toJSON();
     obj.put("password", password);
     return obj;
+  }
+
+
+  /**
+   *
+   * Equality comparison function, by username
+   *
+   * @param user
+   * @return
+   */
+  public boolean equals(User user) {
+    return this.username.equals(user.getUsername());
   }
 
   @Override

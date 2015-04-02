@@ -1,5 +1,6 @@
 package org.gauge;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class PeerDaemon {
   protected class ChatroomPacket {
     public String destId;
     public Packet packet;
+
     public ChatroomPacket(String destId, Packet packet) {
       this.packet = packet;
       this.destId = destId;
@@ -63,10 +65,9 @@ public class PeerDaemon {
 
 
   /**
-   *
    * Creates a chatroom with a single user
    *
-   * @param user
+   * @param user The user to connect to.  NOTE: Each user must have ID, and IP address specified.
    * @return
    */
   public PeerDaemon create(String title, User user) {
@@ -77,17 +78,19 @@ public class PeerDaemon {
 
 
   /**
-   *
    * Crates a chatroom with multiple users
-   *
+   * <p/>
    * Sends a create packet
    *
-   * @param users
+   * @param users An array of users to connect to.  NOTE: Each user must have ID, and IP address specified.
    * @return
    */
   public PeerDaemon create(String title, User[] users) {
-    Chatroom chatroom = new Chatroom(title, users);
+    User[] singleUser = {this.user};
+    Chatroom chatroom = new Chatroom(title, ArrayUtils.addAll(singleUser, users));
+    log.debug(prettyUsername() + " Created chatroom: " + chatroom.toJSON());
     chatroomsActive.put(chatroom.getId(), chatroom);
+    log.debug("Got here");
     Packet createPacket = new Packet("CREATE", chatroom.toJSON().toString());
     enqueSend(chatroom.getId(), createPacket);
     return this;
@@ -95,7 +98,6 @@ public class PeerDaemon {
 
 
   /**
-   *
    * Method to join a chatroom by ID.  The list should be loaded.
    *
    * @return
@@ -113,7 +115,6 @@ public class PeerDaemon {
 
 
   /**
-   *
    * Method to leave a chatroom by ID
    *
    * @param chatroomId
@@ -144,12 +145,18 @@ public class PeerDaemon {
    * Internal function deques packets and broadcasts them to relevant chatroom.
    */
   private void executeSend() {
-    while(sendQueue.size() > 0) {
+    while (sendQueue.size() > 0) {
       ChatroomPacket cp = sendQueue.remove();
       Packet packet = cp.packet;
       String destId = cp.destId;
-      chatroomsActive.get(destId).broadcast(packet, outgoing, PORT_INCOMING);
+      log.debug(prettyUsername() + " Packet send=" + packet.toString());
+      chatroomsActive.get(destId).broadcast(packet, outgoing, user);
     }
+  }
+
+
+  private String prettyUsername() {
+    return "[ " + user.getUsername() + " ]";
   }
 
 
@@ -186,7 +193,6 @@ public class PeerDaemon {
 
 
   /**
-   *
    * Retrieve a linked list of messages for daemon only i.e. "main"
    *
    * @return
@@ -197,7 +203,6 @@ public class PeerDaemon {
 
 
   /**
-   *
    * Starts the daemon.
    *
    * @return
@@ -207,7 +212,6 @@ public class PeerDaemon {
     if (isRunning) {
       return this;
     }
-
 
     isRunning = true;
     Runnable incomingDaemon = new Runnable() {
@@ -224,6 +228,7 @@ public class PeerDaemon {
             DatagramPacket datagram = new DatagramPacket(buffer, buffer.length);
             incoming.receive(datagram);
             Packet p = new Packet(Arrays.copyOf(buffer, datagram.getLength()));
+            log.debug(prettyUsername() + " Packet received=" + p.toString());
             enqueRecv(p); // put packet into correct mailbox
 
           } catch (IOException e) {
@@ -249,7 +254,9 @@ public class PeerDaemon {
     };
 
     new Thread(incomingDaemon).start();
+    log.debug(prettyUsername() + " Starting incoming daemon.");
     new Thread(outgoingDaemon).start();
+    log.debug(prettyUsername() + " Starting outgoing daemon.");
     try {
       Thread.sleep(500);
       log.info("PeerDaemon started.");
@@ -265,7 +272,6 @@ public class PeerDaemon {
 
 
   /**
-   *
    * Stops the daemon.
    *
    * @return
@@ -275,4 +281,14 @@ public class PeerDaemon {
     log.info("PeerDaemon stopped.");
     return this;
   }
+
+
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
 }

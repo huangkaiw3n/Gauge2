@@ -21,14 +21,13 @@ public class PeerDaemonTest {
   public void setUp() throws Exception {
 
     User userA, userB, userC;
-    userA = new User("john", "", "", "localhost");
-    userB = new User("mary", "", "", "localhost");
-    userC = new User("david", "", "", "localhost");
+    userA = new User("john", "", "", "localhost", 14000);
+    userB = new User("mary", "", "", "localhost", 14001);
+    userC = new User("david", "", "", "localhost", 14002);
 
-    a = new PeerDaemon(userA, 7000);
-    b = new PeerDaemon(userB, 7001);
-    c = new PeerDaemon(userC, 7002);
-
+    a = new PeerDaemon(userA, 14000);
+    b = new PeerDaemon(userB, 14001);
+    c = new PeerDaemon(userC, 14002);
   }
 
   @After
@@ -63,6 +62,11 @@ public class PeerDaemonTest {
 
   @Test
   public void testStart() throws Exception {
+    a.start();
+    b.start();
+    c.start();
+
+    a.create("Hobbies", b.getUser());
 
   }
 

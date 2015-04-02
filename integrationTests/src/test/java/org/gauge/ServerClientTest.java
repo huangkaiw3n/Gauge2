@@ -3,8 +3,10 @@ package org.gauge;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class ServerClientTest {
 
   static final Logger log = Logger.getLogger(ServerClientTest.class);
