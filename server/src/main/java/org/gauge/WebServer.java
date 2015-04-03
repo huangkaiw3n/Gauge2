@@ -82,31 +82,31 @@ public class WebServer {
      * @return
      * @throws IOException
      */
-    private Packet getPacket(Socket s) throws IOException {
-        Packet result;
-        DataInputStream dis;
-        int length = 0;
-        byte[] buffer;
-
-        dis = new DataInputStream(s.getInputStream());
-        length = dis.readInt();
-        buffer = new byte[length];
-        dis.read(buffer, 0, length);
-        result = new Packet(buffer);
-
-        return result;
-    }
-
-
-    private void sendPacket(Socket s, Packet packet) throws IOException {
-        DataOutputStream dos;
-        byte[] buffer = packet.toBytes();
-        int length = buffer.length;
-
-        dos = new DataOutputStream(s.getOutputStream());
-        dos.writeInt(length);
-        dos.write(buffer);
-    }
+//    private Packet getPacket(Socket s) throws IOException {
+//        Packet result;
+//        DataInputStream dis;
+//        int length = 0;
+//        byte[] buffer;
+//
+//        dis = new DataInputStream(s.getInputStream());
+//        length = dis.readInt();
+//        buffer = new byte[length];
+//        dis.read(buffer, 0, length);
+//        result = new Packet(buffer);
+//
+//        return result;
+//    }
+//
+//
+//    private void sendPacket(Socket s, Packet packet) throws IOException {
+//        DataOutputStream dos;
+//        byte[] buffer = packet.toBytes();
+//        int length = buffer.length;
+//
+//        dos = new DataOutputStream(s.getOutputStream());
+//        dos.writeInt(length);
+//        dos.write(buffer);
+//    }
 
 
     private void process(Socket s, HttpRequestPacket packet) throws IOException {
@@ -177,37 +177,37 @@ public class WebServer {
     }
 
 
-    private JSONObject makeAuthRes(HttpRequestPacket packet) {
-        String reqString = packet.getFilename();
-        boolean status = authenticate(reqString);
-
-        JSONObject resJson = new JSONObject();
-        try {
-            if (status) {
-                resJson.put("status", "success");
-            } else {
-                resJson.put("status", "fail");
-            }
-        } catch (JSONException e) {
-        }
-        return resJson;
-    }
-
-
-    private boolean authenticate(String reqString) {
-        User userAuth = null;
-        try {
-            userAuth = new User(new JSONObject(reqString));
-        } catch (JSONException e) {
-            return false;
-        }
-
-        if (db.authenticate(userAuth.getUsername(), userAuth.getPassword())) {
-            return true;
-        }
-
-        return false;
-    }
+//    private JSONObject makeAuthRes(HttpRequestPacket packet) {
+//        String reqString = packet.getFilename();
+//        boolean status = authenticate(reqString);
+//
+//        JSONObject resJson = new JSONObject();
+//        try {
+//            if (status) {
+//                resJson.put("status", "success");
+//            } else {
+//                resJson.put("status", "fail");
+//            }
+//        } catch (JSONException e) {
+//        }
+//        return resJson;
+//    }
+//
+//
+//    private boolean authenticate(String reqString) {
+//        User userAuth = null;
+//        try {
+//            userAuth = new User(new JSONObject(reqString));
+//        } catch (JSONException e) {
+//            return false;
+//        }
+//
+//        if (db.authenticate(userAuth.getUsername(), userAuth.getPassword())) {
+//            return true;
+//        }
+//
+//        return false;
+//    }
 
 
     public WebServer start() {
