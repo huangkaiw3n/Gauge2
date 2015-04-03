@@ -10,6 +10,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.AbstractQueue;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -180,6 +181,44 @@ public class PeerDaemon {
 
 
   /**
+   * Sends a message to the chatroom specified.  If chatroom is
+   * not found, fails silently.
+   *
+   * @param chatroomId
+   * @param message
+   * @return
+   */
+  public PeerDaemon send(final String chatroomId, final String message) {
+    AbstractQueue<Packet> currInbox;
+    Chatroom curr;
+    JSONObject sendJson;
+    Packet packet;
+
+    if (!chatroomsActive.containsKey(chatroomId)) {
+      log.error(prettyUsername() + " Oops!  Cannot send message to "
+              + chatroomId + ". Not found!");
+      return this;
+    }
+
+    curr = chatroomsActive.get(chatroomId);
+    currInbox = inboxRoom(chatroomId);
+    sendJson = new JSONObject();
+
+    try {
+      sendJson.put("user", user.toJSON());
+      sendJson.put("body", message);
+      packet = new Packet("MSG", sendJson.toString(), chatroomId);
+      enqueSend(chatroomId, packet);
+      log.info(prettyUsername() + " " + chatroomId + " Sent message: " + message);
+    } catch (JSONException e) {
+      log.error(prettyUsername() + " Oops!  Cannot create send message: " + message);
+    }
+
+    return this;
+  }
+
+
+  /**
    * This method should be used to send a packet.
    *
    * @param destId The chatroom Destination ID
@@ -232,6 +271,53 @@ public class PeerDaemon {
       recvQueue.put(destId, new LinkedBlockingQueue<Packet>());
     }
     recvQueue.get(destId).offer(packet);
+  }
+
+
+  public PeerDaemon printInboxes() {
+    StringBuffer sb = new StringBuffer();
+    sb.append("--- " + prettyUsername() + " @ INBOX ---\n");
+    for (String key : recvQueue.keySet()) {
+      sb.append(printInboxStringBuffer(key));
+    }
+    sb.append("\n");
+    log.info(sb.toString());
+    return this;
+  }
+
+
+  /**
+   *
+   * Pretty prints output in given inbox
+   *
+   * @param chatroomId
+   * @return
+   */
+  public PeerDaemon printInbox(String chatroomId) {
+    StringBuffer sb = printInboxStringBuffer(chatroomId);
+    log.info(sb.toString());
+    return this;
+  }
+
+
+  /**
+   * Helper function to print inbox to String buffer (so display will not be interrupted).
+   *
+   * @param chatroomId
+   * @return
+   */
+  private StringBuffer printInboxStringBuffer(String chatroomId) {
+    AbstractQueue<Packet> inbox = inboxRoom(chatroomId);
+    StringBuffer sb = new StringBuffer();
+    if (inbox == null) {
+      log.error("  " + prettyUsername() + " Oops!  Cannot retrieve inbox " + chatroomId);
+    }
+    sb.append("  " + prettyUsername() + " --- Inbox @ " + chatroomId + " ---\n");
+    for (Packet p : inbox) {
+      sb.append(p.toString() + "\n");
+    }
+    sb.append("  --- ---\n");
+    return sb;
   }
 
 
