@@ -11,6 +11,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -30,13 +31,29 @@ public class PeerDaemon {
   protected volatile ConcurrentHashMap<String, Chatroom> chatroomsActive; // use ID as key
   protected volatile ConcurrentHashMap<String, Chatroom> chatroomsAll; // use ID as key
 
+
+  /**
+   * Interface for a callback function.
+   */
+  protected interface Callback {
+    public void execute();
+  }
+
   protected class ChatroomPacket {
     public String destId;
     public Packet packet;
+    public Callback callback;
 
     public ChatroomPacket(String destId, Packet packet) {
       this.packet = packet;
       this.destId = destId;
+      this.callback = null;
+    }
+
+    public ChatroomPacket(String destId, Packet packet, Callback callback) {
+      this.packet = packet;
+      this.destId = destId;
+      this.callback = callback;
     }
   }
 
@@ -118,15 +135,32 @@ public class PeerDaemon {
 
   /**
    * Method to leave a chatroom by ID
+   * <p/>
+   * Has the properties "user" and "chatroomId".
    *
-   * @param chatroomId
+   * @param chatroomId String of chatroom ID to leave.
    * @return
    */
-  public PeerDaemon leave(String chatroomId) {
+  public PeerDaemon leave(final String chatroomId) {
     if (chatroomsActive.containsKey(chatroomId)) {
       Chatroom curr = chatroomsActive.get(chatroomId);
-      Packet leavePacket = new Packet("LEAVE", user.toJSON().toString());
-      enqueSend(chatroomId, leavePacket);
+      JSONObject leaveObj = new JSONObject();
+      try {
+        leaveObj.put("user", user.toJSON());
+        leaveObj.put("chatroomId", chatroomId);
+        Packet leavePacket = new Packet("LEAVE", leaveObj.toString());
+        enqueSend(chatroomId, leavePacket, new Callback() {
+          public void execute() {
+            // delete the current user from the chatroom
+            chatroomsActive.get(chatroomId).remove(user.getUsername());
+            // perform cleanup routines
+            removeIfChatroomEmpty(chatroomsActive, chatroomId);
+
+          }
+        });
+      } catch (JSONException e) {
+        log.error("Oops.  Cannot create JSON payload for LEAVE packet.");
+      }
     }
     return this;
   }
@@ -143,6 +177,10 @@ public class PeerDaemon {
   }
 
 
+  public void enqueSend(String destId, Packet packet, Callback callback) {
+    sendQueue.offer(new ChatroomPacket(destId, packet, callback));
+  }
+
   /**
    * Internal function deques packets and broadcasts them to relevant chatroom.
    */
@@ -153,6 +191,10 @@ public class PeerDaemon {
       String destId = cp.destId;
       log.debug(prettyUsername() + " Packet send=" + packet.toString());
       chatroomsActive.get(destId).broadcast(packet, outgoing, user);
+      // execute callback if any
+      if (cp.callback != null) {
+        cp.callback.execute();
+      }
     }
   }
 
@@ -306,6 +348,35 @@ public class PeerDaemon {
       JSONObject obj = new JSONObject(payload);
       Chatroom chatroom = new Chatroom(obj);
       appendChatroom(chatroom);
+    } else if (header.equals("LEAVE")) {
+      JSONObject obj = new JSONObject(payload);
+      User user = new User(obj.getJSONObject("user"));
+      String chatroomId = obj.getString("chatroomId");
+      // remove from chatroomsActive only.  Syncing of all rooms should be done with
+      // server.
+      chatroomsActive.get(chatroomId).remove(user.getUsername());
+      removeIfChatroomEmpty(chatroomsActive, chatroomId);
+      log.info(prettyUsername() + " Removed " + user.getUsername() + " from " + chatroomId);
+
+
+    }
+  }
+
+
+  /**
+   * Internal garbage collection function to clean up chatrooms, if less than 2 users.
+   *
+   * @param chatrooms  the map of chatrooms to perform cleaning.
+   * @param chatroomId The chatroomId of chatroom to check.
+   */
+  private void removeIfChatroomEmpty(Map<String, Chatroom> chatrooms, String chatroomId) {
+    Chatroom chatroom;
+    if (!chatrooms.containsKey(chatroomId)) {
+      return;
+    }
+    chatroom = chatrooms.get(chatroomId);
+    if (chatroom.size() <= 1) { // less than 2 users, remove chatroom from list.
+      chatrooms.remove(chatroomId);
     }
   }
 

@@ -1,5 +1,6 @@
 package org.gauge;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -10,6 +11,8 @@ import static org.junit.Assert.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PeerDaemonTest {
+
+  static final Logger log = Logger.getLogger(PeerDaemonTest.class);
 
   private PeerDaemon a, b, c;
 
@@ -48,11 +51,39 @@ public class PeerDaemonTest {
 
   @Test
   public void testJoin() throws Exception {
-
   }
 
   @Test
   public void testLeave() throws Exception {
+    a.start();
+    b.start();
+    c.start();
+
+    // create chatroom and join
+    a.create("Cats and Dogs", b.getUser());
+
+    Thread.sleep(200);
+    a.printChatroomActive();
+    b.printChatroomActive();
+
+    assertEquals(a.chatroomsActive.size(), b.chatroomsActive.size());
+    assertEquals(1, a.chatroomsActive.size());
+    assertEquals(1, b.chatroomsActive.size());
+
+    //--------------------------------------------------
+    // let b leave the chatroom.  Chatroom should close.
+    // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
+    String chatroomId = a.chatroomsActive.keySet().iterator().next();
+    a.leave(chatroomId);
+    Thread.sleep(200);
+
+    log.debug("--------------------------------------------------------");
+
+    a.printChatroomActive();
+    b.printChatroomActive();
+
+    assertEquals(0, a.chatroomsActive.size());
+    assertEquals(0, b.chatroomsActive.size());
 
   }
 
