@@ -64,12 +64,19 @@ public class HttpRequestPacket {
         try{
             String input = br.readLine();
             StringTokenizer st = new StringTokenizer(input);
-            ifst.nextToken();
+            if(st.nextToken().equals("GET")){
+                String filename = st.nextToken();
+                hrp.setFilename(filename);
+                filename = st.nextToken();
+                hrp.setHttpVersion(filename);
+                input = br.readLine();
+                hrp.setHost(input);
+            }
         }catch(IOException e){
-
+            return null;
         }
 
-        HttpRequestPacket hrp = null;
+        return hrp;
     }
 
     public String processLogin(HttpRequestPacket packet) {
