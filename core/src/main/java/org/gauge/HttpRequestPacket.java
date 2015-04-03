@@ -58,7 +58,7 @@ public class HttpRequestPacket {
         return sb.toString();
     }
 
-    public HttpRequestPacket toPacket(InputStreamReader isr) {
+    public static HttpRequestPacket toPacket(InputStreamReader isr) {
         BufferedReader br = new BufferedReader(isr);
         HttpRequestPacket hrp = new HttpRequestPacket();
         try{
