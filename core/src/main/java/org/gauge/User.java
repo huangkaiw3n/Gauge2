@@ -34,6 +34,10 @@ public class User {
     if (json.has("ip")) {
       this.ip = (String) json.get("ip");
     }
+
+    if (json.has("port")) {
+      this.port = (int) json.get("port");
+    }
   }
 
   public User(String username) {

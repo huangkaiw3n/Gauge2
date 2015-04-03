@@ -110,6 +110,7 @@ public class PeerDaemon {
     Chatroom chatroom = new Chatroom(title, ArrayUtils.addAll(singleUser, users));
     log.debug(prettyUsername() + " Created chatroom: " + chatroom.toJSON());
     chatroomsActive.put(chatroom.getId(), chatroom);
+    chatroomsAll.put(chatroom.getId(), chatroom); // TODO: broadcast to server that chatroom has been created.
     Packet createPacket = new Packet("CREATE", chatroom.toJSON().toString());
     enqueSend(chatroom.getId(), createPacket);
     return this;
@@ -121,13 +122,25 @@ public class PeerDaemon {
    *
    * @return
    */
-  public PeerDaemon join(String chatroomId) {
-    if (chatroomsAll.containsKey(chatroomId)) {
-      // share the reference, to save resources.
-      Chatroom curr = chatroomsAll.get(chatroomId);
-      chatroomsActive.put(chatroomId, curr);
-      Packet joinPacket = new Packet("JOIN", user.toJSON().toString());
-      enqueSend(chatroomId, joinPacket);
+  public PeerDaemon join(final String chatroomId) {
+    if (!chatroomsAll.containsKey(chatroomId)) {
+      log.error(prettyUsername() + " Oops!  Cannot join chatroom. " + chatroomId + " does not exist.");
+      return this;
+    }
+    // share the reference, to save resources.
+    JSONObject joinObj = new JSONObject();
+    try {
+      joinObj.put("user", user.toJSON());
+      joinObj.put("chatroomId", chatroomId);
+      Packet joinPacket = new Packet("JOIN", joinObj.toString());
+      chatroomsActive.put(chatroomId, chatroomsAll.get(chatroomId));
+      enqueSend(chatroomId, joinPacket, new Callback() {
+        public void execute() {
+          // after packet is sent out, put selected chatroom into chatroom list.
+        }
+      });
+    } catch (JSONException e) {
+      log.error("Oops.  Cannot create JSON payload for JOIN packet.");
     }
     return this;
   }
@@ -348,6 +361,7 @@ public class PeerDaemon {
       JSONObject obj = new JSONObject(payload);
       Chatroom chatroom = new Chatroom(obj);
       appendChatroom(chatroom);
+
     } else if (header.equals("LEAVE")) {
       JSONObject obj = new JSONObject(payload);
       User user = new User(obj.getJSONObject("user"));
@@ -358,7 +372,13 @@ public class PeerDaemon {
       removeIfChatroomEmpty(chatroomsActive, chatroomId);
       log.info(prettyUsername() + " Removed " + user.getUsername() + " from " + chatroomId);
 
-
+    } else if (header.equals("JOIN")) {
+      JSONObject obj = new JSONObject(payload);
+      User user = new User(obj.getJSONObject("user"));
+      String chatroomId = obj.getString("chatroomId");
+      // add user to chatroom list
+      chatroomsActive.get(chatroomId).add(user);
+      log.info(prettyUsername() + " Added" + user.getUsername() + " to " + chatroomId);
     }
   }
 

@@ -51,7 +51,58 @@ public class PeerDaemonTest {
 
   @Test
   public void testJoin() throws Exception {
+    a.start();
+    b.start();
+    c.start();
+
+    assertEquals(0, a.chatroomsAll.size());
+    assertEquals(0, b.chatroomsAll.size());
+    assertEquals(0, c.chatroomsAll.size());
+
+    // create chatroom and join
+    a.create("Cats and Dogs", b.getUser());
+
+    Thread.sleep(200);
+    a.printChatroomActive();
+    b.printChatroomActive();
+    c.printChatroomActive();
+
+    // hack to set chatroomsAll to same value; in reality, this should
+    // be sent and retransmitted by central server.
+    c.chatroomsAll = b.chatroomsAll = a.chatroomsAll;
+
+    assertEquals(a.chatroomsActive.size(), b.chatroomsActive.size());
+    assertEquals(1, a.chatroomsActive.size());
+    assertEquals(1, b.chatroomsActive.size());
+    assertEquals(0, c.chatroomsActive.size());
+
+    assertEquals(1, a.chatroomsAll.size());
+    assertEquals(1, b.chatroomsAll.size());
+    assertEquals(1, c.chatroomsAll.size());
+
+    //--------------------------------------------------
+    // let b leave the chatroom.  Chatroom should close.
+    // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
+    String chatroomId = a.chatroomsAll.keySet().iterator().next();
+    c.join(chatroomId);
+    Thread.sleep(200);
+
+    log.debug("--------------------------------------------------------");
+
+    a.printChatroomActive();
+    b.printChatroomActive();
+    c.printChatroomActive();
+
+    assertEquals(1, a.chatroomsActive.size());
+    assertEquals(1, b.chatroomsActive.size());
+    assertEquals(1, c.chatroomsActive.size());
+
+    assertEquals(1, a.chatroomsAll.size());
+    assertEquals(1, b.chatroomsAll.size());
+    assertEquals(1, c.chatroomsAll.size());
+
   }
+
 
   @Test
   public void testLeave() throws Exception {
@@ -77,7 +128,37 @@ public class PeerDaemonTest {
     a.leave(chatroomId);
     Thread.sleep(200);
 
-    log.debug("--------------------------------------------------------");
+    a.printChatroomActive();
+    b.printChatroomActive();
+
+    assertEquals(0, a.chatroomsActive.size());
+    assertEquals(0, b.chatroomsActive.size());
+
+  }
+
+  @Test
+  public void testLeaveMultiple() throws Exception {
+    a.start();
+    b.start();
+    c.start();
+
+    // create chatroom and join
+    a.create("Cats and Dogs", b.getUser());
+
+    Thread.sleep(200);
+    a.printChatroomActive();
+    b.printChatroomActive();
+
+    assertEquals(a.chatroomsActive.size(), b.chatroomsActive.size());
+    assertEquals(1, a.chatroomsActive.size());
+    assertEquals(1, b.chatroomsActive.size());
+
+    //--------------------------------------------------
+    // let b leave the chatroom.  Chatroom should close.
+    // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
+    String chatroomId = a.chatroomsActive.keySet().iterator().next();
+    a.leave(chatroomId);
+    Thread.sleep(200);
 
     a.printChatroomActive();
     b.printChatroomActive();
