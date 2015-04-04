@@ -110,7 +110,7 @@ public class WebServer {
 
 
     private void process(Socket s, HttpRequestPacket packet) throws IOException {
-        String path = packet.getFilename();
+        String path = java.net.URLDecoder.decode(packet.getFilename(), "UTF-8");
         log.info("Filename: " + path);
         boolean status;
         // The next 2 lines create a output stream we can
