@@ -232,19 +232,19 @@ public class PeerDaemon {
    * @param destId The chatroom Destination ID
    * @param packet The packet to send.
    */
-  public void enqueSend(String destId, Packet packet) {
+  protected void enqueSend(String destId, Packet packet) {
     sendQueue.offer(new ChatroomPacket(destId, packet));
   }
 
 
-  public void enqueSend(String destId, Packet packet, Callback callback) {
+  protected void enqueSend(String destId, Packet packet, Callback callback) {
     sendQueue.offer(new ChatroomPacket(destId, packet, callback));
   }
 
   /**
    * Internal function deques packets and broadcasts them to relevant chatroom.
    */
-  private void executeSend() {
+  protected void executeSend() {
     while (sendQueue.size() > 0) {
       ChatroomPacket cp = sendQueue.remove();
       Packet packet = cp.packet;
@@ -259,12 +259,12 @@ public class PeerDaemon {
   }
 
 
-  private String prettyUsername() {
+  protected String prettyUsername() {
     return "[ " + user.getUsername() + " ]";
   }
 
 
-  private void enqueRecv(Packet packet) {
+  protected void enqueRecv(Packet packet) {
     // if message intended for rooms, put it here
     String destId = packet.getDestId();
 
@@ -536,10 +536,6 @@ public class PeerDaemon {
 
   public User getUser() {
     return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
   }
 
 }
