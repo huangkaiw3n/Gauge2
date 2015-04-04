@@ -221,8 +221,9 @@ public class PeerDaemonTest {
     assertEquals(a.chatroomsActive.size(), c.chatroomsActive.size());
   }
 
+
   @Test
-  public void testSendMessage() throws Exception {
+  public void testSendMessageMultiple() throws Exception {
     a.start();
     b.start();
     c.start();
@@ -244,11 +245,60 @@ public class PeerDaemonTest {
 
     a.sendMessage(chatroomId, "Hello world!");
 
-    log.debug("---------------------------------------------------------------");
-
     Thread.sleep(200);
     a.printInboxes();
     b.printInboxes();
     c.printInboxes();
+
+    assertEquals(0, a.inboxRoom(chatroomId).size());
+    assertEquals(1, b.inboxRoom(chatroomId).size());
+    assertEquals(1, c.inboxRoom(chatroomId).size());
+  }
+
+
+  @Test
+  public void testPrintInboxDoesNotFlushMailbox() throws Exception {
+    a.start();
+    b.start();
+    c.start();
+
+    User[] users = {b.getUser(), c.getUser()};
+
+    a.create("Hobbies", users);
+
+    Thread.sleep(200);
+    a.printChatroomActive();
+    b.printChatroomActive();
+    c.printChatroomActive();
+
+    assertEquals(a.chatroomsActive.size(), b.chatroomsActive.size());
+    assertEquals(a.chatroomsActive.size(), c.chatroomsActive.size());
+
+    // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
+    String chatroomId = a.chatroomsActive.keySet().iterator().next();
+
+    assertTrue(a.inboxRoom(chatroomId) != null);  // as chatroom exists, inbox should exist here
+    assertTrue(b.inboxRoom(chatroomId) == null);
+    assertTrue(c.inboxRoom(chatroomId) == null);
+
+    a.sendMessage(chatroomId, "Hello world!");
+
+    Thread.sleep(200);
+
+    a.printInboxes();
+    b.printInboxes();
+    c.printInboxes();
+
+    assertEquals(0, a.inboxRoom(chatroomId).size());
+    assertEquals(1, b.inboxRoom(chatroomId).size());
+    assertEquals(1, c.inboxRoom(chatroomId).size());
+
+    a.printInboxes();
+    b.printInboxes();
+    c.printInboxes();
+
+    assertEquals(0, a.inboxRoom(chatroomId).size());
+    assertEquals(1, b.inboxRoom(chatroomId).size());
+    assertEquals(1, c.inboxRoom(chatroomId).size());
   }
 }

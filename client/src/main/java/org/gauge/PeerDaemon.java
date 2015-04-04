@@ -109,11 +109,17 @@ public class PeerDaemon {
   public PeerDaemon create(String title, User[] users) {
     User[] singleUser = {this.user};
     Chatroom chatroom = new Chatroom(title, ArrayUtils.addAll(singleUser, users));
+    String chatroomId = chatroom.getId();
     log.debug(prettyUsername() + " Created chatroom: " + chatroom.toJSON());
-    chatroomsActive.put(chatroom.getId(), chatroom);
-    chatroomsAll.put(chatroom.getId(), chatroom); // TODO: broadcast to server that chatroom has been created.
+    chatroomsActive.put(chatroomId, chatroom);
+    chatroomsAll.put(chatroomId, chatroom); // TODO: broadcast to server that chatroom has been created.
+
+    // create the mailbox
+    recvQueue.put(chatroomId, new LinkedBlockingQueue<Packet>());
+
     Packet createPacket = new Packet("CREATE", chatroom.toJSON().toString());
     enqueSend(chatroom.getId(), createPacket);
+
     return this;
   }
 
@@ -137,7 +143,8 @@ public class PeerDaemon {
       chatroomsActive.put(chatroomId, chatroomsAll.get(chatroomId));
       enqueSend(chatroomId, joinPacket, new Callback() {
         public void execute() {
-          // after packet is sent out, put selected chatroom into chatroom list.
+          // create the mailbox
+          recvQueue.put(chatroomId, new LinkedBlockingQueue<Packet>());
         }
       });
     } catch (JSONException e) {
@@ -169,7 +176,8 @@ public class PeerDaemon {
             chatroomsActive.get(chatroomId).remove(user.getUsername());
             // perform cleanup routines
             removeIfChatroomEmpty(chatroomsActive, chatroomId);
-
+            // Delete the mailbox
+            recvQueue.remove(chatroomId);
           }
         });
       } catch (JSONException e) {
@@ -289,7 +297,6 @@ public class PeerDaemon {
 
 
   /**
-   *
    * Pretty prints output in given inbox
    *
    * @param chatroomId
