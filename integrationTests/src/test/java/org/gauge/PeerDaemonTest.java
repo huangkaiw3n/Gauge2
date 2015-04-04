@@ -87,8 +87,6 @@ public class PeerDaemonTest {
     c.join(chatroomId);
     Thread.sleep(200);
 
-    log.debug("--------------------------------------------------------");
-
     a.printChatroomActive();
     b.printChatroomActive();
     c.printChatroomActive();

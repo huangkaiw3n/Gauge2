@@ -6,9 +6,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by joel on 4/1/15.
@@ -36,7 +34,7 @@ public class Chatroom {
   }
 
   private String title;
-  private ArrayList<User> users;
+  private List<User> users;
 
 
   public Chatroom(String title) {
@@ -71,9 +69,9 @@ public class Chatroom {
 
   private void init(String id, User[] users) {
     if (users != null) {
-      this.users = new ArrayList<User>(Arrays.asList(users));
+      this.users = Collections.synchronizedList(new ArrayList<>(Arrays.asList(users)));
     } else {
-      this.users = new ArrayList<User>();
+      this.users = Collections.synchronizedList(new ArrayList<User>());
     }
     if (id == null) {
       this.id = UUID.randomUUID().toString();
@@ -89,7 +87,7 @@ public class Chatroom {
   }
 
 
-  public User get(String username) {
+  public synchronized User get(String username) {
     for (User curr : users) {
       String name = curr.getUsername();
       if (name.equals(username)) {
@@ -105,7 +103,7 @@ public class Chatroom {
   }
 
 
-  private boolean exists(User user) {
+  private synchronized boolean exists(User user) {
     for (User curr : users) {
       if (user.getUsername().equals(curr.getUsername())) {
         return true;
@@ -115,7 +113,7 @@ public class Chatroom {
   }
 
 
-  public Chatroom remove(String username) {
+  public synchronized Chatroom remove(String username) {
     for (User user : users) {
       if (user.getUsername().equals(username)) {
         users.remove(user);
@@ -126,7 +124,7 @@ public class Chatroom {
   }
 
 
-  public JSONObject toJSON() {
+  public synchronized JSONObject toJSON() {
     JSONObject obj = new JSONObject();
     JSONArray usersJson = new JSONArray();
     for (User user : users) {
@@ -163,13 +161,12 @@ public class Chatroom {
   }
 
 
-  void broadcast(Packet packet, DatagramSocket sock) {
+  public synchronized void broadcast(Packet packet, DatagramSocket sock) {
     broadcast(packet, sock, null);
   }
 
 
   /**
-   *
    * Function to broadcast to everyone except a given user.
    *
    * @param packet
@@ -177,19 +174,20 @@ public class Chatroom {
    * @param port
    * @param exceptUser
    */
-  void broadcast(Packet packet, DatagramSocket sock, User exceptUser) {
+  public synchronized void broadcast(Packet packet, DatagramSocket sock, User exceptUser) {
     byte[] data = packet.toBytes();
-    for (User user : users) if (exceptUser != null && !user.equals(exceptUser)) {
-      try {
-        InetAddress address = getInetAddress(user.getIp());
-        DatagramPacket datagram = new DatagramPacket(data, data.length, address, user.getPort());
-        sock.send(datagram);
-      } catch (UnknownHostException e) {
-        // fail silently if no IP information available
-      } catch (IOException e) {
-        log.error("Oops.  Cannot send message to fellow client.  Is socket closed?");
+    for (User user : users)
+      if (exceptUser != null && !user.equals(exceptUser)) {
+        try {
+          InetAddress address = getInetAddress(user.getIp());
+          DatagramPacket datagram = new DatagramPacket(data, data.length, address, user.getPort());
+          sock.send(datagram);
+        } catch (UnknownHostException e) {
+          // fail silently if no IP information available
+        } catch (IOException e) {
+          log.error("Oops.  Cannot send message to fellow client.  Is socket closed?");
+        }
       }
-    }
   }
 
 }
