@@ -220,4 +220,35 @@ public class PeerDaemonTest {
     assertEquals(a.chatroomsActive.size(), b.chatroomsActive.size());
     assertEquals(a.chatroomsActive.size(), c.chatroomsActive.size());
   }
+
+  @Test
+  public void testSendMessage() throws Exception {
+    a.start();
+    b.start();
+    c.start();
+
+    User[] users = {b.getUser(), c.getUser()};
+
+    a.create("Hobbies", users);
+
+    Thread.sleep(200);
+    a.printChatroomActive();
+    b.printChatroomActive();
+    c.printChatroomActive();
+
+    assertEquals(a.chatroomsActive.size(), b.chatroomsActive.size());
+    assertEquals(a.chatroomsActive.size(), c.chatroomsActive.size());
+
+    // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
+    String chatroomId = a.chatroomsActive.keySet().iterator().next();
+
+    a.sendMessage(chatroomId, "Hello world!");
+
+    log.debug("---------------------------------------------------------------");
+
+    Thread.sleep(200);
+    a.printInboxes();
+    b.printInboxes();
+    c.printInboxes();
+  }
 }

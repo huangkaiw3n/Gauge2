@@ -188,7 +188,7 @@ public class PeerDaemon {
    * @param message
    * @return
    */
-  public PeerDaemon send(final String chatroomId, final String message) {
+  public PeerDaemon sendMessage(final String chatroomId, final String message) {
     AbstractQueue<Packet> currInbox;
     Chatroom curr;
     JSONObject sendJson;
@@ -257,20 +257,22 @@ public class PeerDaemon {
 
 
   private void enqueRecv(Packet packet) {
-    String header = packet.getHeader();
-    // if message intended for daemon ops, put it here
-    if (header.equals("JOIN") || header.equals("LEAVE") || header.equals("CREATE")) {
-      recvQueue.get("main").offer(packet);
-    }
-
     // if message intended for rooms, put it here
     String destId = packet.getDestId();
-    if (recvQueue.containsKey(destId)) {
+
+    log.debug(packet.getDestId());
+
+    if (destId == null || destId.equals("")) {
+      recvQueue.get("main").offer(packet);
+
+    } else if (recvQueue.containsKey(destId)) {
+      recvQueue.get(destId).offer(packet);
+
     } else {
-      // create new chatroom key if nonexistent
+      // create new chatroom key and place packet in queue if nonexistent
       recvQueue.put(destId, new LinkedBlockingQueue<Packet>());
+      recvQueue.get(destId).offer(packet);
     }
-    recvQueue.get(destId).offer(packet);
   }
 
 
