@@ -128,6 +128,7 @@ public class WebServer {
             }
             u1.setUsername(data.get(0));
             u1.setPassword(data.get(1));
+            u1.setEmail(data.get(2));
             log.info(u1.toString());
             JSONObject resJson = new JSONObject();
 
