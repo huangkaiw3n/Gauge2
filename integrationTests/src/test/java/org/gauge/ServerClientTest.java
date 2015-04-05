@@ -78,15 +78,13 @@ public class ServerClientTest {
     // for mocking purposes
     server.db.add("jhtong", new User("jhtong", "123"), false);
     server.db.add("mary", new User("mary", "abc"), false);
-    UserStatusHashDB db = new UserStatusHashDB();
-    db.insert("180e", new User("mary", "abc"));
 
+    // set up client
     GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1833);
+    UserStatusDB db = new UserStatusDB();
     client.setUserlistReference(db);
 
     client.usersDBRef.print();
-
-    log.debug("&&&&&&&&&&&&&&&&&&&");
 
     server.start();
     client.start();

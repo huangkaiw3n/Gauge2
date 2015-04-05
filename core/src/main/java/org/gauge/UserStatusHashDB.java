@@ -85,6 +85,13 @@ public class UserStatusHashDB {
   }
 
 
+  /**
+   *
+   * Note that the resultant JSON array does not include
+   * hash information
+   *
+   * @return
+   */
   private synchronized JSONArray toJSONArrayWithoutHash() {
     JSONArray json = new JSONArray();
 

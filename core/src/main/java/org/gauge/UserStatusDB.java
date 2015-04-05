@@ -7,15 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by joel on 4/5/15.
- *
+ * <p/>
  * A UserStatusDB hashed by username.
- *
+ * <p/>
  * Note that this object can be constructed from the JSON dump of
  * UserStatusHashDB.  However, the reverse does not apply as
  * hash information is not known.
- *
+ * <p/>
  * This is solely used for the client.
- *
  */
 public class UserStatusDB {
 
@@ -90,7 +89,33 @@ public class UserStatusDB {
 
 
   /**
+   * Returns number of users in DB.
    *
+   * @return
+   */
+  public int size() {
+    return users.size();
+  }
+
+
+  /**
+   * Shallow copy
+   * <p/>
+   * Does not delete any earlier copies in DB.
+   *
+   * @param db2
+   * @return
+   */
+  public synchronized UserStatusDB copy(UserStatusDB db2) {
+    for (String key : db2.users.keySet()) {
+      User u = db2.users.get(key);
+      users.put(key, u);
+    }
+    return this;
+  }
+
+
+  /**
    * flush the DB
    *
    * @return

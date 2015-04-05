@@ -13,7 +13,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
 
   private volatile String hash; // the security hash to be used always when sending over information
   private volatile User user;
-  protected volatile UserStatusHashDB usersDBRef;  // a reference to the active users DB
+  protected volatile UserStatusDB usersDBRef;  // a reference to the active users DB
 
   private enum OperationState {
     NOP, LOGIN, LIST, PING;
@@ -47,7 +47,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
    * @param db
    * @return
    */
-  public synchronized GaugeClientDaemonTCP setUserlistReference(final UserStatusHashDB db) {
+  public synchronized GaugeClientDaemonTCP setUserlistReference(final UserStatusDB db) {
     this.usersDBRef = db;
     return this;
   }
@@ -122,17 +122,18 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
         try {
           JSONArray jsonRes = new JSONArray(p.getPayload());
           log.debug(jsonRes.toString());
-          UserStatusHashDB db2 = new UserStatusHashDB(jsonRes);
-//          if (usersDBRef == null) {
-//            throw new NullPointerException();
-//          }
+          UserStatusDB db2 = new UserStatusDB(jsonRes);
+          if (usersDBRef == null) {
+            throw new NullPointerException();
+          }
           usersDBRef.clear();
           usersDBRef.copy(db2);
+          usersDBRef.print();
 
         } catch (JSONException e) {
           e.printStackTrace();
-//        } catch (NullPointerException e) {
-//          log.error("DB not instantiated.");
+        } catch (NullPointerException e) {
+          log.error("DB not instantiated.");
         }
       }
     };
