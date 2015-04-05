@@ -54,7 +54,7 @@ public class Chatroom {
     this.title = obj.has("title") ? obj.getString("title") : null;
     init(this.id, null);
     JSONArray jsonUsers;
-    jsonUsers = obj.has("users") ? obj.getJSONArray("users") : null;
+    jsonUsers = obj.has("chatrooms") ? obj.getJSONArray("chatrooms") : null;
     int len = jsonUsers.length();
     if (jsonUsers != null) for (int i = 0; i < len; i++) {
       users.add(new User(jsonUsers.getJSONObject(i)));
@@ -133,7 +133,7 @@ public class Chatroom {
 
     obj.put("id", id);
     obj.put("title", title);
-    obj.put("users", usersJson);
+    obj.put("chatrooms", usersJson);
     return obj;
   }
 
@@ -150,17 +150,6 @@ public class Chatroom {
   }
 
 
-  private InetAddress getInetAddress(String address) throws MalformedURLException, UnknownHostException {
-    InetAddress result = null;
-    try {
-      result = InetAddress.getByName(address);
-    } catch (UnknownHostException e) {
-      result = InetAddress.getByName(new URL(address).getHost());
-    }
-    return result;
-  }
-
-
   public synchronized void broadcast(Packet packet, DatagramSocket sock) {
     broadcast(packet, sock, null);
   }
@@ -171,7 +160,6 @@ public class Chatroom {
    *
    * @param packet
    * @param sock
-   * @param port
    * @param exceptUser
    */
   public synchronized void broadcast(Packet packet, DatagramSocket sock, User exceptUser) {
@@ -179,7 +167,7 @@ public class Chatroom {
     for (User user : users)
       if (exceptUser != null && !user.equals(exceptUser)) {
         try {
-          InetAddress address = getInetAddress(user.getIp());
+          InetAddress address = Misc.getInetAddress(user.getIp());
           DatagramPacket datagram = new DatagramPacket(data, data.length, address, user.getPort());
           sock.send(datagram);
         } catch (UnknownHostException e) {

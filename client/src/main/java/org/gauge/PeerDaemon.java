@@ -99,11 +99,11 @@ public class PeerDaemon {
 
 
   /**
-   * Crates a chatroom with multiple users
+   * Crates a chatroom with multiple chatrooms
    * <p/>
    * Sends a create packet
    *
-   * @param users An array of users to connect to.  NOTE: Each user must have ID, and IP address specified.
+   * @param users An array of chatrooms to connect to.  NOTE: Each user must have ID, and IP address specified.
    * @return
    */
   public PeerDaemon create(String title, User[] users) {
@@ -479,7 +479,7 @@ public class PeerDaemon {
 
 
   /**
-   * Internal garbage collection function to clean up chatrooms, if less than 2 users.
+   * Internal garbage collection function to clean up chatrooms, if less than 2 chatrooms.
    *
    * @param chatrooms  the map of chatrooms to perform cleaning.
    * @param chatroomId The chatroomId of chatroom to check.
@@ -490,7 +490,7 @@ public class PeerDaemon {
       return;
     }
     chatroom = chatrooms.get(chatroomId);
-    if (chatroom.size() <= 1) { // less than 2 users, remove chatroom from list.
+    if (chatroom.size() <= 1) { // less than 2 chatrooms, remove chatroom from list.
       chatrooms.remove(chatroomId);
     }
   }
