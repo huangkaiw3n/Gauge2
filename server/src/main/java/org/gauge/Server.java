@@ -9,6 +9,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by joel on 3/14/15.
@@ -22,6 +24,7 @@ public class Server {
   private int port;
 
   public UserDB db;
+  public UserStatusDB statusDb;
 
   public Server(int port) {
     this.port = port;
@@ -36,6 +39,7 @@ public class Server {
   private void init() {
     isRunning = false;
     db = new UserDB();
+    statusDb = new UserStatusDB();
   }
 
 
@@ -118,6 +122,16 @@ public class Server {
   }
 
 
+  private String generateHash(String randomText) {
+    String hash = null;
+    try {
+      hash = MessageDigest.getInstance("MD5").digest(randomText.getBytes()).toString();
+    } catch (NoSuchAlgorithmException e) {
+    }
+    return hash;
+  }
+
+
   private JSONObject makeAuthRes(Packet packet) {
     String reqString = packet.getPayload();
     boolean status = authenticate(reqString);
@@ -125,7 +139,12 @@ public class Server {
     JSONObject resJson = new JSONObject();
     try {
       if (status) {
+        User u = new User(new JSONObject(reqString));
+        String hash = generateHash(reqString);
         resJson.put("status", "success");
+        resJson.put("hash", hash); // TODO: Replace with better hash function
+        // insert new user into StatusDB with salt
+        statusDb.insert(hash, User.cloneWithoutPassword(u));
       } else {
         resJson.put("status", "fail");
       }

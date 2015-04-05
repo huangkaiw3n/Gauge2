@@ -168,6 +168,38 @@ public class User {
 
 
   /**
+   * Creates shallow copy of user
+   *
+   * @param u2
+   * @return
+   */
+  public static User clone(User u2) {
+    User u = new User();
+    u.username = u2.username;
+    u.password = u2.password;
+    u.username = u2.username;
+    u.lastSeen = u2.lastSeen;
+    u.ip = u2.ip;
+    u.port = u2.port;
+    return u;
+  }
+
+
+  /**
+   *
+   * Shallow copy of clone without password
+   *
+   * @param u2
+   * @return
+   */
+  public static User cloneWithoutPassword(User u2) {
+    User u = User.clone(u2);
+    u.password = null;
+    return u;
+  }
+
+
+  /**
    *
    * Equality comparison function, by username
    *
