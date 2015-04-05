@@ -126,17 +126,21 @@ public class WebServer {
             while (matcher.find()) {
                 data.add(matcher.group(1));
             }
-            u1.setUsername(data.get(0));
-            u1.setPassword(data.get(1));
-            u1.setEmail(data.get(2));
+            try {
+                u1.setUsername(data.get(0));
+                u1.setPassword(data.get(1));
+                u1.setEmail(data.get(2));
+            }catch (Exception e){
+
+            }
             log.info(u1.toString());
             JSONObject resJson = new JSONObject();
-
-            if(path.toLowerCase().contains("register?"))
-                status = db.add(data.get(0), u1, false);
-            else
-                status = db.authenticate(u1.getUsername(), u1.getPassword());
-
+            if(u1.getUsername() != null && u1.getPassword() != null) {
+                if (path.toLowerCase().contains("register?"))
+                    status = db.add(data.get(0), u1, false);
+                else
+                    status = db.authenticate(u1.getUsername(), u1.getPassword());
+            }else status = false;
             try {
                 if (status)
                     resJson.put("status", "success");
