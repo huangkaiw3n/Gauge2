@@ -19,11 +19,11 @@ public class UserStatusDB {
         userSet = new HashSet<>();
     }
 
-    public boolean insert(User u1){
+    public synchronized boolean insert(User u1){
         return userSet.add(u1);
     }
 
-    public boolean delete(User u1){
+    public synchronized boolean delete(User u1){
         return userSet.remove(u1);
     }
 
@@ -31,7 +31,7 @@ public class UserStatusDB {
         return userSet.size();
     }
 
-    public JSONArray toJSONArray(){
+    public synchronized JSONArray toJSONArray(){
         JSONArray users = new JSONArray();
 
         for(User it : userSet){
