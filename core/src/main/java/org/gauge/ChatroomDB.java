@@ -57,7 +57,7 @@ public class ChatroomDB {
   public synchronized JSONArray toJSON() {
     JSONArray json = new JSONArray();
     for (String key : chatrooms.keySet()) {
-      json.put(chatrooms.get(key));
+      json.put(chatrooms.get(key).toJSON());
     }
     return json;
   }

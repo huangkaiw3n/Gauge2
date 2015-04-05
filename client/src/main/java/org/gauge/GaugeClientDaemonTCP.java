@@ -14,6 +14,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
   private volatile String hash; // the security hash to be used always when sending over information
   private volatile User user;
   protected volatile UserStatusDB usersDBRef;  // a reference to the active chatrooms DB
+  protected volatile ChatroomDB chatroomDbRef; // reference to the active chatroom DB
 
   private enum OperationState {
     NOP, LOGIN, LIST, PING;
@@ -36,6 +37,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
 
   private void init() {
     this.usersDBRef = null;
+    this.chatroomDbRef = null;
     this.user = null;
     this.hash = null;
     this.state = OperationState.NOP;
@@ -50,6 +52,19 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
    */
   public synchronized GaugeClientDaemonTCP setUserlistReference(final UserStatusDB db) {
     this.usersDBRef = db;
+    return this;
+  }
+
+
+  /**
+   *
+   * Sets the target chatroom DB to update
+   *
+   * @param db
+   * @return
+   */
+  public synchronized GaugeClientDaemonTCP setChatoomsReference(final ChatroomDB db) {
+    this.chatroomDbRef = db;
     return this;
   }
 
@@ -69,7 +84,6 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
       }
 
       public void response(Packet p) {
-        log.debug(p.toString());
         try {
           JSONObject json = new JSONObject(p.getPayload());
           hash = (String) json.get("hash");
@@ -121,7 +135,6 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
       public void response(Packet p) {
         try {
           JSONArray jsonRes = new JSONArray(p.getPayload());
-          log.debug(jsonRes.toString());
           UserStatusDB db2 = new UserStatusDB(jsonRes);
           if (usersDBRef == null) {
             throw new NullPointerException();
@@ -157,8 +170,13 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
         try {
           JSONArray jsonArr = new JSONArray(p.getPayload());
           if (jsonArr == null) return; // pass if invalid / cannot authenticate
+          ChatroomDB db2 = new ChatroomDB(jsonArr);
+          chatroomDbRef.clear();
+          chatroomDbRef.copy(db2);
+          chatroomDbRef.print();
 
         } catch (JSONException e) {
+          e.printStackTrace();
           log.error("Oops!!  Cannot retrieve Chatrooms list.  Are you authenticated?");
         }
       }

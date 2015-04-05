@@ -27,6 +27,7 @@ public class Server {
 
   public UserDB db;
   public UserStatusHashDB statusDb;
+  public ChatroomDB chatroomDB;
 
   public Server(int port) {
     this.port = port;
@@ -42,6 +43,7 @@ public class Server {
     isRunning = false;
     db = new UserDB();
     statusDb = new UserStatusHashDB();
+    chatroomDB = new ChatroomDB();
   }
 
 
@@ -124,7 +126,19 @@ public class Server {
     } else if (header.equals("USERLIST")) {
       JSONArray resJson = makeUserlistRes(packet);
       sendPacket(s, new Packet("USERLIST", resJson.toString()));
+    } else if (header.equals("CHATROOMS")) {
+      JSONArray resJson = makeChatroomsRes(packet);
+      sendPacket(s, new Packet("CHATROOMS", resJson.toString()));
     }
+  }
+
+  private JSONArray makeChatroomsRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONArray jsonArr = new JSONArray();
+    if (isLoggedIn(packet)) {
+      jsonArr = chatroomDB.toJSON();
+    }
+    return jsonArr;
   }
 
 
