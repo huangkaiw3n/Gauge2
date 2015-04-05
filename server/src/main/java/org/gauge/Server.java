@@ -1,12 +1,14 @@
 package org.gauge;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.MessageDigest;
@@ -24,7 +26,7 @@ public class Server {
   private int port;
 
   public UserDB db;
-  public UserStatusDB statusDb;
+  public UserStatusHashDB statusDb;
 
   public Server(int port) {
     this.port = port;
@@ -39,7 +41,7 @@ public class Server {
   private void init() {
     isRunning = false;
     db = new UserDB();
-    statusDb = new UserStatusDB();
+    statusDb = new UserStatusHashDB();
   }
 
 
@@ -118,17 +120,21 @@ public class Server {
     } else if (header.equals("LOGIN")) {
       JSONObject resJson = makeAuthRes(packet);
       sendPacket(s, new Packet("LOGIN", resJson.toString()));
+
+    } else if (header.equals("USERLIST")) {
+      JSONArray resJson = makeUserlistRes(packet);
+      sendPacket(s, new Packet("USERLIST", resJson.toString()));
     }
   }
 
 
-  private String generateHash(String randomText) {
-    String hash = null;
-    try {
-      hash = MessageDigest.getInstance("MD5").digest(randomText.getBytes()).toString();
-    } catch (NoSuchAlgorithmException e) {
+  private JSONArray makeUserlistRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONArray jsonArr = new JSONArray();
+    if (isLoggedIn(packet)) {
+      jsonArr = statusDb.toJSONArray();
     }
-    return hash;
+    return jsonArr;
   }
 
 
@@ -151,6 +157,37 @@ public class Server {
     } catch (JSONException e) {
     }
     return resJson;
+  }
+
+
+  private String generateHash(String randomText) {
+    String hash = null;
+    try {
+      hash = MessageDigest.getInstance("MD5").digest(randomText.getBytes()).toString();
+    } catch (NoSuchAlgorithmException e) {
+    }
+    return hash;
+  }
+
+
+  /**
+   * check if logged in via packet.  The packet
+   * should have a JSON property "hash".
+   * @param p
+   * @return
+   */
+  public boolean isLoggedIn(Packet p) {
+    String payload = p.getPayload();
+    try {
+      JSONObject json = new JSONObject(payload);
+      String hash = (String) json.get("hash");
+      if (statusDb.get(hash) != null) {
+        return true;
+      }
+    } catch (JSONException e) {
+      log.error("User not logged in.  Cannot process packet.");
+    }
+    return false;
   }
 
 
@@ -177,7 +214,9 @@ public class Server {
     }
 
     try {
-      socket = new ServerSocket(port);
+      socket = new ServerSocket();
+      socket.setReuseAddress(true);
+      socket.bind(new InetSocketAddress(port));
       Thread.sleep(1000); // give server time to start
     } catch (IOException e) {
       e.printStackTrace();

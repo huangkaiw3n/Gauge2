@@ -2,127 +2,81 @@ package org.gauge;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by Kaiwen on 19/3/2015.
- * Username
- * IP
+ * Created by joel on 4/5/15.
  */
 public class UserStatusDB {
 
   static final Logger log = Logger.getLogger(UserStatusDB.class);
 
-  private ConcurrentHashMap<String, User> userSet;
+  ConcurrentHashMap<String, User> users;
 
   public UserStatusDB() {
-    userSet = new ConcurrentHashMap<>();
+    this.users = new ConcurrentHashMap<>();
+  }
+
+
+  public UserStatusDB(ConcurrentHashMap<String, User> users) {
+    this.users = users;
   }
 
 
   public UserStatusDB(JSONArray json) {
+    this.users = new ConcurrentHashMap<>();
     for (int i = 0; i < json.length(); i++) {
-      JSONObject jsonUser = json.getJSONObject(i);
-      User u = new User(jsonUser);
+      User u = new User(json.getJSONObject(i));
+      add(u);
     }
   }
 
 
-  public synchronized void insert(String key, User user) {
-    userSet.put(key, user);
-  }
-
-
-  public synchronized User delete(String key) {
-    return userSet.remove(key);
-  }
-
-
-  public synchronized User delete(User ul) {
-    String usernameQuery = ul.getUsername();
-    for (String key : userSet.keySet()) {
-      User u = userSet.get(key);
-      if (u.getUsername() == usernameQuery) {
-        return userSet.remove(key);
-      }
-    }
-    return null;
-  }
-
-
-  public int size() {
-    return userSet.size();
-  }
-
-
-  public synchronized JSONArray toJSONArray() {
-    return toJSONArrayWithoutHash();
-  }
-
-
-  public synchronized User get(String hash) {
-    return userSet.get(hash);
-  }
-
-
-  /**
-   * Performs a shallow copy of another UserStatusDB instance.
-   *
-   * @param db2
-   * @return
-   */
-  public UserStatusDB copy(UserStatusDB db2) {
-    for (String key : db2.userSet.keySet()) {
-      this.insert(key, db2.get(key));
-    }
+  public synchronized UserStatusDB add(User user) {
+    if (user == null) return this; // pass if invalid
+    this.users.put(user.getUsername(), user);
     return this;
+
   }
 
 
-  /**
-   *
-   * Clears the DB of status records.
-   *
-   * @return
-   */
-  public UserStatusDB clear() {
-    userSet = new ConcurrentHashMap<>();
+  public synchronized UserStatusDB delete(String username) {
+    if (!has(username)) return this; // pass if user not found
+    users.remove(username);
     return this;
+
   }
 
 
-  private synchronized JSONArray toJSONArrayWithoutHash() {
+  public synchronized boolean has(String username) {
+    return users.containsKey(username);
+  }
+
+
+  public synchronized JSONArray toJSON() {
     JSONArray json = new JSONArray();
-
-    for (String key : userSet.keySet()) {
-      User u = userSet.get(key);
-      json.put(u.toJSON());
+    for (String key : users.keySet()) {
+      json.put(users.get(key));
     }
     return json;
   }
 
 
-  /**
-   * Prints the database as String representation.
-   */
-  @Override
   public synchronized String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("--- User Status DB dump ---\n");
-    for (String key : userSet.keySet()) {
-      User u = userSet.get(key);
-      sb.append("[ " + key + " ] ");
-      sb.append(u.toString() + "\n");
+    sb.append("\n--- USERLIST ---\n")
+    for (String key : users.keySet()) {
+      sb.append("  " + users.get(key) + "\n");
     }
-    sb.append("--- ---\n");
+    sb.append("--- ---");
     return sb.toString();
   }
 
 
-  public synchronized void print() {
-    log.info(this.toString());
+  public synchronized UserStatusDB print() {
+    log.info(toString());
+    return this;
   }
-
 }
+

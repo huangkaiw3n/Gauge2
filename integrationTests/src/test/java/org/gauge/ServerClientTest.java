@@ -3,7 +3,6 @@ package org.gauge;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -19,6 +18,7 @@ public class ServerClientTest {
 
   @After
   public void tearDown() throws Exception {
+    Thread.sleep(200);
 
   }
 
@@ -49,6 +49,7 @@ public class ServerClientTest {
 
     GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1832);
 
+
     server.start();
     client.start();
 
@@ -66,6 +67,45 @@ public class ServerClientTest {
 
     client.stop();
     server.stop();
+  }
+
+
+  @Test
+  public void testCanSendList() throws Exception {
+    log.debug("-------------------------------------------------");
+    Server server = new Server(1833);
+
+    // for mocking purposes
+    server.db.add("jhtong", new User("jhtong", "123"), false);
+    server.db.add("mary", new User("mary", "abc"), false);
+    UserStatusHashDB db = new UserStatusHashDB();
+    db.insert("180e", new User("mary", "abc"));
+
+    GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1833);
+    client.setUserlistReference(db);
+
+    client.usersDBRef.print();
+
+    log.debug("&&&&&&&&&&&&&&&&&&&");
+
+    server.start();
+    client.start();
+
+
+    client.login(new User("jhtong", "123","", "192.168.0.1"));  // should pass
+    Thread.sleep(200);
+//    assertEquals(1, server.statusDb.size());
+
+    client.getUsers();
+    Thread.sleep(200);
+//    assertEquals(1, client.usersDBRef.size());
+
+//    client.usersDBRef.print();
+
+    client.stop();
+    server.stop();
+    log.debug("-------------------------------------------------");
+
   }
 
 
@@ -94,5 +134,6 @@ public class ServerClientTest {
 
     client.stop();
     server.stop();
+
   }
 }

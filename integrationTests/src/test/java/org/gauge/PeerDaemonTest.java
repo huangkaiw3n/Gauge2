@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+@Ignore
 public class PeerDaemonTest {
 
   static final Logger log = Logger.getLogger(PeerDaemonTest.class);

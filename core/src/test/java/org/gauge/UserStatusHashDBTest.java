@@ -5,13 +5,11 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 @Ignore
-public class UserStatusDBTest {
+public class UserStatusHashDBTest {
 
     private User u1, u2;
-    private UserStatusDB db;
+    private UserStatusHashDB db;
 
     @Before
     public void setUp() throws Exception {

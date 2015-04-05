@@ -11,9 +11,9 @@ import org.json.JSONObject;
 public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
   static final Logger log = Logger.getLogger(GaugeClientDaemonTCP.class);
 
-  private String hash; // the security hash to be used always when sending over information
-  private User user;
-  private UserStatusDB usersDBRef;  // a reference to the active users DB
+  private volatile String hash; // the security hash to be used always when sending over information
+  private volatile User user;
+  protected volatile UserStatusHashDB usersDBRef;  // a reference to the active users DB
 
   private enum OperationState {
     NOP, LOGIN, LIST, PING;
@@ -35,6 +35,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
 
 
   private void init() {
+    this.usersDBRef = null;
     this.user = null;
     this.hash = null;
     this.state = OperationState.NOP;
@@ -46,7 +47,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
    * @param db
    * @return
    */
-  public GaugeClientDaemonTCP setUserlistReference(UserStatusDB db) {
+  public synchronized GaugeClientDaemonTCP setUserlistReference(final UserStatusHashDB db) {
     this.usersDBRef = db;
     return this;
   }
@@ -120,18 +121,22 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
       public void response(Packet p) {
         try {
           JSONArray jsonRes = new JSONArray(p.getPayload());
-          UserStatusDB db2 = new UserStatusDB(jsonRes);
-          if (usersDBRef == null) throw new Exception();
+          log.debug(jsonRes.toString());
+          UserStatusHashDB db2 = new UserStatusHashDB(jsonRes);
+//          if (usersDBRef == null) {
+//            throw new NullPointerException();
+//          }
           usersDBRef.clear();
           usersDBRef.copy(db2);
 
         } catch (JSONException e) {
           e.printStackTrace();
-        } catch (Exception e) {
-          log.error("DB not instantiated.");
+//        } catch (NullPointerException e) {
+//          log.error("DB not instantiated.");
         }
       }
     };
+    queueExchange(exchange);
     return this;
   }
 
