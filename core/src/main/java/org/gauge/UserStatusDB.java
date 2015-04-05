@@ -65,7 +65,7 @@ public class UserStatusDB {
 
   public synchronized String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("\n--- USERLIST ---\n")
+    sb.append("\n--- USERLIST ---\n");
     for (String key : users.keySet()) {
       sb.append("  " + users.get(key) + "\n");
     }
