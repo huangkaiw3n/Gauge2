@@ -13,7 +13,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
 
   private volatile String hash; // the security hash to be used always when sending over information
   private volatile User user;
-  protected volatile UserStatusDB usersDBRef;  // a reference to the active users DB
+  protected volatile UserStatusDB usersDBRef;  // a reference to the active chatrooms DB
 
   private enum OperationState {
     NOP, LOGIN, LIST, PING;
@@ -44,6 +44,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
 
   /**
    * Sets the target DB to update
+   *
    * @param db
    * @return
    */
@@ -86,7 +87,6 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
 
 
   /**
-   *
    * Returns if the client has been authenticated.
    *
    * @return
@@ -134,6 +134,32 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
           e.printStackTrace();
         } catch (NullPointerException e) {
           log.error("DB not instantiated.");
+        }
+      }
+    };
+    queueExchange(exchange);
+    return this;
+  }
+
+
+  public GaugeClientDaemonTCP getChatrooms() {
+    Exchange exchange = new Exchange() {
+      public Packet request() {
+        JSONObject json = null;
+        try {
+          json = createJSONWihHash();
+        } catch (JSONException e) {
+        }
+        return new Packet("CHATROOMS", json.toString());
+      }
+
+      public void response(Packet p) {
+        try {
+          JSONArray jsonArr = new JSONArray(p.getPayload());
+          if (jsonArr == null) return; // pass if invalid / cannot authenticate
+
+        } catch (JSONException e) {
+          log.error("Oops!!  Cannot retrieve Chatrooms list.  Are you authenticated?");
         }
       }
     };

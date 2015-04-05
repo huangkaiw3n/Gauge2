@@ -89,7 +89,7 @@ public class UserStatusDB {
 
 
   /**
-   * Returns number of users in DB.
+   * Returns number of chatrooms in DB.
    *
    * @return
    */

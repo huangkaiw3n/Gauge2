@@ -54,7 +54,7 @@ public class Chatroom {
     this.title = obj.has("title") ? obj.getString("title") : null;
     init(this.id, null);
     JSONArray jsonUsers;
-    jsonUsers = obj.has("users") ? obj.getJSONArray("users") : null;
+    jsonUsers = obj.has("chatrooms") ? obj.getJSONArray("chatrooms") : null;
     int len = jsonUsers.length();
     if (jsonUsers != null) for (int i = 0; i < len; i++) {
       users.add(new User(jsonUsers.getJSONObject(i)));
@@ -133,7 +133,7 @@ public class Chatroom {
 
     obj.put("id", id);
     obj.put("title", title);
-    obj.put("users", usersJson);
+    obj.put("chatrooms", usersJson);
     return obj;
   }
 
