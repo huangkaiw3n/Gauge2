@@ -186,6 +186,28 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
   }
 
 
+  public GaugeClientDaemonTCP createChatroom(final Chatroom chatroom) {
+    Exchange exchange = new Exchange() {
+      public Packet request() {
+        JSONObject json = null;
+        try {
+          json = createJSONWihHash();
+          json.put("chatroom", chatroom.toJSON());
+        } catch (JSONException e) {
+        }
+        return new Packet("CREATE", json.toString());
+      }
+
+      public void response(Packet p) {
+        log.debug("Updated server with new chatroom!");
+      }
+    };
+    queueExchange(exchange);
+    return this;
+
+  }
+
+
   /**
    *
    * Verify if logged in

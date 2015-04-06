@@ -90,10 +90,10 @@ public class PeerDaemon {
    * @param user The user to connect to.  NOTE: Each user must have ID, and IP address specified.
    * @return
    */
-  public PeerDaemon create(String title, User user) {
+  public Chatroom create(String title, User user) {
     User[] users = {user};
-    create(title, users);
-    return this;
+    Chatroom c = create(title, users);
+    return c;
   }
 
 
@@ -105,7 +105,7 @@ public class PeerDaemon {
    * @param users An array of chatrooms to connect to.  NOTE: Each user must have ID, and IP address specified.
    * @return
    */
-  public PeerDaemon create(String title, User[] users) {
+  public Chatroom create(String title, User[] users) {
     User[] singleUser = {this.user};
     Chatroom chatroom = new Chatroom(title, ArrayUtils.addAll(singleUser, users));
     String chatroomId = chatroom.getId();
@@ -119,7 +119,7 @@ public class PeerDaemon {
     Packet createPacket = new Packet("CREATE", chatroom.toJSON().toString());
     enqueSend(chatroom.getId(), createPacket);
 
-    return this;
+    return chatroom;
   }
 
 

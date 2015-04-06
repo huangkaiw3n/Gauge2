@@ -125,7 +125,8 @@ public class Client {
       return this;//
     }
     //TODO implement
-    udpDaemon.create(topic, user);
+    Chatroom chatroom = udpDaemon.create(topic, user);
+    tcpDaemon.createChatroom(chatroom);
     return this;
   }
 
