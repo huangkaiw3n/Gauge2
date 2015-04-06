@@ -54,6 +54,11 @@ public class ChatroomDB {
   }
 
 
+  public synchronized Chatroom get(String chatroomId) {
+    return chatrooms.get(chatroomId);
+  }
+
+
   public synchronized JSONArray toJSON() {
     JSONArray json = new JSONArray();
     for (String key : chatrooms.keySet()) {
@@ -116,4 +121,5 @@ public class ChatroomDB {
     chatrooms.clear();
     return this;
   }
+
 }
