@@ -137,7 +137,7 @@ public class Client {
       log.error("Failed to create chatroom.");
       return this;//
     }
-    //TODO implement
+
     Chatroom chatroom = udpDaemon.create(topic, user);
     tcpDaemon.createChatroom(chatroom);
     return this;
@@ -149,8 +149,9 @@ public class Client {
       log.error("Failed to create chatroom.");
       return this;//
     }
-    //TODO implement
-    udpDaemon.create(topic, users);
+
+    Chatroom chatroom = udpDaemon.create(topic, user);
+    tcpDaemon.createChatroom(chatroom);
     return this;
   }
 
