@@ -73,6 +73,28 @@ public class Client {
     }
     this.user = user;
     tcpDaemon.login(user);
+    pause(400);
+    return this;
+  }
+
+
+  /**
+   *
+   * Wraps Thread.sleep() and allows execution to pause
+   *
+   * @param ms
+   */
+  private void pause(long ms) {
+    try {
+      Thread.sleep(ms);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  public Client logout() {
+    stop();
     return this;
   }
 
@@ -87,13 +109,37 @@ public class Client {
   }
 
 
-  public Client create() {
+  public Client create(String topic, User user) {
     if (!isSafe()) {
       log.error("Failed to create chatroom.");
       return this;//
     }
     //TODO implement
+    udpDaemon.create(topic, user);
     return this;
+  }
+
+
+  public Client create(String topic, User[] users) {
+    if (!isSafe()) {
+      log.error("Failed to create chatroom.");
+      return this;//
+    }
+    //TODO implement
+    udpDaemon.create(topic, users);
+    return this;
+  }
+
+
+  public Client leave(String chatId) {
+    //TODO implement
+    udpDaemon.leave(chatId);
+    return this;
+  }
+
+
+  public boolean isLoggedIn() {
+    return tcpDaemon.isLoggedIn();
   }
 
 
