@@ -8,23 +8,26 @@ import org.gauge.ui.MainView;
  * Hello world!
  */
 public class App {
-    private
-  static final Logger log = Logger.getLogger(Misc.class);
+    public static Client client;
+    static final Logger log = Logger.getLogger(Misc.class);
 
-  public App() {
-
-  }
-
-  public static void exampleUseCoreUtility() {
-    Misc.printOut("Saying hello using core dependency!");
-
-  }
+    public App() {
 
 
-  public static void main(final String[] args) {
-    log.info("Starting client..");
+    }
 
-    // GUI
+    public static void exampleUseCoreUtility() {
+        Misc.printOut("Saying hello using core dependency!");
+
+    }
+
+
+    public static void main(final String[] args) {
+        log.info("Starting client..");
+        client = new Client("127.0.0.1", 9000, 9060);
+        client.start();
+
+        // GUI
       /*
     Runnable runnableGui = new Runnable() {
       public void run() {
@@ -32,18 +35,17 @@ public class App {
       }
     };
     */
-      Runnable runnableGui = new Runnable() {
-          public void run() {
-              Login lg = new Login();
-          }
-      };
+        Runnable runnableGui = new Runnable() {
+            public void run() {
+                Login lg = new Login();
+            }
+        };
 
 
+        // Launch threads
+        new Thread(runnableGui).start();
 
-    // Launch threads
-    new Thread(runnableGui).start();
-
-    // misc
-    exampleUseCoreUtility();
-  }
+        // misc
+        exampleUseCoreUtility();
+    }
 }
