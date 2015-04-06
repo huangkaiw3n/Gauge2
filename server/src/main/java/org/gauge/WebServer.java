@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class WebServer {
 
-    static final Logger log = Logger.getLogger(Server.class);
+    static final Logger log = Logger.getLogger(WebServer.class);
 
     private volatile boolean isRunning;
     private volatile ServerSocket socket;
@@ -24,19 +24,19 @@ public class WebServer {
 
     public UserDB db;
 
-    public WebServer(int port) {
+    public WebServer(int port, String csvPath) {
         this.port = port;
-        init();
+        init(csvPath);
     }
 
-    public WebServer() {
+    public WebServer(String csvPath) {
         this.port = 9000;
-        init();
+        init(csvPath);
     }
 
-    private void init() {
+    private void init(String csvPath) {
         isRunning = false;
-        db = new UserDB();
+        db = new UserDB(csvPath);
     }
 
 
@@ -54,6 +54,8 @@ public class WebServer {
             isr = new InputStreamReader(s.getInputStream());
 
             HttpRequestPacket packet = HttpRequestPacket.toPacket(isr);
+            if(packet == null)
+                return;
             log.info(packet.toString());
             process(s, packet);
 
@@ -126,17 +128,21 @@ public class WebServer {
             while (matcher.find()) {
                 data.add(matcher.group(1));
             }
-            u1.setUsername(data.get(0));
-            u1.setPassword(data.get(1));
-            u1.setEmail(data.get(2));
+            try {
+                u1.setUsername(data.get(0));
+                u1.setPassword(data.get(1));
+                u1.setEmail(data.get(2));
+            }catch (Exception e){
+
+            }
             log.info(u1.toString());
             JSONObject resJson = new JSONObject();
-
-            if(path.toLowerCase().contains("register?"))
-                status = db.add(data.get(0), u1, false);
-            else
-                status = db.authenticate(u1.getUsername(), u1.getPassword());
-
+            if(u1.getUsername().compareTo("") != 0 && u1.getPassword().compareTo("") != 0) {
+                if (path.toLowerCase().contains("register?"))
+                    status = db.add(data.get(0), u1, false);
+                else
+                    status = db.authenticate(u1.getUsername(), u1.getPassword());
+            }else status = false;
             try {
                 if (status)
                     resJson.put("status", "success");
@@ -147,7 +153,8 @@ public class WebServer {
             dos.writeBytes(resJson.toString());
         } else {
             try {
-                String filename = "assets/html" + path;
+                String filename = "server/assets/html" + path;
+
                 // Open and read the file into buffer
                 File f = new File(filename);
 
@@ -235,6 +242,11 @@ public class WebServer {
                     pollConnection();
                 }
                 log.info("Server stopped.");
+                try {
+                    db.toCSV();
+                } catch (IOException e){
+                    log.info("toCSV path output error.");
+                }
             }
         };
 

@@ -1,5 +1,6 @@
 package org.gauge;
 
+import org.apache.log4j.Logger;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import org.json.JSONArray;
@@ -16,6 +17,7 @@ import java.util.Map;
  */
 public class UserDB {
 
+    static final Logger log = Logger.getLogger(UserDB.class);
     private Hashtable<String, User> userData;
     private String csvPath;//Eg "C:\\Users\\Kaiwen\\Desktop\\test.csv";
 
@@ -32,6 +34,7 @@ public class UserDB {
         try {
             fromCSV();
         } catch (java.io.IOException e) {
+            log.info("CSV path not entered or error. Not loaded into db.");
         }
     }
 
