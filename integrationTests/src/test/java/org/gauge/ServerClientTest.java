@@ -7,6 +7,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class ServerClientTest {
@@ -65,6 +66,7 @@ public class ServerClientTest {
   public void testLogout() throws Exception {
 
   }
+
 
   @Test
   public void testLoadUserlist() throws Exception {
@@ -165,6 +167,56 @@ public class ServerClientTest {
 
     client2.stop();
     client3.stop();
+  }
+
+
+  @Test
+  public void testMessage() throws Exception {
+    log.debug("------------------------------<<<<<<<<");
+    // create a chatroom with all 3 clients in it ///
+    client.login(mary);
+
+    // create new client 2
+    client2 = new Client(ADDR, PORT_SERVER, PORT_CLIENT2);
+    client2.start();
+    client2.login(john);
+
+    // create new client 3
+    client3 = new Client(ADDR, PORT_SERVER, PORT_CLIENT3);
+    client3.start();
+    client3.login(mark);
+
+    // create a new chatroom with mark, john and mark
+    User[] users = {john, mark};
+    client.create("Food", users);
+    Thread.sleep(200);
+    ////////////////////////////////////////////////
+
+    // hack to get the chatroom ID
+    String chatroomId = client2.getActiveChatrooms().chatrooms.keySet().iterator().next();
+
+    // send a message and give it some time to propagate
+    client3.message(chatroomId, "Hello world this is a test and hello again 603#21@ haha.");
+    Thread.sleep(200);
+
+    // do assertions
+    assertNull(client3.getInbox(chatroomId)); // this is null as client3 is sender, hence no inbox created yet
+    assertEquals(1, client.getInbox(chatroomId).size());
+    assertEquals(1, client2.getInbox(chatroomId).size());
+
+    // send a message and give it some time to propagate.  Now clients should have an inbox.
+    client.message(chatroomId, "This is another msg hahaha lol :D :D :) =) ");
+    Thread.sleep(200);
+
+    assertEquals(1, client.getInbox(chatroomId).size());  // 1 as it has sent the message
+    assertEquals(2, client2.getInbox(chatroomId).size()); // 2 as it has sent no meesage
+    assertEquals(1, client3.getInbox(chatroomId).size()); // 1 as it has sent an earlier message and
+                                                          // box is now created
+
+
+    client2.stop();
+    client3.stop();
+    log.debug("------------------------------<<<<<<<<");
   }
 
 

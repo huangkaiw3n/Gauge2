@@ -9,7 +9,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 
-@Ignore
 public class TCPServerClientTest {
 
   static final Logger log = Logger.getLogger(TCPServerClientTest.class);
