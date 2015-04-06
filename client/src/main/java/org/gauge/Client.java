@@ -74,6 +74,7 @@ public class Client {
       return this; // pass if not running
     }
     this.user = user;
+    udpDaemon.setUser(this.user);
     tcpDaemon.login(user);
     pause(400);
     return this;
@@ -135,7 +136,7 @@ public class Client {
   public Client create(String topic, User user) {
     if (!isSafe()) {
       log.error("Failed to create chatroom.");
-      return this;//
+      return this;
     }
 
     Chatroom chatroom = udpDaemon.create(topic, user);
@@ -147,11 +148,24 @@ public class Client {
   public Client create(String topic, User[] users) {
     if (!isSafe()) {
       log.error("Failed to create chatroom.");
-      return this;//
+      return this;
     }
 
     Chatroom chatroom = udpDaemon.create(topic, user);
     tcpDaemon.createChatroom(chatroom);
+    return this;
+  }
+
+
+  public Client join(String chatroomId) {
+    if (!isSafe()) {
+      log.error("Failed to join chatroom.");
+      return this;
+    }
+
+    Chatroom chatroom = udpDaemon.join(chatroomId);
+    log.debug(chatroom.toString());
+    tcpDaemon.joinChatroom(chatroom);
     return this;
   }
 

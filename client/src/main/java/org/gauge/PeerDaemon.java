@@ -26,25 +26,27 @@ public class PeerDaemon {
   private volatile boolean isRunning;
   protected int port;
 
+
   protected volatile User user;
+
+
   protected volatile DatagramSocket incoming, outgoing;
-
   protected volatile ChatroomDB chatroomsActive;
+
   protected volatile ChatroomDB chatroomsAll;
-
-
   /**
    * Interface for a callback function.
    */
   protected interface Callback {
+
+
     public void execute();
   }
-
   protected class ChatroomPacket {
+
     public String destId;
     public Packet packet;
     public Callback callback;
-
     public ChatroomPacket(String destId, Packet packet) {
       this.packet = packet;
       this.destId = destId;
@@ -56,14 +58,14 @@ public class PeerDaemon {
       this.destId = destId;
       this.callback = callback;
     }
-  }
 
+  }
   // this is needed between threads to not corrupt buffer
   protected volatile LinkedBlockingQueue<ChatroomPacket> sendQueue;
+
   // a Map of linked-list message queues, separated by rooms
   // the main key refers to the main message queue, intended for daemon.
   protected volatile ConcurrentHashMap<String, LinkedBlockingQueue<Packet>> recvQueue;
-
   public PeerDaemon(User user, int port) {
     init(port, user);
   }
@@ -83,7 +85,6 @@ public class PeerDaemon {
     chatroomsAll = new ChatroomDB();
     chatroomsActive = new ChatroomDB();
   }
-
 
   /**
    *
@@ -111,6 +112,11 @@ public class PeerDaemon {
     User[] users = {user};
     Chatroom c = create(title, users);
     return c;
+  }
+
+
+  public void setUser(User user) {
+    this.user = user;
   }
 
 
@@ -145,18 +151,21 @@ public class PeerDaemon {
    *
    * @return
    */
-  public PeerDaemon join(final String chatroomId) {
+  public Chatroom join(final String chatroomId) {
     if (!chatroomsAll.has(chatroomId)) {
       log.error(prettyUsername() + " Oops!  Cannot join chatroom. " + chatroomId + " does not exist.");
-      return this;
+      return null;
     }
+
     // share the reference, to save resources.
     JSONObject joinObj = new JSONObject();
     try {
       joinObj.put("user", user.toJSON());
       joinObj.put("chatroomId", chatroomId);
       Packet joinPacket = new Packet("JOIN", joinObj.toString());
-      chatroomsActive.add(chatroomsAll.get(chatroomId));
+      Chatroom chatroom = chatroomsAll.get(chatroomId);
+      chatroom.add(this.user);
+      chatroomsActive.add(chatroom);
       enqueSend(chatroomId, joinPacket, new Callback() {
         public void execute() {
           // create the mailbox
@@ -166,7 +175,7 @@ public class PeerDaemon {
     } catch (JSONException e) {
       log.error("Oops.  Cannot create JSON payload for JOIN packet.");
     }
-    return this;
+    return chatroomsAll.get(chatroomId);
   }
 
 
