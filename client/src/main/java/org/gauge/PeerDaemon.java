@@ -28,6 +28,7 @@ public class PeerDaemon {
 
   protected volatile User user;
   protected volatile DatagramSocket incoming, outgoing;
+
   protected volatile ChatroomDB chatroomsActive;
   protected volatile ChatroomDB chatroomsAll;
 
@@ -532,6 +533,15 @@ public class PeerDaemon {
 
   public User getUser() {
     return user;
+  }
+
+
+  public ChatroomDB getChatroomsActive() {
+    return chatroomsActive;
+  }
+
+  public ChatroomDB getChatroomsAll() {
+    return chatroomsAll;
   }
 
 }

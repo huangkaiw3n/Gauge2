@@ -145,10 +145,10 @@ public class Server {
     JSONObject json = new JSONObject();
     Chatroom curr = null;
 
-
     if (isLoggedIn(packet)) {
       try {
-        curr = new Chatroom(new JSONObject(reqString));
+        JSONObject jsonReq = new JSONObject(reqString);
+        curr = new Chatroom(jsonReq.getJSONObject("chatroom"));
         chatroomDB.add(curr);
       } catch (JSONException e) {
         log.error("Invalid JSON for CREATE packet.");

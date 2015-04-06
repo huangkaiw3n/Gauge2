@@ -162,6 +162,15 @@ public class Client {
     return result;
   }
 
+
+  public ChatroomDB getActiveChatrooms() {
+    return udpDaemon.getChatroomsActive();
+  }
+
+
+  public ChatroomDB getAllChatrooms() {
+    return udpDaemon.getChatroomsAll();
+  }
 }
 
 

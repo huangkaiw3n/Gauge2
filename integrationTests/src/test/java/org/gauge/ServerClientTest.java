@@ -12,12 +12,13 @@ public class ServerClientTest {
 
   static final Logger log = Logger.getLogger(ServerClientTest.class);
 
-  private Client client;
+  private Client client, client2;
   private Server server;
 
   private final String ADDR = "localhost";
   private final int PORT_SERVER = 14203;
   private final int PORT_CLIENT = 5067;
+  private final int PORT_CLIENT2 = 5068;
 
   // users
   private User mary, john;
@@ -30,7 +31,9 @@ public class ServerClientTest {
 
     // for mocking purposes
     mary = new User("mary", "abc", "bla@bla.com", "localhost", PORT_CLIENT);
+    john = new User("john", "123", "bunny@bla.com", "localhost", PORT_CLIENT2);
     server.db.add("mary", mary, false);
+    server.db.add("john", john, false);
 
     server.start();
     Thread.sleep(200);
@@ -60,17 +63,37 @@ public class ServerClientTest {
 
   @Test
   public void testLoadUserlist() throws Exception {
-    log.debug("------------------------------------<<<<<<<<");
     assertEquals(0, client.getUserList().size());
     client.login(mary);
     client.loadUserlist();
-    Thread.sleep(1000);
+    Thread.sleep(200);
     assertEquals(1, client.getUserList().size());
-    log.debug("------------------------------------<<<<<<<<");
   }
 
   @Test
   public void testCreate() throws Exception {
+    log.debug("------------------------------------<<<<<<<<");
+    // create new client 2
+    client2 = new Client(ADDR, PORT_SERVER, PORT_CLIENT2);
+    client2.start();
+
+    client.login(mary);
+    client2.login(john);
+
+    assertEquals(0, client.getActiveChatrooms().size());
+    assertEquals(0, client2.getActiveChatrooms().size());
+
+    // create a new chatroom by mary with john
+    client.create("Food", john);
+
+    Thread.sleep(200);
+
+    assertEquals(1, client.getActiveChatrooms().size());
+    assertEquals(1, client2.getActiveChatrooms().size());
+
+    log.debug("------------------------------------<<<<<<<<");
+
+    client2.stop();
 
   }
 
