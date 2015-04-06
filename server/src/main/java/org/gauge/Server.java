@@ -140,7 +140,34 @@ public class Server {
     } else if (header.equals("JOIN")) {
       JSONObject resJson = makeJoinRes(packet);
       sendPacket(s, new Packet("JOIN", resJson.toString()));
+
+    } else if (header.equals("LEAVE")) {
+      JSONObject resJson = makeLeaveRes(packet);
+      sendPacket(s, new Packet("LEAVE", resJson.toString()));
     }
+  }
+
+
+  private JSONObject makeLeaveRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONObject jsonReq;
+    JSONObject json = new JSONObject();
+
+    if (isLoggedIn(packet)) {
+      try {
+        jsonReq = new JSONObject(reqString);
+        String username = jsonReq.getString("username");
+        String chatroomId = jsonReq.getString("chatroomId");
+        Chatroom chatroom = chatroomDB.get(chatroomId);
+        if (chatroom != null) {
+         chatroom.remove(username);
+        }
+      } catch (JSONException e) {
+        e.printStackTrace();
+        log.error("Invalid JSON for LEAVE packet.");
+      }
+    }
+    return json;
   }
 
 

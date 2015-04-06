@@ -151,7 +151,7 @@ public class Client {
       return this;
     }
 
-    Chatroom chatroom = udpDaemon.create(topic, user);
+    Chatroom chatroom = udpDaemon.create(topic, users);
     tcpDaemon.createChatroom(chatroom);
     return this;
   }
@@ -170,9 +170,9 @@ public class Client {
   }
 
 
-  public Client leave(String chatId) {
-    //TODO implement
-    udpDaemon.leave(chatId);
+  public Client leave(String chatroomId) {
+    udpDaemon.leave(chatroomId);
+    tcpDaemon.leaveChatroom(user, chatroomId);
     return this;
   }
 

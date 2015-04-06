@@ -34,7 +34,7 @@ public class ServerClientTest {
     // for mocking purposes
     mary = new User("mary", "abc", "bla@bla.com", "localhost", PORT_CLIENT);
     john = new User("john", "123", "bunny@bla.com", "localhost", PORT_CLIENT2);
-    mark = new User("mark", "123", "sunflower@bla.com", "localhost", PORT_CLIENT2);
+    mark = new User("mark", "123", "sunflower@bla.com", "localhost", PORT_CLIENT3);
 
     server.db.add("mary", mary, false);
     server.db.add("john", john, false);
@@ -95,10 +95,8 @@ public class ServerClientTest {
 
     assertEquals(1, client.getActiveChatrooms().size());
     assertEquals(1, client2.getActiveChatrooms().size());
-    log.debug("------------------------------------<<<<<<<<");
-    client.getActiveChatrooms().print();
-    client2.getActiveChatrooms().print();
-    log.debug("------------------------------------<<<<<<<<");
+//    client.getActiveChatrooms().print();
+//    client2.getActiveChatrooms().print();
 
     // verify that retrieve list of ALL chatrooms work
 
@@ -167,11 +165,54 @@ public class ServerClientTest {
 
     client2.stop();
     client3.stop();
-
   }
+
 
   @Test
   public void testLeave() throws Exception {
+    client.login(mary);
+
+    // create new client 2
+    client2 = new Client(ADDR, PORT_SERVER, PORT_CLIENT2);
+    client2.start();
+    client2.login(john);
+
+    // create new client 3
+    client3 = new Client(ADDR, PORT_SERVER, PORT_CLIENT3);
+    client3.start();
+    client3.login(mark);
+
+    // create a new chatroom with mark, john and mark
+    User[] users = {john, mark};
+    client.create("Food", users);
+    Thread.sleep(200);
+
+    // load all chatroom lists
+    client.loadChatroomList();
+    client2.loadChatroomList();
+    client3.loadChatroomList();
+
+    assertEquals(1, client2.getActiveChatrooms().size());  // assert 1 chatroom
+    String chatroomId = client2.getActiveChatrooms().chatrooms.keySet().iterator().next();
+    assertEquals(3, client2.getActiveChatrooms().get(chatroomId).size()); // assert 3 people in chatroom
+    client2.leave(chatroomId);
+    Thread.sleep(200);
+
+    // assert that #users client active chatrooms and server are both 2.
+//    client2.chatroomDb.print();
+    assertEquals(2, client2.udpDaemon.chatroomsActive.get(chatroomId).size());
+    assertEquals(2, server.chatroomDB.get(chatroomId).size());
+
+    // refresh chatroom list with that of server
+    client2.loadChatroomList();
+    Thread.sleep(200);
+
+    // now assert that #users client all chatrooms and server are both 2.
+    assertEquals(2, client2.udpDaemon.chatroomsAll.get(chatroomId).size());
+    assertEquals(2, server.chatroomDB.get(chatroomId).size());
+
+    client2.stop();
+    client3.stop();
 
   }
 }

@@ -80,12 +80,9 @@ public class Chatroom {
 
 
   public Chatroom add(User user) {
-    log.debug("**************************");
     if (!exists(user)) {
-      log.debug("======= ADDED USER");
       users.add(user);
     }
-    log.debug("**************************");
     return this;
   }
 
