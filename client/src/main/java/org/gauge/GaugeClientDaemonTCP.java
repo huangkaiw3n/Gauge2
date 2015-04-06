@@ -63,7 +63,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
    * @param db
    * @return
    */
-  public synchronized GaugeClientDaemonTCP setChatoomsReference(final ChatroomDB db) {
+  public synchronized GaugeClientDaemonTCP setChatroomsReference(final ChatroomDB db) {
     this.chatroomDbRef = db;
     return this;
   }

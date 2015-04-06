@@ -125,7 +125,7 @@ public class TCPServerClientTest {
     GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1833);
     UserStatusDB db = new UserStatusDB();
     client.setUserlistReference(db);
-    client.setChatoomsReference(new ChatroomDB());
+    client.setChatroomsReference(new ChatroomDB());
 
     server.start();
     client.start();

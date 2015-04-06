@@ -39,8 +39,10 @@ public class Client {
     tcpDaemon = new GaugeClientDaemonTCP(serverAddr, portTcp);
     udpDaemon = new PeerDaemon(user, portUdp); // the user is not configured as yet.  But points to this reference.
 
-    tcpDaemon.setChatoomsReference(chatroomDb);
-    tcpDaemon.setUserlistReference(userDb);
+    // set references
+    tcpDaemon.setChatroomsReference(this.chatroomDb);
+    tcpDaemon.setUserlistReference(this.userDb);
+    udpDaemon.setChatroomsAllDbRef(this.chatroomDb);
   }
 
 
@@ -105,6 +107,17 @@ public class Client {
     }
 
     tcpDaemon.getUsers();
+    return this;
+  }
+
+
+  public Client loadChatroomList() {
+    if (!isSafe()) {
+      log.error("Failed to get chatroom list.");
+      return this;
+    }
+
+    tcpDaemon.getChatrooms();
     return this;
   }
 

@@ -3,10 +3,10 @@ package org.gauge;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ServerClientTest {
 
@@ -70,9 +70,9 @@ public class ServerClientTest {
     assertEquals(1, client.getUserList().size());
   }
 
+
   @Test
-  public void testCreate() throws Exception {
-    log.debug("------------------------------------<<<<<<<<");
+  public void testCreateAndLoadChatroomList() throws Exception {
     // create new client 2
     client2 = new Client(ADDR, PORT_SERVER, PORT_CLIENT2);
     client2.start();
@@ -91,7 +91,26 @@ public class ServerClientTest {
     assertEquals(1, client.getActiveChatrooms().size());
     assertEquals(1, client2.getActiveChatrooms().size());
 
+    // verify that retrieve list of ALL chatrooms work
+
     log.debug("------------------------------------<<<<<<<<");
+
+    // assert client 2 does not have server chatroom list loaded
+    assertEquals(0, client2.getAllChatrooms().size());
+    assertEquals(0, client2.udpDaemon.getChatroomsAll().size());
+
+    // load the chatroom list
+    client2.loadChatroomList();
+    Thread.sleep(200);
+
+    // assert client 2 now has server chatroom list loaded
+    client2.chatroomDb.print();
+    client2.udpDaemon.getChatroomsAll().print();
+    log.debug("------------------------------------<<<<<<<<");
+
+    assertEquals(1, client2.getAllChatrooms().size());
+    assertEquals(1, client2.udpDaemon.getChatroomsAll().size());
+    assertEquals(1, client2.chatroomDb.size());
 
     client2.stop();
 

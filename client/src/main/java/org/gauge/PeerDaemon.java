@@ -86,6 +86,22 @@ public class PeerDaemon {
 
 
   /**
+   *
+   * Overwrites the chatrooms all reference in instance to
+   * use another reference.
+   *
+   * Useful for sharing Chatroom state information among objects.
+   *
+   * @param db
+   * @return
+   */
+  public PeerDaemon setChatroomsAllDbRef(final ChatroomDB db) {
+    this.chatroomsAll = db;
+    return this;
+  }
+
+
+  /**
    * Creates a chatroom with a single user
    *
    * @param user The user to connect to.  NOTE: Each user must have ID, and IP address specified.
