@@ -2,6 +2,8 @@ package org.gauge;
 
 import org.apache.log4j.Logger;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 /**
  * Created by joel on 4/6/15.
  */
@@ -171,9 +173,34 @@ public class Client {
 
 
   public Client leave(String chatroomId) {
+    if (!isSafe()) {
+      log.error("Failed to leave chatroom.");
+      return this;
+    }
+
     udpDaemon.leave(chatroomId);
     tcpDaemon.leaveChatroom(user, chatroomId);
     return this;
+  }
+
+
+  public Client message(String chatroomId, String message) {
+    if (!isSafe()) {
+      log.error("Failed to send message to " + chatroomId + ".");
+      return this;
+    }
+
+    udpDaemon.sendMessage(chatroomId, message);
+    return this;
+  }
+
+
+  public LinkedBlockingQueue<Packet> getInbox(String chatroomId) {
+    if (!isSafe()) {
+      log.error("Failed to retrieve message queue from " + chatroomId + ".");
+      return null;
+    }
+    return udpDaemon.inboxRoom(chatroomId);
   }
 
 
