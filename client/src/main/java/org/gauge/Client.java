@@ -32,8 +32,8 @@ public class Client {
     this.userDb = userDb;
     this.chatroomDb = chatroomDB;
     this.serverAddr = serverAddr;
-    this.portTcp = this.portTcp;
-    this.portUdp = this.portUdp;
+    this.portTcp = portTcp;
+    this.portUdp = portUdp;
     this.user = new User("", "", "", this.serverAddr, this.portUdp);
 
     tcpDaemon = new GaugeClientDaemonTCP(serverAddr, portTcp);
