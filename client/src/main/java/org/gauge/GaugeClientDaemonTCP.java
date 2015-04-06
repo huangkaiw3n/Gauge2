@@ -63,7 +63,7 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
    * @param db
    * @return
    */
-  public synchronized GaugeClientDaemonTCP setChatoomsReference(final ChatroomDB db) {
+  public synchronized GaugeClientDaemonTCP setChatroomsReference(final ChatroomDB db) {
     this.chatroomDbRef = db;
     return this;
   }
@@ -173,7 +173,6 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
           ChatroomDB db2 = new ChatroomDB(jsonArr);
           chatroomDbRef.clear();
           chatroomDbRef.copy(db2);
-          chatroomDbRef.print();
 
         } catch (JSONException e) {
           e.printStackTrace();
@@ -207,6 +206,27 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
 
   }
 
+
+  public GaugeClientDaemonTCP joinChatroom(final Chatroom chatroom) {
+    Exchange exchange = new Exchange() {
+      public Packet request() {
+        JSONObject json = null;
+        try {
+          json = createJSONWihHash();
+          json.put("chatroom", chatroom.toJSON());
+        } catch (JSONException e) {
+        }
+        return new Packet("JOIN", json.toString());
+      }
+
+      public void response(Packet p) {
+        log.debug("Updated server that I joined chatroom!");
+      }
+    };
+    queueExchange(exchange);
+    return this;
+
+  }
 
   /**
    *

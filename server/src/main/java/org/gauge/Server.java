@@ -136,7 +136,34 @@ public class Server {
     } else if (header.equals("CREATE")) {
       JSONObject resJson = makeCreateRes(packet);
       sendPacket(s, new Packet("CREATE", resJson.toString()));
+
+    } else if (header.equals("JOIN")) {
+      JSONObject resJson = makeJoinRes(packet);
+      sendPacket(s, new Packet("JOIN", resJson.toString()));
     }
+  }
+
+
+  private JSONObject makeJoinRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONObject jsonReq;
+    JSONObject json = new JSONObject();
+
+    if (isLoggedIn(packet)) {
+      try {
+        // get the chatroom to join
+        jsonReq = new JSONObject(reqString);
+        Chatroom chatroom = new Chatroom(jsonReq.getJSONObject("chatroom"));
+        // update server chatroomDB
+        chatroomDB.add(chatroom);
+
+      } catch (JSONException e) {
+        e.printStackTrace();
+        log.error("Invalid JSON for JOIN packet.");
+      }
+    }
+
+    return json;
   }
 
 
