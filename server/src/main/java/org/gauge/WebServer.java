@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class WebServer {
 
-    static final Logger log = Logger.getLogger(Server.class);
+    static final Logger log = Logger.getLogger(WebServer.class);
 
     private volatile boolean isRunning;
     private volatile ServerSocket socket;
@@ -24,19 +24,19 @@ public class WebServer {
 
     public UserDB db;
 
-    public WebServer(int port) {
+    public WebServer(int port, String csvPath) {
         this.port = port;
-        init();
+        init(csvPath);
     }
 
-    public WebServer() {
+    public WebServer(String csvPath) {
         this.port = 9000;
-        init();
+        init(csvPath);
     }
 
-    private void init() {
+    private void init(String csvPath) {
         isRunning = false;
-        db = new UserDB();
+        db = new UserDB(csvPath);
     }
 
 
