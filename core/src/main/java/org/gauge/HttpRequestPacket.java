@@ -53,12 +53,12 @@ public class HttpRequestPacket {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Request + " " + Filename + " " + HttpVersion + "\n");
-        sb.append("From: " + Host + "\n\n");
+        sb.append(Request + " " + Filename + " " + HttpVersion + "\r\n");
+        sb.append("Host: " + Host + "\r\n\n");
         return sb.toString();
     }
 
-    public HttpRequestPacket toPacket(InputStreamReader isr) {
+    public static HttpRequestPacket toPacket(InputStreamReader isr) {
         BufferedReader br = new BufferedReader(isr);
         HttpRequestPacket hrp = new HttpRequestPacket();
         try{

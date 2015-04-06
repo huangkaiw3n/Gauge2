@@ -1,9 +1,13 @@
 package org.gauge;
 
 import javax.swing.text.AbstractDocument;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.StringTokenizer;
 
 /**
  * Created by AdminNUS on 2/4/2015.
@@ -91,12 +95,43 @@ public class HttpReplyPacket {
         return this.PayLoad;
     }
 
+    public HttpReplyPacket toPacket(InputStreamReader isr){
+        HttpReplyPacket packet = null;
+        BufferedReader br = new BufferedReader(isr);
+        try{
+            String input = br.readLine();
+            StringTokenizer st = new StringTokenizer(input);
+            st.nextToken();
+            packet.setHttpVersion();
+            packet.setStatus(st.nextToken());
+            packet.setStatusNo(st.nextToken());
+            input = br.readLine();
+            input = input.substring(6);
+            packet.setDate(input);
+            input = br.readLine();
+            input = input.substring(14);
+            packet.setContent_Type(input);
+            input = br.readLine();
+            input = input.substring(16);
+            packet.setContent_Length(input);
+            if(Integer.getInteger(packet.getContent_Length()) > 0){
+                packet.setPayLoad("");
+            }
+            else
+                return packet;
+        }catch(IOException e){
+            return null;
+        }
+
+        return packet;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(HttpVersion + Status + "\n");
-        sb.append(Date + "\n");
-        sb.append(Content_Type + "\n" + Content_Length + "\n");
-        sb.append(PayLoad + "\n\n");
+        sb.append(HttpVersion +" " + Status + " " + StatusNo + "\r\n");
+        sb.append("Date: " + Date + "\r\n");
+        sb.append("Content_Type: " + Content_Type + "\r\n" + "Content_Length: " + Content_Length + "\r\n");
+        sb.append(PayLoad + "\r\n \r\n");
         return sb.toString();
     }
 

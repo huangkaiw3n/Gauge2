@@ -1,13 +1,14 @@
 package org.gauge;
 
 import org.apache.log4j.Logger;
+import org.gauge.ui.Login;
 import org.gauge.ui.MainView;
 
 /**
  * Hello world!
  */
 public class App {
-
+    private
   static final Logger log = Logger.getLogger(Misc.class);
 
   public App() {
@@ -24,11 +25,18 @@ public class App {
     log.info("Starting client..");
 
     // GUI
+      /*
     Runnable runnableGui = new Runnable() {
       public void run() {
         MainView.runForm(args);
       }
     };
+    */
+      Runnable runnableGui = new Runnable() {
+          public void run() {
+              Login lg = new Login();
+          }
+      };
 
 
 
