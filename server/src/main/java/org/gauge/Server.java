@@ -1,14 +1,18 @@
 package org.gauge;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by joel on 3/14/15.
@@ -22,6 +26,8 @@ public class Server {
   private int port;
 
   public UserDB db;
+  public UserStatusHashDB statusDb;
+  public ChatroomDB chatroomDB;
 
   public Server(int port) {
     this.port = port;
@@ -36,6 +42,8 @@ public class Server {
   private void init() {
     isRunning = false;
     db = new UserDB();
+    statusDb = new UserStatusHashDB();
+    chatroomDB = new ChatroomDB();
   }
 
 
@@ -102,6 +110,8 @@ public class Server {
     dos = new DataOutputStream(s.getOutputStream());
     dos.writeInt(length);
     dos.write(buffer);
+
+    log.debug("Sent packet: " + packet.toString());
   }
 
 
@@ -114,7 +124,85 @@ public class Server {
     } else if (header.equals("LOGIN")) {
       JSONObject resJson = makeAuthRes(packet);
       sendPacket(s, new Packet("LOGIN", resJson.toString()));
+
+    } else if (header.equals("USERLIST")) {
+      JSONArray resJson = makeUserlistRes(packet);
+      sendPacket(s, new Packet("USERLIST", resJson.toString()));
+
+    } else if (header.equals("CHATROOMS")) {
+      JSONArray resJson = makeChatroomsRes(packet);
+      sendPacket(s, new Packet("CHATROOMS", resJson.toString()));
+
+    } else if (header.equals("CREATE")) {
+      JSONObject resJson = makeCreateRes(packet);
+      sendPacket(s, new Packet("CREATE", resJson.toString()));
+
+    } else if (header.equals("JOIN")) {
+      JSONObject resJson = makeJoinRes(packet);
+      sendPacket(s, new Packet("JOIN", resJson.toString()));
     }
+  }
+
+
+  private JSONObject makeJoinRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONObject jsonReq;
+    JSONObject json = new JSONObject();
+
+    if (isLoggedIn(packet)) {
+      try {
+        // get the chatroom to join
+        jsonReq = new JSONObject(reqString);
+        Chatroom chatroom = new Chatroom(jsonReq.getJSONObject("chatroom"));
+        // update server chatroomDB
+        chatroomDB.add(chatroom);
+
+      } catch (JSONException e) {
+        e.printStackTrace();
+        log.error("Invalid JSON for JOIN packet.");
+      }
+    }
+
+    return json;
+  }
+
+
+  private JSONObject makeCreateRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONObject json = new JSONObject();
+    Chatroom curr = null;
+
+    if (isLoggedIn(packet)) {
+      try {
+        JSONObject jsonReq = new JSONObject(reqString);
+        curr = new Chatroom(jsonReq.getJSONObject("chatroom"));
+        chatroomDB.add(curr);
+      } catch (JSONException e) {
+        log.error("Invalid JSON for CREATE packet.");
+      }
+    }
+
+    return json;
+  }
+
+
+  private JSONArray makeChatroomsRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONArray jsonArr = new JSONArray();
+    if (isLoggedIn(packet)) {
+      jsonArr = chatroomDB.toJSON();
+    }
+    return jsonArr;
+  }
+
+
+  private JSONArray makeUserlistRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONArray jsonArr = new JSONArray();
+    if (isLoggedIn(packet)) {
+      jsonArr = statusDb.toJSONArray();
+    }
+    return jsonArr;
   }
 
 
@@ -125,13 +213,49 @@ public class Server {
     JSONObject resJson = new JSONObject();
     try {
       if (status) {
+        User u = new User(new JSONObject(reqString));
+        String hash = generateHash(reqString);
         resJson.put("status", "success");
+        resJson.put("hash", hash); // TODO: Replace with better hash function
+        // insert new user into StatusDB with salt
+        statusDb.insert(hash, User.cloneWithoutPassword(u));
       } else {
         resJson.put("status", "fail");
       }
     } catch (JSONException e) {
     }
     return resJson;
+  }
+
+
+  private String generateHash(String randomText) {
+    String hash = null;
+    try {
+      hash = MessageDigest.getInstance("MD5").digest(randomText.getBytes()).toString();
+    } catch (NoSuchAlgorithmException e) {
+    }
+    return hash;
+  }
+
+
+  /**
+   * check if logged in via packet.  The packet
+   * should have a JSON property "hash".
+   * @param p
+   * @return
+   */
+  public boolean isLoggedIn(Packet p) {
+    String payload = p.getPayload();
+    try {
+      JSONObject json = new JSONObject(payload);
+      String hash = (String) json.get("hash");
+      if (statusDb.get(hash) != null) {
+        return true;
+      }
+    } catch (JSONException e) {
+      log.error("User not logged in.  Cannot process packet.");
+    }
+    return false;
   }
 
 
@@ -158,7 +282,9 @@ public class Server {
     }
 
     try {
-      socket = new ServerSocket(port);
+      socket = new ServerSocket();
+      socket.setReuseAddress(true);
+      socket.bind(new InetSocketAddress(port));
       Thread.sleep(1000); // give server time to start
     } catch (IOException e) {
       e.printStackTrace();

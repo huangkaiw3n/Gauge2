@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test submit form</title>
+    <!--<script language="JavaScript" type="text/javascript" src="js/voucher.js"></script>-->
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <meta charset="utf-8" />
+</head>
+<body>
+<p style="font-size:30px">Gauge Client Registration</p>
+<form id="loginForm" name="form" action="register">
+    <div class="form-item">
+        <label>Username:</label>
+        <input type="text" id="username" name="username" maxlength = "30"/>
+    </div>
+    <div class="form-item">
+        <label>Password: </label>
+        <input id="password" name="password" type="password" maxlength = "30"/>
+    </div>
+    <div class="form-item">
+        <label>Email:    </label>
+        <input id="email" name="email" type="text" maxlength = "30"/>
+    </div>
+    <input type="submit" name="submit" value="Submit" onClick='getData()'/>
+</form>
+</body>
+<script>
+    $(document).ready(function () {
+        document.getData = function () {
+            var $params = $('#loginForm :input');
+            var jsonObj = {};
+            $params.each(function () {
+                jsonObj[this.name] = $(this).val();
+            });
+            console.log(jsonObj);
+
+            // perform actual GET request with jsonObj as payload
+            $.get('http://www.google.com/',jsonObj, function(data) {
+                console.log('Received reply: ' + data);
+            }, 'json');
+        };
+    });
+</script>
+</html>

@@ -63,6 +63,8 @@ public class HttpRequestPacket {
         HttpRequestPacket hrp = new HttpRequestPacket();
         try{
             String input = br.readLine();
+            if(input == null)
+                return null;
             StringTokenizer st = new StringTokenizer(input);
             if(st.nextToken().equals("GET")){
                 String filename = st.nextToken();

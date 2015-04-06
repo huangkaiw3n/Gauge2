@@ -128,3 +128,4 @@ server/src/main/resources/log4j.properties
 
 ### Log files
 *.log
+*.csv
