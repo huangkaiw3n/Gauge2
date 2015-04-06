@@ -50,7 +50,7 @@ public class ServerClientTest {
   @Test
   public void testLogin() throws Exception {
     client.login(mary);
-    log.debug(client.isLoggedIn());
+    assertTrue(client.isLoggedIn());
   }
 
   @Test
@@ -59,8 +59,14 @@ public class ServerClientTest {
   }
 
   @Test
-  public void testGetUserlist() throws Exception {
-
+  public void testLoadUserlist() throws Exception {
+    log.debug("------------------------------------<<<<<<<<");
+    assertEquals(0, client.getUserList().size());
+    client.login(mary);
+    client.loadUserlist();
+    Thread.sleep(1000);
+    assertEquals(1, client.getUserList().size());
+    log.debug("------------------------------------<<<<<<<<");
   }
 
   @Test

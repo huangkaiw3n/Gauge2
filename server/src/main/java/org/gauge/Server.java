@@ -110,6 +110,8 @@ public class Server {
     dos = new DataOutputStream(s.getOutputStream());
     dos.writeInt(length);
     dos.write(buffer);
+
+    log.debug("Sent packet: " + packet.toString());
   }
 
 

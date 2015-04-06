@@ -24,7 +24,7 @@ public class Client {
 
   public Client(String serverAddr, int portTcp, int portUdp) {
     super();
-    init(userDb, chatroomDb, serverAddr, portTcp, portUdp);
+    init(new UserStatusDB(), new ChatroomDB(), serverAddr, portTcp, portUdp);
   }
 
 
@@ -34,7 +34,7 @@ public class Client {
     this.serverAddr = serverAddr;
     this.portTcp = this.portTcp;
     this.portUdp = this.portUdp;
-    this.user = new User("","","",this.serverAddr, this.portUdp);
+    this.user = new User("", "", "", this.serverAddr, this.portUdp);
 
     tcpDaemon = new GaugeClientDaemonTCP(serverAddr, portTcp);
     udpDaemon = new PeerDaemon(user, portUdp); // the user is not configured as yet.  But points to this reference.
@@ -79,7 +79,6 @@ public class Client {
 
 
   /**
-   *
    * Wraps Thread.sleep() and allows execution to pause
    *
    * @param ms
@@ -99,13 +98,24 @@ public class Client {
   }
 
 
-  public Client getUserlist() {
+  public Client loadUserlist() {
     if (!isSafe()) {
       log.error("Failed to get user list.");
       return this; // pass if not safe
     }
-    //TODO implement
+
+    tcpDaemon.getUsers();
     return this;
+  }
+
+
+  public UserStatusDB getUserList() {
+    return userDb;
+  }
+
+
+  public ChatroomDB getChatroomList() {
+    return chatroomDb;
   }
 
 
