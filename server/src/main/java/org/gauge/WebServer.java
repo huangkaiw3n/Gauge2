@@ -54,6 +54,8 @@ public class WebServer {
             isr = new InputStreamReader(s.getInputStream());
 
             HttpRequestPacket packet = HttpRequestPacket.toPacket(isr);
+            if(packet == null)
+                return;
             log.info(packet.toString());
             process(s, packet);
 
@@ -135,7 +137,7 @@ public class WebServer {
             }
             log.info(u1.toString());
             JSONObject resJson = new JSONObject();
-            if(u1.getUsername() != null && u1.getPassword() != null) {
+            if(u1.getUsername().compareTo("") != 0 && u1.getPassword().compareTo("") != 0) {
                 if (path.toLowerCase().contains("register?"))
                     status = db.add(data.get(0), u1, false);
                 else
@@ -151,7 +153,8 @@ public class WebServer {
             dos.writeBytes(resJson.toString());
         } else {
             try {
-                String filename = "assets/html" + path;
+                String filename = "server/assets/html" + path;
+
                 // Open and read the file into buffer
                 File f = new File(filename);
 
@@ -239,6 +242,11 @@ public class WebServer {
                     pollConnection();
                 }
                 log.info("Server stopped.");
+                try {
+                    db.toCSV();
+                } catch (IOException e){
+                    log.info("toCSV path output error.");
+                }
             }
         };
 
