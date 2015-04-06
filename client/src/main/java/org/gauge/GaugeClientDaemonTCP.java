@@ -186,4 +186,15 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
   }
 
 
+  /**
+   *
+   * Verify if logged in
+   *
+   * @return
+   */
+  public boolean isLoggedIn() {
+    return hash != null;
+  }
+
+
 }
