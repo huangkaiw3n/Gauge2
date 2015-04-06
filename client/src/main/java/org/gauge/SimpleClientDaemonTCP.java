@@ -143,6 +143,7 @@ public class SimpleClientDaemonTCP {
       e.printStackTrace();
     }
 
+    log.debug("Received packet: " + packet.toString());
     return packet;
   }
 
@@ -167,6 +168,7 @@ public class SimpleClientDaemonTCP {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    log.debug("Sent packet: " + packet.toString());
   }
 
 

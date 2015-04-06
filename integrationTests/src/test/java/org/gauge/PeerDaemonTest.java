@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+
 @Ignore
 public class PeerDaemonTest {
 
@@ -84,7 +85,7 @@ public class PeerDaemonTest {
     //--------------------------------------------------
     // let b leave the chatroom.  Chatroom should close.
     // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
-    String chatroomId = a.chatroomsAll.keySet().iterator().next();
+    String chatroomId = a.chatroomsAll.chatrooms.keySet().iterator().next();
     c.join(chatroomId);
     Thread.sleep(200);
 
@@ -123,7 +124,7 @@ public class PeerDaemonTest {
     //--------------------------------------------------
     // let b leave the chatroom.  Chatroom should close.
     // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
-    String chatroomId = a.chatroomsActive.keySet().iterator().next();
+    String chatroomId = a.chatroomsActive.chatrooms.keySet().iterator().next();
     a.leave(chatroomId);
     Thread.sleep(200);
 
@@ -155,7 +156,7 @@ public class PeerDaemonTest {
     //--------------------------------------------------
     // let b leave the chatroom.  Chatroom should close.
     // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
-    String chatroomId = a.chatroomsActive.keySet().iterator().next();
+    String chatroomId = a.chatroomsActive.chatrooms.keySet().iterator().next();
     a.leave(chatroomId);
     Thread.sleep(200);
 
@@ -240,7 +241,7 @@ public class PeerDaemonTest {
     assertEquals(a.chatroomsActive.size(), c.chatroomsActive.size());
 
     // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
-    String chatroomId = a.chatroomsActive.keySet().iterator().next();
+    String chatroomId = a.chatroomsActive.chatrooms.keySet().iterator().next();
 
     a.sendMessage(chatroomId, "Hello world!");
 
@@ -274,7 +275,7 @@ public class PeerDaemonTest {
     assertEquals(a.chatroomsActive.size(), c.chatroomsActive.size());
 
     // there is only 1 chatroom.  Hence this returns the ID of this chatroom.
-    String chatroomId = a.chatroomsActive.keySet().iterator().next();
+    String chatroomId = a.chatroomsActive.chatrooms.keySet().iterator().next();
 
     assertTrue(a.inboxRoom(chatroomId) != null);  // as chatroom exists, inbox should exist here
     assertTrue(b.inboxRoom(chatroomId) == null);

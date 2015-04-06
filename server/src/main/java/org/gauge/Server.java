@@ -110,6 +110,8 @@ public class Server {
     dos = new DataOutputStream(s.getOutputStream());
     dos.writeInt(length);
     dos.write(buffer);
+
+    log.debug("Sent packet: " + packet.toString());
   }
 
 
@@ -126,11 +128,36 @@ public class Server {
     } else if (header.equals("USERLIST")) {
       JSONArray resJson = makeUserlistRes(packet);
       sendPacket(s, new Packet("USERLIST", resJson.toString()));
+
     } else if (header.equals("CHATROOMS")) {
       JSONArray resJson = makeChatroomsRes(packet);
       sendPacket(s, new Packet("CHATROOMS", resJson.toString()));
+
+    } else if (header.equals("CREATE")) {
+      JSONObject resJson = makeCreateRes(packet);
+      sendPacket(s, new Packet("CREATE", resJson.toString()));
     }
   }
+
+
+  private JSONObject makeCreateRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONObject json = new JSONObject();
+    Chatroom curr = null;
+
+    if (isLoggedIn(packet)) {
+      try {
+        JSONObject jsonReq = new JSONObject(reqString);
+        curr = new Chatroom(jsonReq.getJSONObject("chatroom"));
+        chatroomDB.add(curr);
+      } catch (JSONException e) {
+        log.error("Invalid JSON for CREATE packet.");
+      }
+    }
+
+    return json;
+  }
+
 
   private JSONArray makeChatroomsRes(Packet packet) {
     String reqString = packet.getPayload();

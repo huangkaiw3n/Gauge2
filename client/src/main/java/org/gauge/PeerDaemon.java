@@ -12,7 +12,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.AbstractQueue;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -29,8 +28,9 @@ public class PeerDaemon {
 
   protected volatile User user;
   protected volatile DatagramSocket incoming, outgoing;
-  protected volatile ConcurrentHashMap<String, Chatroom> chatroomsActive; // use ID as key
-  protected volatile ConcurrentHashMap<String, Chatroom> chatroomsAll; // use ID as key
+
+  protected volatile ChatroomDB chatroomsActive;
+  protected volatile ChatroomDB chatroomsAll;
 
 
   /**
@@ -80,8 +80,8 @@ public class PeerDaemon {
     sendQueue = new LinkedBlockingQueue<ChatroomPacket>();
     recvQueue = new ConcurrentHashMap<String, LinkedBlockingQueue<Packet>>();
     recvQueue.put("main", new LinkedBlockingQueue<Packet>());
-    chatroomsAll = new ConcurrentHashMap<String, Chatroom>();
-    chatroomsActive = new ConcurrentHashMap<String, Chatroom>();
+    chatroomsAll = new ChatroomDB();
+    chatroomsActive = new ChatroomDB();
   }
 
 
@@ -91,10 +91,10 @@ public class PeerDaemon {
    * @param user The user to connect to.  NOTE: Each user must have ID, and IP address specified.
    * @return
    */
-  public PeerDaemon create(String title, User user) {
+  public Chatroom create(String title, User user) {
     User[] users = {user};
-    create(title, users);
-    return this;
+    Chatroom c = create(title, users);
+    return c;
   }
 
 
@@ -106,13 +106,13 @@ public class PeerDaemon {
    * @param users An array of chatrooms to connect to.  NOTE: Each user must have ID, and IP address specified.
    * @return
    */
-  public PeerDaemon create(String title, User[] users) {
+  public Chatroom create(String title, User[] users) {
     User[] singleUser = {this.user};
     Chatroom chatroom = new Chatroom(title, ArrayUtils.addAll(singleUser, users));
     String chatroomId = chatroom.getId();
     log.debug(prettyUsername() + " Created chatroom: " + chatroom.toJSON());
-    chatroomsActive.put(chatroomId, chatroom);
-    chatroomsAll.put(chatroomId, chatroom); // TODO: broadcast to server that chatroom has been created.
+    chatroomsActive.add(chatroom);
+    chatroomsAll.add(chatroom); // TODO: broadcast to server that chatroom has been created.
 
     // create the mailbox
     recvQueue.put(chatroomId, new LinkedBlockingQueue<Packet>());
@@ -120,7 +120,7 @@ public class PeerDaemon {
     Packet createPacket = new Packet("CREATE", chatroom.toJSON().toString());
     enqueSend(chatroom.getId(), createPacket);
 
-    return this;
+    return chatroom;
   }
 
 
@@ -130,7 +130,7 @@ public class PeerDaemon {
    * @return
    */
   public PeerDaemon join(final String chatroomId) {
-    if (!chatroomsAll.containsKey(chatroomId)) {
+    if (!chatroomsAll.has(chatroomId)) {
       log.error(prettyUsername() + " Oops!  Cannot join chatroom. " + chatroomId + " does not exist.");
       return this;
     }
@@ -140,7 +140,7 @@ public class PeerDaemon {
       joinObj.put("user", user.toJSON());
       joinObj.put("chatroomId", chatroomId);
       Packet joinPacket = new Packet("JOIN", joinObj.toString());
-      chatroomsActive.put(chatroomId, chatroomsAll.get(chatroomId));
+      chatroomsActive.add(chatroomsAll.get(chatroomId));
       enqueSend(chatroomId, joinPacket, new Callback() {
         public void execute() {
           // create the mailbox
@@ -163,7 +163,7 @@ public class PeerDaemon {
    * @return
    */
   public PeerDaemon leave(final String chatroomId) {
-    if (chatroomsActive.containsKey(chatroomId)) {
+    if (chatroomsActive.has(chatroomId)) {
       Chatroom curr = chatroomsActive.get(chatroomId);
       JSONObject leaveObj = new JSONObject();
       try {
@@ -202,7 +202,7 @@ public class PeerDaemon {
     JSONObject sendJson;
     Packet packet;
 
-    if (!chatroomsActive.containsKey(chatroomId)) {
+    if (!chatroomsActive.has(chatroomId)) {
       log.error(prettyUsername() + " Oops!  Cannot send message to "
               + chatroomId + ". Not found!");
       return this;
@@ -403,7 +403,7 @@ public class PeerDaemon {
           e.printStackTrace();
         }
         while (isRunning) {
-          // deque send queue and broacast to relevant chatroomsActive
+          // deque send queue and broacast to relevant chatroom active.
           executeSend();
         }
         if (outgoing != null) outgoing.close();
@@ -484,14 +484,14 @@ public class PeerDaemon {
    * @param chatrooms  the map of chatrooms to perform cleaning.
    * @param chatroomId The chatroomId of chatroom to check.
    */
-  private void removeIfChatroomEmpty(Map<String, Chatroom> chatrooms, String chatroomId) {
+  private void removeIfChatroomEmpty(ChatroomDB chatrooms, String chatroomId) {
     Chatroom chatroom;
-    if (!chatrooms.containsKey(chatroomId)) {
+    if (!chatrooms.has(chatroomId)) {
       return;
     }
     chatroom = chatrooms.get(chatroomId);
     if (chatroom.size() <= 1) { // less than 2 chatrooms, remove chatroom from list.
-      chatrooms.remove(chatroomId);
+      chatrooms.delete(chatroomId);
     }
   }
 
@@ -499,12 +499,12 @@ public class PeerDaemon {
   private void appendChatroom(Chatroom chatroom) {
     log.debug(prettyUsername() + " I GOT HERE");
     String id = chatroom.getId();
-    if (!chatroomsActive.containsKey(id)) {
-      chatroomsActive.put(id, chatroom);
+    if (!chatroomsActive.has(id)) {
+      chatroomsActive.add(chatroom);
     }
 
-    if (!chatroomsAll.containsKey(id)) {
-      chatroomsActive.put(id, chatroom);
+    if (!chatroomsAll.has(id)) {
+      chatroomsActive.add(chatroom);
     }
   }
 
@@ -512,10 +512,7 @@ public class PeerDaemon {
   public PeerDaemon printChatroomActive() {
     StringBuilder sb = new StringBuilder();
     sb.append(prettyUsername() + " --- Active Chatrooms ---\n");
-    for (String key : chatroomsActive.keySet()) {
-      Chatroom chatroom = chatroomsActive.get(key);
-      sb.append(chatroom.toString() + "\n");
-    }
+    sb.append(chatroomsActive.toString());
     sb.append("--- ---\n");
     log.info(sb.toString());
     return this;
@@ -536,6 +533,15 @@ public class PeerDaemon {
 
   public User getUser() {
     return user;
+  }
+
+
+  public ChatroomDB getChatroomsActive() {
+    return chatroomsActive;
+  }
+
+  public ChatroomDB getChatroomsAll() {
+    return chatroomsAll;
   }
 
 }

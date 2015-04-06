@@ -3,6 +3,7 @@ package org.gauge;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -11,163 +12,98 @@ public class ServerClientTest {
 
   static final Logger log = Logger.getLogger(ServerClientTest.class);
 
+  private Client client, client2;
+  private Server server;
+
+  private final String ADDR = "localhost";
+  private final int PORT_SERVER = 14203;
+  private final int PORT_CLIENT = 5067;
+  private final int PORT_CLIENT2 = 5068;
+
+  // users
+  private User mary, john;
+
+
   @Before
   public void setUp() throws Exception {
+    server = new Server(PORT_SERVER);
+    client = new Client(ADDR, PORT_SERVER, PORT_CLIENT);
+
+    // for mocking purposes
+    mary = new User("mary", "abc", "bla@bla.com", "localhost", PORT_CLIENT);
+    john = new User("john", "123", "bunny@bla.com", "localhost", PORT_CLIENT2);
+    server.db.add("mary", mary, false);
+    server.db.add("john", john, false);
+
+    server.start();
+    Thread.sleep(200);
+    client.start();
+
 
   }
+
 
   @After
   public void tearDown() throws Exception {
-    Thread.sleep(200);
-
-  }
-
-  @Test
-  public void testCanPing() throws Exception {
-    Server server = new Server(1832);
-    GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1832);
-
-    server.start();
-    client.start();
-
-    client.ping();
-    client.ping();
-    client.ping();
-
-    Thread.sleep(200);
-    client.stop();
     server.stop();
-  }
-
-  @Test
-  public void testCanLogin() throws Exception {
-    Server server = new Server(1832);
-
-    // for mocking purposes
-    server.db.add("jhtong", new User("jhtong", "123"), false);
-    server.db.add("mary", new User("mary", "abc"), false);
-
-    GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1832);
-
-
-    server.start();
-    client.start();
-
-    client.ping();
-
-    client.login(new User("jhtong", "123","", "192.168.0.1"));  // should pass
-    client.login(new User("jhtong", "abc", "", "192.168.0.2"));  // should fail
-    client.login(new User("jhtong", "122", "", "192.168.0.3"));  // should fail
-
-    Thread.sleep(200);
-
-    assertEquals(1, server.statusDb.size());
-
-    server.statusDb.print();
-
     client.stop();
-    server.stop();
   }
 
 
   @Test
-  public void testCanSendUserlist() throws Exception {
-    Server server = new Server(1833);
+  public void testLogin() throws Exception {
+    client.login(mary);
+    assertTrue(client.isLoggedIn());
+  }
 
-    // for mocking purposes
-    server.db.add("jhtong", new User("jhtong", "123"), false);
-    server.db.add("mary", new User("mary", "abc"), false);
-
-    // set up client
-    GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1833);
-    UserStatusDB db = new UserStatusDB();
-    client.setUserlistReference(db);
-
-    client.usersDBRef.print();
-
-    server.start();
-    client.start();
-
-
-    client.login(new User("jhtong", "123","", "192.168.0.1"));  // should pass
-    Thread.sleep(200);
-//    assertEquals(1, server.statusDb.size());
-
-    client.getUsers();
-    Thread.sleep(200);
-//    assertEquals(1, client.usersDBRef.size());
-
-//    client.usersDBRef.print();
-
-    client.stop();
-    server.stop();
+  @Test
+  public void testLogout() throws Exception {
 
   }
 
+  @Test
+  public void testLoadUserlist() throws Exception {
+    assertEquals(0, client.getUserList().size());
+    client.login(mary);
+    client.loadUserlist();
+    Thread.sleep(200);
+    assertEquals(1, client.getUserList().size());
+  }
 
   @Test
-  public void testCanSendChatroomList() throws Exception {
-    Server server = new Server(1833);
+  public void testCreate() throws Exception {
+    log.debug("------------------------------------<<<<<<<<");
+    // create new client 2
+    client2 = new Client(ADDR, PORT_SERVER, PORT_CLIENT2);
+    client2.start();
 
-    // for mocking purposes
-    User jhtong, mary;
-    jhtong = new User("jhtong", "123");
-    mary = new User("mary", "abc");
-    User[] users = {jhtong, mary};
-    server.db.add("jhtong", jhtong, false);
-    server.db.add("mary", mary, false);
-    server.chatroomDB.add(new Chatroom("Grapes", users));  // mock and assume there are users in chatroom
+    client.login(mary);
+    client2.login(john);
 
-    // set up client
-    GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1833);
-    UserStatusDB db = new UserStatusDB();
-    client.setUserlistReference(db);
-    client.setChatoomsReference(new ChatroomDB());
+    assertEquals(0, client.getActiveChatrooms().size());
+    assertEquals(0, client2.getActiveChatrooms().size());
 
-    server.start();
-    client.start();
+    // create a new chatroom by mary with john
+    client.create("Food", john);
 
-    client.login(new User("jhtong", "123","", "192.168.0.1"));  // should pass
     Thread.sleep(200);
-//    assertEquals(1, server.statusDb.size());
 
-    client.getChatrooms();
-    Thread.sleep(200);
-//    assertEquals(1, client.usersDBRef.size());
+    assertEquals(1, client.getActiveChatrooms().size());
+    assertEquals(1, client2.getActiveChatrooms().size());
 
-//    client.usersDBRef.print();
+    log.debug("------------------------------------<<<<<<<<");
 
-    client.stop();
-    server.stop();
+    client2.stop();
 
   }
 
+  @Test
+  public void testCreate1() throws Exception {
+
+  }
 
   @Test
-  public void testRejectInvalidUser() throws Exception {
-    Server server = new Server(1832);
-
-    // for mocking purposes
-    server.db.add("jhtong", new User("jhtong", "123"), false);
-    server.db.add("mary", new User("mary", "abc"), false);
-
-    GaugeClientDaemonTCP client = new GaugeClientDaemonTCP("localhost", 1832);
-
-    server.start();
-    client.start();
-
-    client.ping();
-
-    client.login(new User("jhtong", "abc", "", "192.168.0.2"));  // should fail
-
-    Thread.sleep(200);
-
-    assertEquals(0, server.statusDb.size());
-
-    server.statusDb.print();
-
-    client.stop();
-    server.stop();
+  public void testLeave() throws Exception {
 
   }
 }
