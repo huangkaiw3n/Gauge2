@@ -3,19 +3,18 @@ package org.gauge;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class ServerClientTest {
+public class ChatServerClientTest {
 
-  static final Logger log = Logger.getLogger(ServerClientTest.class);
+  static final Logger log = Logger.getLogger(ChatServerClientTest.class);
 
   private Client client, client2, client3;
-  private Server server;
+  private ChatServer chatServer;
 
   private final String ADDR = "localhost";
   private final int PORT_SERVER = 14203;
@@ -29,7 +28,7 @@ public class ServerClientTest {
 
   @Before
   public void setUp() throws Exception {
-    server = new Server(PORT_SERVER);
+    chatServer = new ChatServer(PORT_SERVER);
     client = new Client(ADDR, PORT_SERVER, PORT_CLIENT);
 
     // for mocking purposes
@@ -37,11 +36,11 @@ public class ServerClientTest {
     john = new User("john", "123", "bunny@bla.com", "localhost", PORT_CLIENT2);
     mark = new User("mark", "123", "sunflower@bla.com", "localhost", PORT_CLIENT3);
 
-    server.db.add("mary", mary, false);
-    server.db.add("john", john, false);
-    server.db.add("mark", mark, false);
+    chatServer.db.add("mary", mary, false);
+    chatServer.db.add("john", john, false);
+    chatServer.db.add("mark", mark, false);
 
-    server.start();
+    chatServer.start();
     Thread.sleep(200);
     client.start();
 
@@ -51,7 +50,7 @@ public class ServerClientTest {
 
   @After
   public void tearDown() throws Exception {
-    server.stop();
+    chatServer.stop();
     client.stop();
   }
 
@@ -70,8 +69,8 @@ public class ServerClientTest {
 
   @Test
   public void testLoadUserlist() throws Exception {
-    assertEquals(0, client.getUserList().size());
     client.login(mary);
+    assertEquals(0, client.getUserList().size());
     client.loadUserlist();
     Thread.sleep(200);
     assertEquals(1, client.getUserList().size());
@@ -102,7 +101,7 @@ public class ServerClientTest {
 
     // verify that retrieve list of ALL chatrooms work
 
-    // assert client 2 does not have server chatroom list loaded
+    // assert client 2 does not have chatServer chatroom list loaded
     assertEquals(0, client2.getAllChatrooms().size());
     assertEquals(0, client2.udpDaemon.getChatroomsAll().size());
 
@@ -110,7 +109,7 @@ public class ServerClientTest {
     client2.loadChatroomList();
     Thread.sleep(200);
 
-    // assert client 2 now has server chatroom list loaded
+    // assert client 2 now has chatServer chatroom list loaded
     client2.chatroomDb.print();
     client2.udpDaemon.getChatroomsAll().print();
 
@@ -161,9 +160,9 @@ public class ServerClientTest {
     assertEquals(1, client3.getActiveChatrooms().size()); // assert 1 active chatroom now
     assertEquals(3, client3.getActiveChatrooms().get(chatroomId).size()); // assert 3 users now
 
-    // server assertions
-    assertEquals(1, server.chatroomDB.size()); // assert 1 active chatroom now
-    assertEquals(3, server.chatroomDB.get(chatroomId).size()); // assert 3 users now
+    // chatServer assertions
+    assertEquals(1, chatServer.chatroomDB.size()); // assert 1 active chatroom now
+    assertEquals(3, chatServer.chatroomDB.get(chatroomId).size()); // assert 3 users now
 
     client2.stop();
     client3.stop();
@@ -250,18 +249,18 @@ public class ServerClientTest {
     client2.leave(chatroomId);
     Thread.sleep(200);
 
-    // assert that #users client active chatrooms and server are both 2.
+    // assert that #users client active chatrooms and chatServer are both 2.
 //    client2.chatroomDb.print();
     assertEquals(2, client2.udpDaemon.chatroomsActive.get(chatroomId).size());
-    assertEquals(2, server.chatroomDB.get(chatroomId).size());
+    assertEquals(2, chatServer.chatroomDB.get(chatroomId).size());
 
-    // refresh chatroom list with that of server
+    // refresh chatroom list with that of chatServer
     client2.loadChatroomList();
     Thread.sleep(200);
 
-    // now assert that #users client all chatrooms and server are both 2.
+    // now assert that #users client all chatrooms and chatServer are both 2.
     assertEquals(2, client2.udpDaemon.chatroomsAll.get(chatroomId).size());
-    assertEquals(2, server.chatroomDB.get(chatroomId).size());
+    assertEquals(2, chatServer.chatroomDB.get(chatroomId).size());
 
     client2.stop();
     client3.stop();

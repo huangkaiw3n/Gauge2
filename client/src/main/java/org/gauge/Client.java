@@ -8,6 +8,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by joel on 4/6/15.
  */
 
+
+/**
+ * The Client class is the backend for all chat clients.
+ * <p/>
+ * This should be hooked up to a GUI for control.
+ */
 public class Client {
 
   static final Logger log = Logger.getLogger(Client.class);
@@ -24,12 +30,28 @@ public class Client {
 
   protected boolean isRunning;
 
+  /**
+   * Creates a new chat Client instance.
+   *
+   * @param serverAddr The address of the tcp server
+   * @param portTcp    The port of the tcp server
+   * @param portUdp    The udp inbound port to bind
+   */
   public Client(String serverAddr, int portTcp, int portUdp) {
     super();
     init(new UserStatusDB(), new ChatroomDB(), serverAddr, portTcp, portUdp);
   }
 
 
+  /**
+   * Private initialization function.
+   *
+   * @param userDb
+   * @param chatroomDB
+   * @param serverAddr
+   * @param portTcp
+   * @param portUdp
+   */
   private void init(UserStatusDB userDb, ChatroomDB chatroomDB, String serverAddr, int portTcp, int portUdp) {
     this.userDb = userDb;
     this.chatroomDb = chatroomDB;
@@ -48,6 +70,11 @@ public class Client {
   }
 
 
+  /**
+   * Starts the Client daemon.
+   *
+   * @return
+   */
   public Client start() {
     // exit and return if already running
     if (isRunning) return this; // pass
@@ -59,6 +86,11 @@ public class Client {
   }
 
 
+  /**
+   * Stops the Client daemon.
+   *
+   * @return
+   */
   public Client stop() {
     if (!isRunning) return this; // pass
     isRunning = false;
@@ -70,6 +102,14 @@ public class Client {
   }
 
 
+  /**
+   * Login to client.  This function blocks program execution for 400 ms.
+   * <p/>
+   * Check that user is logged using isLoggedIn() before continuing.
+   *
+   * @param user
+   * @return
+   */
   public Client login(User user) {
     if (!isRunning) {
       log.error("Daemon is not running.  Cannot login.");
@@ -97,12 +137,23 @@ public class Client {
   }
 
 
-  public Client logout() {
-    stop();
-    return this;
-  }
+  /**
+   *
+   * Deprecated function
+   *
+   * @return
+   */
+//  public Client logout() {
+//    stop();
+//    return this;
+//  }
 
 
+  /**
+   * Loads the user list from server.  Remember to sleep() for a while!
+   *
+   * @return the instance
+   */
   public Client loadUserlist() {
     if (!isSafe()) {
       log.error("Failed to get user list.");
@@ -114,6 +165,11 @@ public class Client {
   }
 
 
+  /**
+   * Loads the chatroom list.  Remember to sleep() for a while!
+   *
+   * @return the instance
+   */
   public Client loadChatroomList() {
     if (!isSafe()) {
       log.error("Failed to get chatroom list.");
@@ -125,16 +181,39 @@ public class Client {
   }
 
 
+  /**
+   * Returns a list of all online users.  Remember to sleep() for a while!
+   *
+   * @return
+   */
   public UserStatusDB getUserList() {
+    if (!isSafe()) {
+      return null;
+    }
     return userDb;
   }
 
 
+  /**
+   * Returns a list of all chatrooms.  Remember to sleep() for a while!
+   *
+   * @return
+   */
   public ChatroomDB getChatroomList() {
+    if (!isSafe()) {
+      return null;
+    }
     return chatroomDb;
   }
 
 
+  /**
+   * Creates a chatroom.  Remmeber to sleep() for a while!
+   *
+   * @param topic The topic of the chatroom
+   * @param user  The user to chat with
+   * @return the instance
+   */
   public Client create(String topic, User user) {
     if (!isSafe()) {
       log.error("Failed to create chatroom.");
@@ -147,6 +226,14 @@ public class Client {
   }
 
 
+  /**
+   * Crerates a chatroom with an array of users.  Remember to
+   * sleep() for a while!
+   *
+   * @param topic The topic of the chatroom
+   * @param users an array of users to chat with.
+   * @return The instance.
+   */
   public Client create(String topic, User[] users) {
     if (!isSafe()) {
       log.error("Failed to create chatroom.");
@@ -159,6 +246,13 @@ public class Client {
   }
 
 
+  /**
+   * Join an existing chatroom with given chatroom ID.
+   * Remember to sleep() for a while!
+   *
+   * @param chatroomId
+   * @return the instance.
+   */
   public Client join(String chatroomId) {
     if (!isSafe()) {
       log.error("Failed to join chatroom.");
@@ -172,6 +266,13 @@ public class Client {
   }
 
 
+  /**
+   * Leave a current active chatroom.  Remember to sleep() for
+   * a while!
+   *
+   * @param chatroomId
+   * @return the instance.
+   */
   public Client leave(String chatroomId) {
     if (!isSafe()) {
       log.error("Failed to leave chatroom.");
@@ -184,6 +285,15 @@ public class Client {
   }
 
 
+  /**
+   * Sends a message in the chatroom.  Do note that messages
+   * will be placed in the other clients' chatboxes.  The message
+   * will not be in the current user's chatbox.
+   *
+   * @param chatroomId
+   * @param message    A string message to send.
+   * @return the instance.
+   */
   public Client message(String chatroomId, String message) {
     if (!isSafe()) {
       log.error("Failed to send message to " + chatroomId + ".");
@@ -195,6 +305,12 @@ public class Client {
   }
 
 
+  /**
+   * Gets the inbox of the current chatroom ID.
+   *
+   * @param chatroomId
+   * @return
+   */
   public LinkedBlockingQueue<Packet> getInbox(String chatroomId) {
     if (!isSafe()) {
       log.error("Failed to retrieve message queue from " + chatroomId + ".");
@@ -204,11 +320,23 @@ public class Client {
   }
 
 
+  /**
+   * Returns login status of the user.
+   *
+   * @return
+   */
   public boolean isLoggedIn() {
     return tcpDaemon.isLoggedIn();
   }
 
 
+  /**
+   * Checks if it is safe to perform operations.
+   * <p/>
+   * The client must have started and logged in successfully.
+   *
+   * @return
+   */
   private boolean isSafe() {
     boolean result = isRunning && tcpDaemon.isLoggedIn();
     if (!result) {
@@ -218,16 +346,32 @@ public class Client {
   }
 
 
+  /**
+   * Gets a list of active chatrooms.
+   *
+   * @return
+   */
   public ChatroomDB getActiveChatrooms() {
-    return udpDaemon.getChatroomsActive();
+    if (isSafe()) {
+      return udpDaemon.getChatroomsActive();
+    }
+    return null;
   }
 
 
+  /**
+   *
+   * Returns list of all chatrooms
+   *
+   * @return
+   */
   public ChatroomDB getAllChatrooms() {
-    return udpDaemon.getChatroomsAll();
+    if (isSafe()) {
+      return udpDaemon.getChatroomsAll();
+    }
+    return null;
   }
 }
-
 
 
 

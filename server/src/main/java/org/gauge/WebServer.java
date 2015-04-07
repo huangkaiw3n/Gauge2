@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class WebServer {
 
-    static final Logger log = Logger.getLogger(Server.class);
+    static final Logger log = Logger.getLogger(ChatServer.class);
 
     private volatile boolean isRunning;
     private volatile ServerSocket socket;
@@ -234,12 +234,12 @@ public class WebServer {
                 while (isRunning) {
                     pollConnection();
                 }
-                log.info("Server stopped.");
+                log.info("ChatServer stopped.");
             }
         };
 
         new Thread(daemon).start();
-        log.info("Server started.");
+        log.info("ChatServer started.");
         return this;
     }
 

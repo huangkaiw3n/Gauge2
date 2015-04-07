@@ -42,14 +42,14 @@ public class SimpleHttpServer {
 
   public SimpleHttpServer start() {
     server.start();
-    log.debug("===Gauge Server Started!===");
+    log.debug("===Gauge ChatServer Started!===");
     return this;
   }
 
 
   public SimpleHttpServer stop() {
     server.stop(0);
-    log.debug("===Gauge Server Stopped!===");
+    log.debug("===Gauge ChatServer Stopped!===");
     return this;
   }
 

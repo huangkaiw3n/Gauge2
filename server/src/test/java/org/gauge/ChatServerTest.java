@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ServerTest {
+public class ChatServerTest {
 
   @Before
   public void setUp() throws Exception {
@@ -20,7 +20,7 @@ public class ServerTest {
 
   @Test
   public void testStop() throws Exception {
-//    Server server = new Server(9000);
+//    ChatServer server = new ChatServer(9000);
 //    server.start();
 //    Thread.sleep(2000);
 //    server.stop();

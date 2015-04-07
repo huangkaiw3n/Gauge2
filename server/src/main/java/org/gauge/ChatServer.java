@@ -17,9 +17,9 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Created by joel on 3/14/15.
  */
-public class Server {
+public class ChatServer {
 
-  static final Logger log = Logger.getLogger(Server.class);
+  static final Logger log = Logger.getLogger(ChatServer.class);
 
   private volatile boolean isRunning;
   private volatile ServerSocket socket;
@@ -29,12 +29,12 @@ public class Server {
   public UserStatusHashDB statusDb;
   public ChatroomDB chatroomDB;
 
-  public Server(int port) {
+  public ChatServer(int port) {
     this.port = port;
     init();
   }
 
-  public Server() {
+  public ChatServer() {
     this.port = 9000;
     init();
   }
@@ -302,7 +302,7 @@ public class Server {
   }
 
 
-  public Server start() {
+  public ChatServer start() {
     // exit and return if already running
     if (isRunning) {
       return this;
@@ -327,17 +327,17 @@ public class Server {
         while (isRunning) {
           pollConnection();
         }
-        log.info("Server stopped.");
+        log.info("ChatServer stopped.");
       }
     };
 
     new Thread(daemon).start();
-    log.info("Server started.");
+    log.info("ChatServer started.");
     return this;
   }
 
 
-  public Server stop() {
+  public ChatServer stop() {
     isRunning = false;
     try {
       socket.close();
