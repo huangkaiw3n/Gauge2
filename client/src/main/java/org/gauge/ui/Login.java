@@ -40,21 +40,25 @@ public class Login {
                     User user1 = new User();
                     user1.setUsername(user);
                     user1.setPassword(pwd.toString());
-                    textPane1.setText("Either you entered wrong credentials or we are currently suffering from network congestion");
+                    try{
+                        App.client.login(user1);
+                    }catch(Exception e1){
+
+                    }
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(1000);
                     } catch (Exception e1) {
 
                     }
-                    actionLogin = false;
-                    frame.setVisible(false);
-                    frame.dispose();
-                    MainView mv = new MainView();
-//                    try{
-//                        App.client.login(user1);
-//                    }catch(Exception e1){
-//
-//                    }
+                    //actionLogin = false;
+                    if(App.client.isLoggedIn()) {
+                        frame.setVisible(false);
+                        frame.dispose();
+                        MainView mv = new MainView();
+                    }
+                    else
+                        textPane1.setText("Either you entered wrong credentials or we are currently suffering from network congestion");
+
 
 //                    try {
 //                        Thread.sleep(400);
