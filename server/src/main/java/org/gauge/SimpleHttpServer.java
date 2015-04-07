@@ -30,7 +30,7 @@ public class SimpleHttpServer {
 
 
   private void attachHandlers() {
-    server.createContext("/test", new Handlers.Ping_GET());
+    //server.createContext("/test", new Handlers.Ping_GET());
 
     /** API **/
     server.createContext("/user/get", new Handlers.User_GET());

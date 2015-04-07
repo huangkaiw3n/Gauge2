@@ -14,15 +14,17 @@ public class App {
   public static void main(String[] args) throws InterruptedException {
       log.debug("Starting server..");
       Scanner s = new Scanner(System.in);
-      WebServer s1 = new WebServer(9000, "userDB.csv");  //default csv path @ project root
+      WebServer ws = new WebServer(80, "userDB.csv");  //default csv path @ project root
+      ChatServer cs = new ChatServer(9000, ws.getDb());
 
-      s1.start();
+      ws.start();
+      cs.start();
       while(true){
           if(s.next().compareTo("q") == 0){// enter q to stop server
-              s1.stop();
+              ws.stop();
+              cs.stop();
               break;
           }
       }
-      while(true){}
   }
 }
