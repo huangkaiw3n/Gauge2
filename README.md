@@ -1,6 +1,9 @@
 Gauge V2 test server app
 =============================
 
+<img src="https://codeship.com/projects/YOUR_PROJECT_UUID/status?branch=master" />
+
+
 ## Info
 
 Uses maven for dependencies, junit testing, JAR executable deployment and creation.
