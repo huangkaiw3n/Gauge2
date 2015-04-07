@@ -16,7 +16,11 @@ import java.util.regex.Pattern;
  */
 public class WebServer {
 
+<<<<<<< HEAD
+    static final Logger log = Logger.getLogger(ChatServer.class);
+=======
     static final Logger log = Logger.getLogger(WebServer.class);
+>>>>>>> origin/develop
 
     private volatile boolean isRunning;
     private volatile ServerSocket socket;
@@ -241,17 +245,21 @@ public class WebServer {
                 while (isRunning) {
                     pollConnection();
                 }
+<<<<<<< HEAD
+                log.info("ChatServer stopped.");
+=======
                 log.info("Server stopped.");
                 try {
                     db.toCSV();
                 } catch (IOException e){
                     log.info("toCSV path output error.");
                 }
+>>>>>>> origin/develop
             }
         };
 
         new Thread(daemon).start();
-        log.info("Server started.");
+        log.info("ChatServer started.");
         return this;
     }
 

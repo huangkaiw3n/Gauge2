@@ -53,8 +53,8 @@ public class HttpRequestPacket {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Request + " " + Filename + " " + HttpVersion + "\n");
-        sb.append("From: " + Host + "\n\n");
+        sb.append(Request + " " + Filename + " " + HttpVersion + "\r\n");
+        sb.append("Host: " + Host + "\r\n\n");
         return sb.toString();
     }
 
@@ -63,6 +63,8 @@ public class HttpRequestPacket {
         HttpRequestPacket hrp = new HttpRequestPacket();
         try{
             String input = br.readLine();
+            if(input == null)
+                return null;
             StringTokenizer st = new StringTokenizer(input);
             if(st.nextToken().equals("GET")){
                 String filename = st.nextToken();

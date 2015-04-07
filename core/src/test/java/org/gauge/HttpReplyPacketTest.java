@@ -113,6 +113,8 @@ public class HttpReplyPacketTest {
 
     @Test
     public void testToString() throws Exception {
-
+        String actual = this.toString();
+        String expected = "";
+        assertTrue(actual.equals(expected));
     }
 }

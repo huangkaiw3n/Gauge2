@@ -1,22 +1,44 @@
 package org.gauge.ui;
 
+import sun.applet.Main;
+
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 /**
  * Created by joel on 3/14/15.
  */
 public class MainView {
   private JPanel panel1;
-  private JTextArea screenInput;
-  private JEditorPane screenMain;
-  private JScrollPane pane1;
-  private JSplitPane pane0;
+    private JTextField DisplayMessage;
+    private JTextArea MessageByUser;
+    private JList Rooms;
+    private JList ActiveUsers;
+    private JButton leaveButton;
+    private JButton Leave;
+    private JButton Join;
+    private JButton Create;
+    private JButton Refresh;
+    private JButton SendButton;
+    private JList list1;
+    private JFrame mainFrame;
+  private JLabel headerLabel;
+    private JLabel statusLabel;
+    private JPanel controlPanel;
 
-  public static void runForm(String[] args) {
+    public MainView() {
+        runForm();
+    }
+
+    public void runForm() {
+
     JFrame frame = new JFrame("MainView");
-    frame.setContentPane(new MainView().panel1);
+    frame.setContentPane(panel1);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     frame.pack();
     frame.setVisible(true);
-  }
+
+    }
 }
