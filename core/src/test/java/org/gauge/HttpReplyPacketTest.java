@@ -2,6 +2,7 @@ package org.gauge;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -111,6 +112,7 @@ public class HttpReplyPacketTest {
         assertTrue(p.getPayLoad().equals(PayLoad));
     }
 
+    @Ignore
     @Test
     public void testToString() throws Exception {
         String actual = this.toString();
