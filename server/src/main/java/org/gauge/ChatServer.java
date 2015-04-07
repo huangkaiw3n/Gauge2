@@ -29,19 +29,21 @@ public class ChatServer {
   public UserStatusHashDB statusDb;
   public ChatroomDB chatroomDB;
 
-  public ChatServer(int port) {
+  public ChatServer(int port, UserDB db) {
     this.port = port;
+    this.db = db;
     init();
   }
 
-  public ChatServer() {
+  public ChatServer(UserDB db) {
     this.port = 9000;
+    this.db = db;
     init();
   }
 
   private void init() {
     isRunning = false;
-    db = new UserDB();
+    //db = new UserDB();
     statusDb = new UserStatusHashDB();
     chatroomDB = new ChatroomDB();
   }
