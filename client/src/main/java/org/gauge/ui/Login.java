@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.net.SocketException;
+import java.util.logging.Logger;
 
 /**
  * Created by AdminNUS on 6/4/2015.
@@ -33,13 +35,24 @@ public class Login {
             loginButton.addActionListener(new ActionListener() {
                 char[] pwd;
                 String user;
+                String servername;
 
                 public void actionPerformed(ActionEvent e) {
+                    servername = ServerName.getText();
                     user = UserName.getText();
                     pwd = Password.getPassword();
                     User user1 = new User();
                     user1.setUsername(user);
                     user1.setPassword(new String(pwd));
+
+                    if(App.client != null)
+                        App.client.stop();
+
+                    App.client = new Client(servername, 9000, 9060);
+                    textPane1.setText("Connecting to server...");
+
+                    App.client.start();
+
 
                     try{
                         App.client.login(user1);
