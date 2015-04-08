@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.*;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by joel on 3/14/15.
@@ -71,11 +73,60 @@ public class MainView extends JPanel {
         frame.pack();
         frame.setVisible(true);
 
+        MessageByUser.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    StringBuilder textInDM = new StringBuilder();
+                    String input = MessageByUser.getText();
+                    try{
+                        App.client.message(chatRoomId, input);
+                        MessageByUser.setText("");
+                        textInDM.append(DisplayMessage.getText() + "\n");
+                        textInDM.append(user1.getUsername() + ": \n" + input + "\n");
+                        DisplayMessage.setText(textInDM.toString());
+                    }catch(Exception e2){
+                        DisplayMessage.setText("Please select user/chat room first");
+                    }
+                }
+        });
 
-
-        Refresh.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            //refreshes Rooms Chatrooms Joined and Users (Online)
+        Rooms.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                try {
+                    chatRoomId = Rooms.getSelectedValue().toString();
+                }catch(NullPointerException e2){
+                    DisplayMessage.setText("Choose your peer!");
+                }
+            }
+        });
+        JoinButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                //Leaves a chat room the user is in
+                try{
+                    App.client.join(chatRoomId);
+                }catch(Exception e6){
+                    DisplayMessage.setText("You are already in the room!");
+                }
+            }
+        });
+        Create.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                //Creates a chatroom with user in it
+                //App.client.join();
+                User createWith = App.client.getUserList().users.get(selectedUser);
+                App.client.create("Default", createWith);
+            }
+        });
+        Refresh.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                //refreshes Rooms Chatrooms Joined and Users (Online)
                 try{
                     App.client.loadUserlist();
                     Thread.sleep(400);
@@ -101,32 +152,70 @@ public class MainView extends JPanel {
                     e1.printStackTrace();
                 }
             }
-
         });
-
-        Create.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //Creates a chatroom with user in it
-                //App.client.join();
-                User createWith = App.client.getUserList().users.get(selectedUser);
-                App.client.create("Default", createWith);
+        leaveButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                try{
+                    App.client.leave(chatRoomId);
+                }catch(Exception e5){
+                    DisplayMessage.setText("No chat room selected");
+                }
             }
         });
-
-        JoinButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //Leaves a chat room the user is in
+        ChatRoomJoined.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                StringBuilder sb = new StringBuilder();
+                String payload, username, message;
+                JSONObject jsonMessage, jsonUser;
                 try{
-                    App.client.join(chatRoomId);
-                }catch(Exception e6){
-                    DisplayMessage.setText("You are already in the room!");
+                    chatRoomId = ChatRoomJoined.getSelectedValue().toString();
+                }catch(NullPointerException e7){
+                    DisplayMessage.append(chatRoomId + " is unavailable\n");
                 }
 
+                DisplayMessage.setText("");
+                LinkedBlockingQueue<Packet> inbox = App.client.getInbox(chatRoomId);
+                while(!inbox.isEmpty()){
+                    payload = inbox.poll().getPayload();
+                    message = username = null;
+                    try{
+                        jsonMessage = new JSONObject(payload);
+                        jsonUser = new JSONObject(jsonMessage.get("user").toString());
+                        message = jsonMessage.get("body").toString();
+                        username = jsonUser.get("username").toString();
+                        if(message != null && username != null) {
+                            sb.append(username);
+                            sb.append(":\n");
+                            sb.append(message);
+                            sb.append("\n\n");
+                        }
+                    }catch(JSONException e3){
+                        e3.printStackTrace();
+                    }
+
+                }
+                DisplayMessage.setText(sb.toString());
             }
         });
+        ActiveUsers.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                try {
+                    selectedUser = ActiveUsers.getSelectedValue().toString();
+                }catch(Exception e6){
 
-        SendButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+                }
+            }
+        });
+        SendButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
                 //Sends whatever message that is in MessageByUser
                 StringBuilder textInDM = new StringBuilder();
                 String input = MessageByUser.getText();
@@ -141,85 +230,17 @@ public class MainView extends JPanel {
                 }
             }
         });
-
-        Rooms.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                try {
-                    chatRoomId = Rooms.getSelectedValue().toString();
-                }catch(NullPointerException e2){
-                    DisplayMessage.setText("Choose your peer!");
-                }
+        MessageByUser.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                super.focusGained(e);
+                MessageByUser.setText("");
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                super.focusLost(e);
+                MessageByUser.setText("Enter a message");
             }
         });
-
-        ActiveUsers.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                selectedUser = ActiveUsers.getSelectedValue().toString();
-                System.out.println("Selected User: "+ ActiveUsers.getSelectedValue());
-            }
-        });
-
-        ChatRoomJoined.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                StringBuilder sb = new StringBuilder();
-                String payload, username, message;
-                JSONObject jsonMessage, jsonUser;
-                chatRoomId = ChatRoomJoined.getSelectedValue().toString();
-                DisplayMessage.setText("");
-                while(App.client.getInbox(chatRoomId).size() > 0){
-                    payload = App.client.getInbox(chatRoomId).poll().getPayload();
-                    message = username = null;
-                    try{
-                        jsonMessage = new JSONObject(payload);
-                        jsonUser = new JSONObject(jsonMessage.get("user"));
-                        message = jsonMessage.get("body").toString();
-                        username = jsonUser.get("username").toString();
-                        if(message != null && username != null) {
-                            sb.append(username);
-                            sb.append(":\r\n");
-                            sb.append(message);
-                            sb.append("\r\n\r\n");
-                        }
-                    }catch(JSONException e3){
-                        e3.printStackTrace();
-                    }
-
-                }
-                DisplayMessage.setText(sb.toString());
-            }
-        });
-
-        logoutButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //App.client.
-            }
-        });
-        leaveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try{
-                    App.client.leave(chatRoomId);
-                }catch(Exception e5){
-                    DisplayMessage.setText("No chat room selected");
-                }
-
-            }
-        });
-
-        MessageByUser.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    StringBuilder textInDM = new StringBuilder();
-                    String input = MessageByUser.getText();
-                    try{
-                        App.client.message(chatRoomId, input);
-                        MessageByUser.setText("");
-                        textInDM.append(DisplayMessage.getText() + "\n");
-                        textInDM.append(user1.getUsername() + ": \n" + input + "\n");
-                        DisplayMessage.setText(textInDM.toString());
-                    }catch(Exception e2){
-                        DisplayMessage.setText("Please select user/chat room first");
-                    }
-                }
-        });
-
     }
 }
