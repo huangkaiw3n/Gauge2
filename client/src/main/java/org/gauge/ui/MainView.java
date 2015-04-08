@@ -52,7 +52,7 @@ public class MainView extends JPanel {
             App.client.loadChatroomList();
             Thread.sleep(400);
         }catch(Exception e3){
-
+            e3.printStackTrace();
         }
 //        System.out.println("Number of Active Users: " + App.client.getUserList().users.size());
 //        ActiveUsers.setListData(users);
@@ -82,7 +82,7 @@ public class MainView extends JPanel {
                     App.client.loadChatroomList();
                     Thread.sleep(400);
                 }catch(Exception e3){
-
+                    e3.printStackTrace();
                 }
                 try {
                     activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
@@ -98,6 +98,7 @@ public class MainView extends JPanel {
 //                    ActiveUsers.setListData(users2);
                 } catch (Exception e1) {
                     DisplayMessage.setText("No Users are currently online!");
+                    e1.printStackTrace();
                 }
             }
 
@@ -115,6 +116,11 @@ public class MainView extends JPanel {
         JoinButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //Leaves a chat room the user is in
+                try{
+                    App.client.join(chatRoomId);
+                }catch(Exception e6){
+                    DisplayMessage.setText("You are already in the room!");
+                }
 
             }
         });
@@ -138,13 +144,18 @@ public class MainView extends JPanel {
 
         Rooms.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                chatRoomId = Rooms.getSelectedValue().toString();
+                try {
+                    chatRoomId = Rooms.getSelectedValue().toString();
+                }catch(NullPointerException e2){
+                    DisplayMessage.setText("Choose your peer!");
+                }
             }
         });
 
         ActiveUsers.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 selectedUser = ActiveUsers.getSelectedValue().toString();
+                System.out.println("Selected User: "+ ActiveUsers.getSelectedValue());
             }
         });
 
