@@ -13,7 +13,6 @@ public class App {
 
     public App() {
 
-
     }
 
     public static void exampleUseCoreUtility() {
@@ -23,18 +22,10 @@ public class App {
 
 
     public static void main(final String[] args) {
-        log.info("Starting client..");
-        client = new Client("127.0.0.1", 9000, 9060);
-        client.start();
 
-        // GUI
-      /*
-    Runnable runnableGui = new Runnable() {
-      public void run() {
-        MainView.runForm(args);
-      }
-    };
-    */
+        //client = new Client("127.0.0.1", 9000, 9060);
+        //client.start();
+
         Runnable runnableGui = new Runnable() {
             public void run() {
                 Login lg = new Login();

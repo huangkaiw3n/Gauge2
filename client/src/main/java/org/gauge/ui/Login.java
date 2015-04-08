@@ -8,6 +8,10 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.logging.Logger;
 
 /**
  * Created by AdminNUS on 6/4/2015.
@@ -19,7 +23,10 @@ public class Login {
     private JTextField ServerName;
     private JButton loginButton;
     private JTextPane textPane1;
-    boolean actionLogin = true;
+    char[] pwd;
+    String user;
+    String servername;
+    User user1;
     JFrame frame;
 
     public Login() {
@@ -28,54 +35,58 @@ public class Login {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+        user1 = new User();
+        user1.setPort(9060);
+        try {
+            user1.setIp(InetAddress.getLocalHost().getHostAddress());
+        }catch (UnknownHostException e){
 
+        }
+        System.out.println("Local IP:" + user1.getIp());
 
-            loginButton.addActionListener(new ActionListener() {
-                char[] pwd;
-                String user;
+        loginButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                initiateLogin();
+            }
+        });
+        Password.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                initiateLogin();
+            }
+        });
+    }
 
-                public void actionPerformed(ActionEvent e) {
-                    user = UserName.getText();
-                    pwd = Password.getPassword();
-                    User user1 = new User();
-                    user1.setUsername(user);
-                    user1.setPassword(pwd.toString());
-                    try{
-                        App.client.login(user1);
-                    }catch(Exception e1){
+    private void initiateLogin(){
+        servername = ServerName.getText();
+        user = UserName.getText();
+        pwd = Password.getPassword();
 
-                    }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception e1) {
+        user1.setUsername(user);
+        user1.setPassword(new String(pwd));
 
-                    }
-                    //actionLogin = false;
-                    if(App.client.isLoggedIn()) {
-                        frame.setVisible(false);
-                        frame.dispose();
-                        MainView mv = new MainView();
-                    }
-                    else
-                        textPane1.setText("Either you entered wrong credentials or we are currently suffering from network congestion");
+        if(App.client != null)
+            App.client.stop();
 
+        App.client = new Client(servername, 9000, 9060);
+        textPane1.setText("Connecting to server...");
+        App.client.start();
 
-//                    try {
-//                        Thread.sleep(400);
-//                    } catch (InterruptedException e1) {
-//                        e1.printStackTrace();
-//                    }
+        try{
+            App.client.login(user1);
+        }catch(Exception e1){
 
-//                    if (!App.client.isLoggedIn()) {
-//                        textPane1.setText("Either you entered wrong credentials or we are currently suffering from network congestion");
-//                        actionLogin = true;
-//                    } else {
-//                        textPane1.setText("Success!");
-//                        actionLogin = false;
-//                    }
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e1) {
 
-
-                }
-            });
+        }
+        //actionLogin = false;
+        if(App.client.isLoggedIn()) {
+            frame.setVisible(false);
+            MainView mv = new MainView(user1);
+        }
+        else
+            textPane1.setText("Either you entered wrong credentials or we are currently suffering from network congestion");
     }
 }

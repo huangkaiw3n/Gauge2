@@ -65,7 +65,7 @@ public class PeerDaemon {
 
   // a Map of linked-list message queues, separated by rooms
   // the main key refers to the main message queue, intended for daemon.
-  protected volatile ConcurrentHashMap<String, LinkedBlockingQueue<Packet>> recvQueue;
+  public volatile ConcurrentHashMap<String, LinkedBlockingQueue<Packet>> recvQueue;
   public PeerDaemon(User user, int port) {
     init(port, user);
   }
@@ -378,10 +378,12 @@ public class PeerDaemon {
    * @return
    */
   public LinkedBlockingQueue<Packet> inboxRoom(String chatroomId) {
-    if (recvQueue.containsKey(chatroomId)) {
-      return recvQueue.get(chatroomId);
-    }
-    return null;
+      if (chatroomId == null)
+          return null;
+      else if (recvQueue.containsKey(chatroomId)) {
+          return recvQueue.get(chatroomId);
+      }
+      return null;
   }
 
 
@@ -493,29 +495,33 @@ public class PeerDaemon {
     String header = packet.getHeader();
     String payload = packet.getPayload();
 
-    if (header.equals("CREATE")) {
-      JSONObject obj = new JSONObject(payload);
-      Chatroom chatroom = new Chatroom(obj);
-      appendChatroom(chatroom);
+      try {
+          if (header.equals("CREATE")) {
+              JSONObject obj = new JSONObject(payload);
+              Chatroom chatroom = new Chatroom(obj);
+              appendChatroom(chatroom);
 
-    } else if (header.equals("LEAVE")) {
-      JSONObject obj = new JSONObject(payload);
-      User user = new User(obj.getJSONObject("user"));
-      String chatroomId = obj.getString("chatroomId");
-      // remove from chatroomsActive only.  Syncing of all rooms should be done with
-      // server.
-      chatroomsActive.get(chatroomId).remove(user.getUsername());
-      removeIfChatroomEmpty(chatroomsActive, chatroomId);
-      log.info(prettyUsername() + " Removed " + user.getUsername() + " from " + chatroomId);
+          } else if (header.equals("LEAVE")) {
+              JSONObject obj = new JSONObject(payload);
+              User user = new User(obj.getJSONObject("user"));
+              String chatroomId = obj.getString("chatroomId");
+              // remove from chatroomsActive only.  Syncing of all rooms should be done with
+              // server.
+              chatroomsActive.get(chatroomId).remove(user.getUsername());
+              removeIfChatroomEmpty(chatroomsActive, chatroomId);
+              log.info(prettyUsername() + " Removed " + user.getUsername() + " from " + chatroomId);
 
-    } else if (header.equals("JOIN")) {
-      JSONObject obj = new JSONObject(payload);
-      User user = new User(obj.getJSONObject("user"));
-      String chatroomId = obj.getString("chatroomId");
-      // add user to chatroom list
-      chatroomsActive.get(chatroomId).add(user);
-      log.info(prettyUsername() + " Added" + user.getUsername() + " to " + chatroomId);
-    }
+          } else if (header.equals("JOIN")) {
+              JSONObject obj = new JSONObject(payload);
+              User user = new User(obj.getJSONObject("user"));
+              String chatroomId = obj.getString("chatroomId");
+              // add user to chatroom list
+              chatroomsActive.get(chatroomId).add(user);
+              log.info(prettyUsername() + " Added" + user.getUsername() + " to " + chatroomId);
+          }
+      }catch (NullPointerException e){
+          e.printStackTrace();
+      }
   }
 
 

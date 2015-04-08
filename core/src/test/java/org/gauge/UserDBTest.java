@@ -18,7 +18,7 @@ public class UserDBTest {
     public void setUp() throws Exception {
         monkey = new User("monkey", "bananas", "monkey@zoo.com");
         elephant = new User("elephant", "stampede", "elepfun@safari.com");
-        udb = new UserDB(System.getProperty("user.home") + "/Desktop"  + "/test.csv");
+        udb = new UserDB("src/test/UserDBtest.csv");
         udb.add("monkey", monkey, false);
         udb.add("elephant", elephant, false);
     }
@@ -35,7 +35,7 @@ public class UserDBTest {
 
     @Test
     public void testFromCSV() throws Exception {
-        udb2 = new UserDB(System.getProperty("user.home") + "/Desktop" + "/test.csv");
+        udb2 = new UserDB("src/test/UserDBtest.csv");
         udb2.fromCSV();
     }
 
