@@ -378,10 +378,12 @@ public class PeerDaemon {
    * @return
    */
   public LinkedBlockingQueue<Packet> inboxRoom(String chatroomId) {
-    if (recvQueue.containsKey(chatroomId)) {
-      return recvQueue.get(chatroomId);
-    }
-    return null;
+      if (chatroomId == null)
+          return null;
+      else if (recvQueue.containsKey(chatroomId)) {
+          return recvQueue.get(chatroomId);
+      }
+      return null;
   }
 
 
