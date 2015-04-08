@@ -1,7 +1,9 @@
 package org.gauge.ui;
 
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.gauge.App;
 import org.gauge.ChatroomDB;
+import org.gauge.User;
 import org.gauge.UserStatusDB;
 import sun.applet.Main;
 
@@ -11,56 +13,57 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 
 /**
  * Created by joel on 3/14/15.
  */
-public class MainView {
+public class MainView extends JPanel {
     private JPanel panel1;
     private JTextField DisplayMessage;
     private JTextArea MessageByUser;
+
     private JList Rooms;
     private JList ActiveUsers;
+    private JList ChatRoomJoined;
+
     private JButton leaveButton;
     private JButton Leave;
     private JButton Join;
     private JButton Create;
     private JButton Refresh;
     private JButton SendButton;
-    private JList ChatRoomJoined;
+
     private JFrame mainFrame;
+
     private JLabel headerLabel;
     private JLabel statusLabel;
-    private UserStatusDB usdb [];
-    private ChatroomDB cdb [];
-    private ChatroomDB jr [];
+
     private String chatRoomId;
-    public MainView() {
 
-        Rooms.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        ActiveUsers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        ChatRoomJoined.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        usdb[0] = App.client.getUserList();
-        cdb[0] = App.client.getAllChatrooms();
-        jr[0] = App.client.getActiveChatrooms();
+    private String [] users = {"anli","kaiwen","joel" };
+    private String [] users2 = {"daniel","wy","lionel"};
 
-        Rooms.setListData(cdb);
-        ActiveUsers.setListData(usdb);
-        ChatRoomJoined.setListData(jr);
+    private DefaultListModel listModel = new DefaultListModel();
 
-        //DisplayMessage.setText(App.client.getInbox().poll().toString());
+    public MainView(final User user1) {
+
+        ActiveUsers.setListData(users);
+
         JFrame frame = new JFrame("MainView");
         frame.setContentPane(panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
 
-
-
         Refresh.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //refreshes Rooms Chatrooms Joined and Users (Online)
+            //refreshes Rooms Chatrooms Joined and Users (Online)
+                try {
 
+                } catch (Exception e1) {
+                    DisplayMessage.setText("No Users are currently online!");
+                }
             }
 
         });
@@ -69,7 +72,7 @@ public class MainView {
             public void actionPerformed(ActionEvent e) {
                 //Creates a chatroom with user in it
 
-               // App.client.create("",);
+               App.client.create("talk to me baby",user1);
             }
         });
 
@@ -84,7 +87,14 @@ public class MainView {
             public void actionPerformed(ActionEvent e) {
                 //Sends whatever message that is in MessageByUser
                 String input = MessageByUser.getText();
-                App.client.message(chatRoomId, input);
+                try{
+                    App.client.message(chatRoomId, input);
+                    MessageByUser.setText("");
+                }catch(Exception e2){
+                    DisplayMessage.setText("Please select user/chat room first");
+                }
+
+
             }
         });
 
@@ -107,6 +117,4 @@ public class MainView {
             }
         });
     }
-
-
 }

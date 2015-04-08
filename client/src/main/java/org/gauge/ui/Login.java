@@ -54,8 +54,9 @@ public class Login {
                     //actionLogin = false;
                     if(App.client.isLoggedIn()) {
                         frame.setVisible(false);
-                        frame.dispose();
-                        MainView mv = new MainView();
+                        //frame.dispose();
+                        MainView mv = new MainView(user1);
+
                     }
                     else
                         textPane1.setText("Either you entered wrong credentials or we are currently suffering from network congestion");
