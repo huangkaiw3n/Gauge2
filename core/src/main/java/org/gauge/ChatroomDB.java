@@ -12,7 +12,7 @@ public class ChatroomDB {
 
   static final Logger log = Logger.getLogger(ChatroomDB.class);
 
-  ConcurrentHashMap<String, Chatroom> chatrooms;
+  public ConcurrentHashMap<String, Chatroom> chatrooms;
 
   public ChatroomDB() {
     this.chatrooms = new ConcurrentHashMap<>();
