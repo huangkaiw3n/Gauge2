@@ -76,12 +76,14 @@ public class MainView extends JPanel {
 
         Runnable pollInbox = new Runnable() {
             public void run() {
+                LinkedBlockingQueue<Packet> inbox = null;
                 StringBuilder sb = new StringBuilder();
                 String payload, username, message;
                 JSONObject jsonMessage, jsonUser;
                 while(true){
                     try{ Thread.sleep(500);}catch (InterruptedException e8){}
-                    LinkedBlockingQueue<Packet> inbox = App.client.getInbox(chatRoomId);
+                    if(chatRoomId != null)
+                        inbox = App.client.udpDaemon.recvQueue.get(chatRoomId);
                     if(inbox != null)
                         while(!inbox.isEmpty()) {
                             payload = inbox.poll().getPayload();
@@ -95,13 +97,13 @@ public class MainView extends JPanel {
                                     sb.append(username);
                                     sb.append(":\n");
                                     sb.append(message);
-                                    sb.append("\n\n");
+                                    sb.append("\n");
                                 }
                             } catch (JSONException e3) {
                                 e3.printStackTrace();
                             }
+                            DisplayMessage.append(sb.toString() + "\n");
                         }
-                    DisplayMessage.append(sb.toString() + "\n");
                 }
             }
         };
