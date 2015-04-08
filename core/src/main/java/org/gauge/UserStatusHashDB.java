@@ -36,7 +36,7 @@ public class UserStatusHashDB {
     String usernameQuery = ul.getUsername();
     for (String key : userSet.keySet()) {
       User u = userSet.get(key);
-      if (u.getUsername() == usernameQuery) {
+      if (u.getUsername().equals(usernameQuery)) {
         return userSet.remove(key);
       }
     }
