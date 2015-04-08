@@ -10,7 +10,7 @@
     </properties>
     <border type="line"/>
     <children>
-      <component id="5aa45" class="javax.swing.JButton" binding="Leave">
+      <component id="5aa45" class="javax.swing.JButton" binding="JoinButton">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -54,7 +54,7 @@
       </component>
       <component id="682d4" class="javax.swing.JButton" binding="SendButton">
         <constraints>
-          <grid row="3" column="4" row-span="4" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+          <grid row="5" column="4" row-span="2" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="122" height="32"/>
           </grid>
         </constraints>
@@ -88,7 +88,9 @@
       </component>
       <scrollpane id="7bdbc">
         <constraints>
-          <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="256" height="161"/>
+          </grid>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -148,18 +150,22 @@
       </component>
       <scrollpane id="a4cad">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="3" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="0" height="161"/>
+          </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <horizontalScrollBarPolicy value="30"/>
+        </properties>
         <border type="none"/>
         <children>
-          <component id="a34f3" class="javax.swing.JTextField" binding="DisplayMessage">
+          <component id="70bd7" class="javax.swing.JTextArea" binding="DisplayMessage">
             <constraints/>
             <properties>
               <background color="-3414017"/>
+              <doubleBuffered value="false"/>
               <editable value="false"/>
               <enabled value="true"/>
-              <horizontalAlignment value="10"/>
               <text value=""/>
             </properties>
           </component>
@@ -167,12 +173,12 @@
       </scrollpane>
       <scrollpane id="2bf36">
         <constraints>
-          <grid row="3" column="0" row-span="4" col-span="4" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="2" col-span="4" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
-          <component id="3d54c" class="javax.swing.JTextArea" binding="MessageByUser">
+          <component id="516cb" class="javax.swing.JTextField" binding="MessageByUser">
             <constraints/>
             <properties>
               <background color="-3414017"/>
