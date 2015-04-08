@@ -21,7 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MainView extends JPanel {
     private JPanel panel1;
+
     private JTextField DisplayMessage;
+
     private JTextArea MessageByUser;
 
     private JList Rooms;
@@ -43,25 +45,31 @@ public class MainView extends JPanel {
 
     private String chatRoomId, selectedUser;
 
-    private String [] users = {"anli","kaiwen","joel" };
-    private String [] users2 = {"daniel","wy","lionel"};
+//    private String [] users = {"anli","kaiwen","joel" };
+//    private String [] users2 = {"daniel","wy","lionel"};
     private Object [] activeUsers;
     private Object [] RoomsJoined;
     private Object [] RoomsAvailable;
 
-    private DefaultListModel listModel = new DefaultListModel();
-
     public MainView(final User user1) {
+        try{
+            App.client.loadUserlist();
+            Thread.sleep(400);
+            App.client.loadChatroomList();
+            Thread.sleep(400);
+        }catch(Exception e3){
+
+        }
 //        System.out.println("Number of Active Users: " + App.client.getUserList().users.size());
-        ActiveUsers.setListData(users);
-//        activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
-//        ActiveUsers.setListData(activeUsers);
-//
-//        RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
-//        ChatRoomJoined.setListData(RoomsJoined);
-//
-//        RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
-//        Rooms.setListData(RoomsAvailable);
+//        ActiveUsers.setListData(users);
+        activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+        ActiveUsers.setListData(activeUsers);
+
+        RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+        ChatRoomJoined.setListData(RoomsJoined);
+
+        RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+        Rooms.setListData(RoomsAvailable);
 
         JFrame frame = new JFrame("MainView");
         frame.setContentPane(panel1);
@@ -69,20 +77,30 @@ public class MainView extends JPanel {
         frame.pack();
         frame.setVisible(true);
 
+
         Refresh.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             //refreshes Rooms Chatrooms Joined and Users (Online)
+                try{
+                    App.client.loadUserlist();
+                    Thread.sleep(400);
+                    App.client.loadChatroomList();
+                    Thread.sleep(400);
+                }catch(Exception e3){
+
+                }
                 try {
-//                    activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
-//                    ActiveUsers.setListData(activeUsers);
-//
-//                    RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
-//                    ChatRoomJoined.setListData(RoomsJoined);
-//
-//                    RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
-//                    Rooms.setListData(RoomsAvailable);
-//                    ActiveUsers.setListData(array);
-                    ActiveUsers.setListData(users2);
+                    activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+                    ActiveUsers.setListData(activeUsers);
+
+                    RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+                    ChatRoomJoined.setListData(RoomsJoined);
+
+                    RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+                    Rooms.setListData(RoomsAvailable);
+
+//                    System.out.println("Refreshing... : "+ App.client.loadUserlist().users.size());
+//                    ActiveUsers.setListData(users2);
                 } catch (Exception e1) {
                     DisplayMessage.setText("No Users are currently online!");
                 }
@@ -94,7 +112,8 @@ public class MainView extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 //Creates a chatroom with user in it
                 //App.client.join();
-                App.client.create("", user1);
+                User createWith = App.client.getUserList().users.get(selectedUser);
+                App.client.create("Default", createWith);
             }
         });
 
