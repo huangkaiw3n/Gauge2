@@ -65,7 +65,7 @@ public class PeerDaemon {
 
   // a Map of linked-list message queues, separated by rooms
   // the main key refers to the main message queue, intended for daemon.
-  protected volatile ConcurrentHashMap<String, LinkedBlockingQueue<Packet>> recvQueue;
+  public volatile ConcurrentHashMap<String, LinkedBlockingQueue<Packet>> recvQueue;
   public PeerDaemon(User user, int port) {
     init(port, user);
   }
@@ -378,10 +378,12 @@ public class PeerDaemon {
    * @return
    */
   public LinkedBlockingQueue<Packet> inboxRoom(String chatroomId) {
-    if (recvQueue.containsKey(chatroomId)) {
-      return recvQueue.get(chatroomId);
-    }
-    return null;
+      if (chatroomId == null)
+          return null;
+      else if (recvQueue.containsKey(chatroomId)) {
+          return recvQueue.get(chatroomId);
+      }
+      return null;
   }
 
 

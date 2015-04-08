@@ -25,7 +25,7 @@ public class Client {
   protected String serverAddr;
 
   protected GaugeClientDaemonTCP tcpDaemon;
-  protected PeerDaemon udpDaemon;
+  public PeerDaemon udpDaemon;
   protected User user;
 
   protected boolean isRunning;

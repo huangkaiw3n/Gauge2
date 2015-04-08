@@ -38,7 +38,8 @@ public class MainView extends JPanel {
     private JLabel headerLabel;
     private JLabel statusLabel;
 
-    private String chatRoomId, selectedUser;
+    private volatile String chatRoomId;
+    private String selectedUser;
 
 //    private String [] users = {"anli","kaiwen","joel" };
 //    private String [] users2 = {"daniel","wy","lionel"};
@@ -72,6 +73,42 @@ public class MainView extends JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+
+        Runnable pollInbox = new Runnable() {
+            public void run() {
+                LinkedBlockingQueue<Packet> inbox = null;
+                StringBuilder sb = new StringBuilder();
+                String payload, username, message;
+                JSONObject jsonMessage, jsonUser;
+                while(true){
+                    try{ Thread.sleep(500);}catch (InterruptedException e8){}
+                    if(chatRoomId != null)
+                        inbox = App.client.udpDaemon.recvQueue.get(chatRoomId);
+                    if(inbox != null)
+                        while(!inbox.isEmpty()) {
+                            payload = inbox.poll().getPayload();
+                            message = username = null;
+                            try {
+                                jsonMessage = new JSONObject(payload);
+                                jsonUser = new JSONObject(jsonMessage.get("user").toString());
+                                message = jsonMessage.get("body").toString();
+                                username = jsonUser.get("username").toString();
+                                if (message != null && username != null) {
+                                    sb.append(username);
+                                    sb.append(":\n");
+                                    sb.append(message);
+                                    sb.append("\n");
+                                }
+                            } catch (JSONException e3) {
+                                e3.printStackTrace();
+                            }
+                            DisplayMessage.append(sb.toString() + "\n");
+                        }
+                }
+            }
+        };
+
+        new Thread(pollInbox).start();
 
         MessageByUser.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -107,6 +144,17 @@ public class MainView extends JPanel {
                 //Leaves a chat room the user is in
                 try{
                     App.client.join(chatRoomId);
+                    App.client.loadChatroomList();
+                    App.client.loadUserlist();
+                    activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+                    ActiveUsers.setListData(activeUsers);
+
+                    RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+                    ChatRoomJoined.setListData(RoomsJoined);
+
+                    RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+                    Rooms.setListData(RoomsAvailable);
+
                 }catch(Exception e6){
                     DisplayMessage.setText("You are already in the room!");
                 }
