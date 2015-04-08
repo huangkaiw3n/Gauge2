@@ -8,7 +8,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.logging.Logger;
 
 /**
@@ -24,6 +26,7 @@ public class Login {
     char[] pwd;
     String user;
     String servername;
+    User user1;
     JFrame frame;
 
     public Login() {
@@ -32,7 +35,14 @@ public class Login {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+        user1 = new User();
+        user1.setPort(9060);
+        try {
+            user1.setIp(InetAddress.getLocalHost().getHostAddress());
+        }catch (UnknownHostException e){
 
+        }
+        System.out.println("Local IP:" + user1.getIp());
 
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -50,7 +60,7 @@ public class Login {
         servername = ServerName.getText();
         user = UserName.getText();
         pwd = Password.getPassword();
-        User user1 = new User();
+
         user1.setUsername(user);
         user1.setPassword(new String(pwd));
 
