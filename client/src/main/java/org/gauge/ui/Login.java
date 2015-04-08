@@ -21,7 +21,9 @@ public class Login {
     private JTextField ServerName;
     private JButton loginButton;
     private JTextPane textPane1;
-    boolean actionLogin = true;
+    char[] pwd;
+    String user;
+    String servername;
     JFrame frame;
 
     public Login() {
@@ -32,48 +34,49 @@ public class Login {
         frame.setVisible(true);
 
 
-            loginButton.addActionListener(new ActionListener() {
-                char[] pwd;
-                String user;
-                String servername;
+        loginButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                initiateLogin();
+            }
+        });
+        Password.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                initiateLogin();
+            }
+        });
+    }
 
-                public void actionPerformed(ActionEvent e) {
-                    servername = ServerName.getText();
-                    user = UserName.getText();
-                    pwd = Password.getPassword();
-                    User user1 = new User();
-                    user1.setUsername(user);
-                    user1.setPassword(new String(pwd));
+    private void initiateLogin(){
+        servername = ServerName.getText();
+        user = UserName.getText();
+        pwd = Password.getPassword();
+        User user1 = new User();
+        user1.setUsername(user);
+        user1.setPassword(new String(pwd));
 
-                    if(App.client != null)
-                        App.client.stop();
+        if(App.client != null)
+            App.client.stop();
 
-                    App.client = new Client(servername, 9000, 9060);
-                    textPane1.setText("Connecting to server...");
+        App.client = new Client(servername, 9000, 9060);
+        textPane1.setText("Connecting to server...");
+        App.client.start();
 
-                    App.client.start();
+        try{
+            App.client.login(user1);
+        }catch(Exception e1){
 
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e1) {
 
-                    try{
-                        App.client.login(user1);
-                    }catch(Exception e1){
-
-                    }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception e1) {
-
-                    }
-                    //actionLogin = false;
-                    if(App.client.isLoggedIn()) {
-                        frame.setVisible(false);
-                        MainView mv = new MainView(user1);
-
-                    }
-                    else
-                        textPane1.setText("Either you entered wrong credentials or we are currently suffering from network congestion");
-
-                }
-            });
+        }
+        //actionLogin = false;
+        if(App.client.isLoggedIn()) {
+            frame.setVisible(false);
+            MainView mv = new MainView(user1);
+        }
+        else
+            textPane1.setText("Either you entered wrong credentials or we are currently suffering from network congestion");
     }
 }
