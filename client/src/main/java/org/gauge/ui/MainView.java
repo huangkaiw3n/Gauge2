@@ -80,6 +80,7 @@ public class MainView extends JPanel {
                 String payload, username, message;
                 JSONObject jsonMessage, jsonUser;
                 while(true){
+                    try{ Thread.sleep(500);}catch (InterruptedException e8){}
                     LinkedBlockingQueue<Packet> inbox = App.client.getInbox(chatRoomId);
                     if(inbox != null)
                         while(!inbox.isEmpty()) {
