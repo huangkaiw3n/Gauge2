@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.DefaultCaret;
 import java.awt.event.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -67,6 +68,8 @@ public class MainView extends JPanel {
 
         RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
         Rooms.setListData(RoomsAvailable);
+        DefaultCaret caret = (DefaultCaret)DisplayMessage.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         JFrame frame = new JFrame("MainView");
         frame.setContentPane(panel1);
@@ -103,6 +106,7 @@ public class MainView extends JPanel {
                                 e3.printStackTrace();
                             }
                             DisplayMessage.append(sb.toString() + "\n");
+                            sb.setLength(0);
                         }
                 }
             }
@@ -117,12 +121,12 @@ public class MainView extends JPanel {
                     try{
                         App.client.message(chatRoomId, input);
                         MessageByUser.setText("");
-                        textInDM.append(DisplayMessage.getText() + "\n");
-                        textInDM.append(user1.getUsername() + ": \n" + input + "\n");
-                        DisplayMessage.setText(textInDM.toString());
+                        textInDM.append(user1.getUsername() + ": \n" + input + "\n\n");
+                        DisplayMessage.append(textInDM.toString());
                     }catch(Exception e2){
                         DisplayMessage.setText("Please select user/chat room first");
                     }
+                    textInDM.setLength(0);
                 }
         });
 
