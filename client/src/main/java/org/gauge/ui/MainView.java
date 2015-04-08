@@ -1,10 +1,7 @@
 package org.gauge.ui;
 
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import org.gauge.App;
-import org.gauge.ChatroomDB;
-import org.gauge.User;
-import org.gauge.UserStatusDB;
+import org.gauge.*;
 import sun.applet.Main;
 
 import javax.swing.*;
@@ -13,7 +10,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by joel on 3/14/15.
@@ -33,22 +34,34 @@ public class MainView extends JPanel {
     private JButton Create;
     private JButton Refresh;
     private JButton SendButton;
+    private JButton logoutButton;
 
     private JFrame mainFrame;
 
     private JLabel headerLabel;
     private JLabel statusLabel;
 
-    private String chatRoomId;
+    private String chatRoomId, selectedUser;
 
     private String [] users = {"anli","kaiwen","joel" };
     private String [] users2 = {"daniel","wy","lionel"};
+    private Object [] activeUsers;
+    private Object [] RoomsJoined;
+    private Object [] RoomsAvailable;
 
     private DefaultListModel listModel = new DefaultListModel();
 
     public MainView(final User user1) {
-
+//        System.out.println("Number of Active Users: " + App.client.getUserList().users.size());
         ActiveUsers.setListData(users);
+//        activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+//        ActiveUsers.setListData(activeUsers);
+//
+//        RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+//        ChatRoomJoined.setListData(RoomsJoined);
+//
+//        RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+//        Rooms.setListData(RoomsAvailable);
 
         JFrame frame = new JFrame("MainView");
         frame.setContentPane(panel1);
@@ -60,7 +73,16 @@ public class MainView extends JPanel {
             public void actionPerformed(ActionEvent e) {
             //refreshes Rooms Chatrooms Joined and Users (Online)
                 try {
-
+//                    activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+//                    ActiveUsers.setListData(activeUsers);
+//
+//                    RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+//                    ChatRoomJoined.setListData(RoomsJoined);
+//
+//                    RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+//                    Rooms.setListData(RoomsAvailable);
+//                    ActiveUsers.setListData(array);
+                    ActiveUsers.setListData(users2);
                 } catch (Exception e1) {
                     DisplayMessage.setText("No Users are currently online!");
                 }
@@ -71,8 +93,8 @@ public class MainView extends JPanel {
         Create.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //Creates a chatroom with user in it
-
-               App.client.create("talk to me baby",user1);
+                //App.client.join();
+                App.client.create("", user1);
             }
         });
 
@@ -106,14 +128,18 @@ public class MainView extends JPanel {
 
         ActiveUsers.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                ActiveUsers.getSelectedValue();
+                selectedUser = ActiveUsers.getSelectedValue().toString();
             }
         });
 
         ChatRoomJoined.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                chatRoomId = Rooms.getSelectedValue().toString();
+            public void valueChanged(ListSelectionEvent e) {chatRoomId = Rooms.getSelectedValue().toString();
+            }
+        });
 
+        logoutButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //App.client.
             }
         });
     }

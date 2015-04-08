@@ -20,7 +20,7 @@ public class UserStatusDB {
 
   static final Logger log = Logger.getLogger(UserStatusDB.class);
 
-  ConcurrentHashMap<String, User> users;
+  public ConcurrentHashMap<String, User> users;
 
   public UserStatusDB() {
     this.users = new ConcurrentHashMap<>();

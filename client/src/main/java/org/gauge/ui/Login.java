@@ -67,7 +67,6 @@ public class Login {
                     //actionLogin = false;
                     if(App.client.isLoggedIn()) {
                         frame.setVisible(false);
-                        //frame.dispose();
                         MainView mv = new MainView(user1);
 
                     }
