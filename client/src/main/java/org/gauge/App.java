@@ -13,7 +13,6 @@ public class App {
 
     public App() {
 
-
     }
 
     public static void exampleUseCoreUtility() {
