@@ -157,6 +157,7 @@
           </grid>
         </constraints>
         <properties>
+          <autoscrolls value="false"/>
           <horizontalScrollBarPolicy value="30"/>
         </properties>
         <border type="none"/>
@@ -169,6 +170,7 @@
               <editable value="false"/>
               <enabled value="true"/>
               <text value=""/>
+              <wrapStyleWord value="true"/>
             </properties>
           </component>
         </children>
