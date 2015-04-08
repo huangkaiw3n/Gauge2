@@ -39,11 +39,9 @@ public class WebServer {
         db = new UserDB(csvPath);
     }
 
-
     public UserDB getDb() {
         return db;
     }
-
 
     private void pollConnection() {
         Socket s;
@@ -69,58 +67,17 @@ public class WebServer {
         }
     }
 
-
-    /**
-     * Used to poll the socket for the packet.
-     * <p/>
-     * This adds another layer of abstraction over packet class,
-     * number of bytes is receiived and bytes retrieved.  It is then
-     * generated into a Packet instance.
-     * <p/>
-     * In this way, encryption can be added without altering
-     * structure of packet.
-     *
-     * @param s
-     * @return
-     * @throws IOException
-     */
-//    private Packet getPacket(Socket s) throws IOException {
-//        Packet result;
-//        DataInputStream dis;
-//        int length = 0;
-//        byte[] buffer;
-//
-//        dis = new DataInputStream(s.getInputStream());
-//        length = dis.readInt();
-//        buffer = new byte[length];
-//        dis.read(buffer, 0, length);
-//        result = new Packet(buffer);
-//
-//        return result;
-//    }
-//
-//
-//    private void sendPacket(Socket s, Packet packet) throws IOException {
-//        DataOutputStream dos;
-//        byte[] buffer = packet.toBytes();
-//        int length = buffer.length;
-//
-//        dos = new DataOutputStream(s.getOutputStream());
-//        dos.writeInt(length);
-//        dos.write(buffer);
-//    }
-
-
     private void process(Socket s, HttpRequestPacket packet) throws IOException {
         String path = java.net.URLDecoder.decode(packet.getFilename(), "UTF-8");
         log.info("Filename: " + path);
         boolean status;
+        JSONObject resJson;
         // The next 2 lines create a output stream we can
         // write to.
         OutputStream os = s.getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);
 
-        if(path.toLowerCase().contains("register?") || path.toLowerCase().contains("login?")){
+        if(path.toLowerCase().contains("register?")){
             Pattern pattern = Pattern.compile("=(.*?)&");
             Matcher matcher = pattern.matcher(path);
             User u1 = new User();
@@ -136,18 +93,24 @@ public class WebServer {
 
             }
             log.info(u1.toString());
-            JSONObject resJson = new JSONObject();
+            resJson = new JSONObject();
             if(u1.getUsername().compareTo("") != 0 && u1.getPassword().compareTo("") != 0) {
-                if (path.toLowerCase().contains("register?"))
-                    status = db.add(data.get(0), u1, false);
-                else
-                    status = db.authenticate(u1.getUsername(), u1.getPassword());
+                status = db.add(u1.getUsername(), u1, false);
+
             }else status = false;
             try {
                 if (status)
                     resJson.put("status", "success");
                 else
                     resJson.put("status", "fail");
+            } catch (JSONException e) {
+            }
+            dos.writeBytes(resJson.toString());
+        } else if(path.toLowerCase().contains("userStats?")){
+            resJson = new JSONObject();
+            try {
+                resJson.put("totalusers", db.getTotalRegUsers());
+                resJson.put("onlineusers", App.cs.statusDb.size());
             } catch (JSONException e) {
             }
             dos.writeBytes(resJson.toString());
@@ -183,40 +146,6 @@ public class WebServer {
             }
         }
     }
-
-
-//    private JSONObject makeAuthRes(HttpRequestPacket packet) {
-//        String reqString = packet.getFilename();
-//        boolean status = authenticate(reqString);
-//
-//        JSONObject resJson = new JSONObject();
-//        try {
-//            if (status) {
-//                resJson.put("status", "success");
-//            } else {
-//                resJson.put("status", "fail");
-//            }
-//        } catch (JSONException e) {
-//        }
-//        return resJson;
-//    }
-//
-//
-//    private boolean authenticate(String reqString) {
-//        User userAuth = null;
-//        try {
-//            userAuth = new User(new JSONObject(reqString));
-//        } catch (JSONException e) {
-//            return false;
-//        }
-//
-//        if (db.authenticate(userAuth.getUsername(), userAuth.getPassword())) {
-//            return true;
-//        }
-//
-//        return false;
-//    }
-
 
     public WebServer start() {
         // exit and return if already running
