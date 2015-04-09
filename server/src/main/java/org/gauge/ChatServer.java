@@ -37,6 +37,7 @@ public class ChatServer {
     public ChatServer(int port){
         this.port = port;
         this.db = new UserDB();
+        init();
     }
 
     public ChatServer(int port, UserDB db) {
