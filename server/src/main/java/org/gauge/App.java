@@ -9,13 +9,14 @@ import java.util.Scanner;
  */
 public class App {
 
+  public static ChatServer cs;
   static final Logger log = Logger.getLogger(Misc.class);
 
   public static void main(String[] args) throws InterruptedException {
       log.debug("Starting server..");
       Scanner s = new Scanner(System.in);
       WebServer ws = new WebServer(80, "userDB.csv");  //default csv path @ project root
-      ChatServer cs = new ChatServer(9000, ws.getDb());
+      cs = new ChatServer(9000, ws.getDb());
 
       ws.start();
       cs.start();
