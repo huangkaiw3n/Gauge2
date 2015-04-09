@@ -1,7 +1,108 @@
 Gauge V2 test server app
 =============================
 
-<img src="https://codeship.com/projects/YOUR_PROJECT_UUID/status?branch=master" />
+[ ![Codeship Status for myrtleTree33/Gauge2](https://codeship.com/projects/416f6d60-bf4b-0132-3732-360c0bcd4f13/status?branch=master)](https://codeship.com/projects/72921)
+
+[ ![Codeship Status for myrtleTree33/Gauge2](https://codeship.com/projects/416f6d60-bf4b-0132-3732-360c0bcd4f13/status?branch=develop)](https://codeship.com/projects/72921)
+
+TONG Haowen Joel
+
+Lim Anli
+
+Huang Kaiwen
+
+
+## Installation
+
+Gauge v2 is built on Maven, however the repository packages ready builds.  To execute, run:
+
+
+**Server**
+
+    $ java -jar build/server-1.0.1-SNAPSHOT-jar-with-dependencies.jar
+
+**Client**
+
+    $ java -jar build/client-1.0.1-SNAPSHOT-jar-with-dependencies.jar
+    
+    
+## Directory structure
+
+GaugeV2 comprises the following sub-projects:
+
+- Server
+  - Central server-related info
+- Client
+  - Client related-info
+- Core
+  - Central Core-related info
+  
+### Core
+  
+**Packet**
+
+All communication (TCP or UDP) comprises a Packet instance.
+
+Packet instances have a destination field, header, and payload fields.  Field lengths are
+flexible, with the lengths of all 3 sections transmitted first.
+
+    [destinationField length][headerField length][payload length][destination][header][payload]
+    
+The instance is constructible from `byte[]` and converts to `byte[]`.
+
+
+### Client
+
+**PeerDaemon**
+
+Creates a peer-to-peer UDP PeerDaemon server and client.
+
+**GaugeClientDaemonTCP**
+
+TCP connection to synchronise user and chatroom listing data with central server.
+
+**Client**
+
+Packages PeerDaemon and GaugeClientDaemonTCP into a nicely packaged standalone headless
+chat client, to be used by the GUI frontend.
+
+**ChatServer**
+
+A central-server-based ChatServer ensures that user and chatroom listing data are concurrent across
+all clients.
+
+
+### Server
+
+**WebServer**
+
+The HTTP central server used for login.
+
+
+### GUI
+
+**Login**
+
+Used for the login dialog
+
+**MainView**
+
+Used to generate the mainview
+
+
+  
+## Overview
+
+GaugeV2 comprises a central TCP server, and supports multiple group chats via UDP.  All data is sent 
+as Packet instances, defined in the core sub-project, as a JSON.  It features a HTTP user registration page.
+
+
+### Features
+
+- Lightweight
+- Ability to support multiple simultaneous chatrooms at once
+- Low dependence on a central server
+- Ability to establish a peer-to-peer based chat
 
 
 ## Info
