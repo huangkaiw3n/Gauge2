@@ -1,7 +1,11 @@
 Gauge V2 test server app
 =============================
 
+**Master**
+
 [ ![Codeship Status for myrtleTree33/Gauge2](https://codeship.com/projects/416f6d60-bf4b-0132-3732-360c0bcd4f13/status?branch=master)](https://codeship.com/projects/72921)
+
+**Develop**
 
 [ ![Codeship Status for myrtleTree33/Gauge2](https://codeship.com/projects/416f6d60-bf4b-0132-3732-360c0bcd4f13/status?branch=develop)](https://codeship.com/projects/72921)
 
