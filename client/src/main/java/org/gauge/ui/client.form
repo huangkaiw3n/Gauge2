@@ -54,16 +54,6 @@
           <text value="Refresh List"/>
         </properties>
       </component>
-      <component id="682d4" class="javax.swing.JButton" binding="SendButton">
-        <constraints>
-          <grid row="5" column="4" row-span="2" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="100" height="32"/>
-          </grid>
-        </constraints>
-        <properties>
-          <text value="Send"/>
-        </properties>
-      </component>
       <component id="ae1ff" class="javax.swing.JLabel">
         <constraints>
           <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -177,7 +167,7 @@
       </scrollpane>
       <scrollpane id="2bf36">
         <constraints>
-          <grid row="5" column="0" row-span="2" col-span="4" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="2" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
