@@ -2,6 +2,7 @@ package org.gauge;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,11 +29,13 @@ public class UserDBTest {
 
     }
 
+  @Ignore
     @Test
     public void testToCSV() throws Exception {
         udb.toCSV();
     }
 
+    @Ignore
     @Test
     public void testFromCSV() throws Exception {
         udb2 = new UserDB("src/test/UserDBtest.csv");
