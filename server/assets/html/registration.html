@@ -8,6 +8,8 @@
 </head>
 <body>
 <p style="font-size:30px">Gauge Client Registration</p>
+Registered Users: <span id="totalUsers">0</span>
+Online Users: <span id="onlineUsers">0</span>
 <form id="loginForm" name="form" action="register">
     <div class="form-item">
         <label>Username:</label>
@@ -39,6 +41,20 @@
                 console.log('Received reply: ' + data);
             }, 'json');
         };
+        document.numberUsers = 0;
+        setInterval(function() {
+            $.ajax({
+	    	url: "http://localhost/userStats?",
+	    	type: "GET",
+	    	crossDomain: true,
+	    	data: null,
+	    	dataType: "json",
+	    	success: function(data) {
+			$('#totalUsers').html(data.totalUsers + "");
+			$('#onlineUsers').html(data.onlineUsers + "");
+		}
+            });
+        }, 1000);
     });
 </script>
 </html>

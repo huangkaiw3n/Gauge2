@@ -84,7 +84,7 @@ public class MainView extends JPanel {
                 String payload, username, message;
                 JSONObject jsonMessage, jsonUser;
                 while(true){
-                    try{ Thread.sleep(500);}catch (InterruptedException e8){}
+                    try{ Thread.sleep(700);}catch (InterruptedException e8){}
                     if(chatRoomId != null)
                         inbox = App.client.udpDaemon.recvQueue.get(chatRoomId);
                     if(inbox != null)
