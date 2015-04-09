@@ -106,13 +106,15 @@ public class WebServer {
             } catch (JSONException e) {
             }
             dos.writeBytes(resJson.toString());
-        } else if(path.toLowerCase().contains("userStats?")){
+        } else if(path.toLowerCase().contains("userstats?")){
             resJson = new JSONObject();
             try {
-                resJson.put("totalusers", db.getTotalRegUsers());
-                resJson.put("onlineusers", App.cs.statusDb.size());
+                resJson.put("totalUsers", db.getTotalRegUsers());
+                resJson.put("onlineUsers", App.cs.statusDb.size());
             } catch (JSONException e) {
             }
+            log.info("Json: " + resJson.toString());
+            dos.writeBytes("Access-Control-Allow-Origin: * \r\n");
             dos.writeBytes(resJson.toString());
         } else {
             try {
