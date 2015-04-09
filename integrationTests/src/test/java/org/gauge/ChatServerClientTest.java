@@ -52,6 +52,7 @@ public class ChatServerClientTest {
   public void tearDown() throws Exception {
     chatServer.stop();
     client.stop();
+    Thread.sleep(200);
   }
 
 

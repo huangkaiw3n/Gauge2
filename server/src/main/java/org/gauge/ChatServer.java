@@ -29,6 +29,18 @@ public class ChatServer {
   public UserStatusHashDB statusDb;
   public ChatroomDB chatroomDB;
 
+  /**
+   * This constructor that takes in only port no. should only be used for TCPChatServerClientTest.
+   * For operation, WebServer's db should always be passed into ChatServer constructor
+   *
+   * @param port
+   */
+  public ChatServer(int port) {
+    this.port = port;
+    this.db = new UserDB();
+    init();
+  }
+
   public ChatServer(int port, UserDB db) {
     this.port = port;
     this.db = db;
@@ -162,7 +174,7 @@ public class ChatServer {
         String chatroomId = jsonReq.getString("chatroomId");
         Chatroom chatroom = chatroomDB.get(chatroomId);
         if (chatroom != null) {
-         chatroom.remove(username);
+          chatroom.remove(username);
         }
       } catch (JSONException e) {
         e.printStackTrace();
@@ -270,6 +282,7 @@ public class ChatServer {
   /**
    * check if logged in via packet.  The packet
    * should have a JSON property "hash".
+   *
    * @param p
    * @return
    */
@@ -343,6 +356,9 @@ public class ChatServer {
     isRunning = false;
     try {
       socket.close();
+      while (!socket.isClosed()) {
+        socket.close();
+      }
     } catch (IOException e) {
       // fail silently; does not seem important
     }
