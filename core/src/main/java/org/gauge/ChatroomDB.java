@@ -122,4 +122,12 @@ public class ChatroomDB {
     return this;
   }
 
+
+  /**
+   * Returns a chatroom.
+   * @return
+   */
+  public synchronized Chatroom returnAChatroom() {
+    return chatrooms.entrySet().iterator().next().getValue();
+  }
 }
