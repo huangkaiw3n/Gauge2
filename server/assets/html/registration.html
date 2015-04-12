@@ -37,14 +37,14 @@ Online Users: <span id="onlineUsers">0</span>
             console.log(jsonObj);
 
             // perform actual GET request with jsonObj as payload
-            $.get('http://www.google.com/',jsonObj, function(data) {
+            $.get('',jsonObj, function(data) {
                 console.log('Received reply: ' + data);
             }, 'json');
         };
         document.numberUsers = 0;
         setInterval(function() {
             $.ajax({
-	    	url: "http://localhost/userStats?",
+	    	url: "/userStats?",
 	    	type: "GET",
 	    	crossDomain: true,
 	    	data: null,
