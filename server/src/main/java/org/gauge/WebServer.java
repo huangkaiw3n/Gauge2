@@ -1,6 +1,7 @@
 package org.gauge;
 
 import org.apache.log4j.Logger;
+import org.gauge.resources.Registration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -122,18 +123,10 @@ public class WebServer {
 
         } else {
             try {
-                String filename = "server/assets/html" + path;
+                if(path.equals("/registration.html")){
+                    int size = Registration.registration.length();
 
-                // Open and read the file into buffer
-                File f = new File(filename);
-
-                if (f.canRead()) {
-                    int size = (int) f.length();
-
-                    //Create a File InputStream to read the File
-                    FileInputStream fis = new FileInputStream(filename);
-                    byte[] buffer = new byte[size];
-                    fis.read(buffer);
+                    byte[] buffer = Registration.registration.getBytes();
 
                     // Now, write buffer to client
                     // (but, send HTTP response header first)
@@ -146,7 +139,7 @@ public class WebServer {
                     // File cannot be read.  Reply with 404 error.
                     dos.writeBytes("HTTP/1.0 404 Not Found\r\n");
                     dos.writeBytes("\r\n");
-                    dos.writeBytes("Cannot find " + filename + " leh");
+                    dos.writeBytes("Cannot find " + path + " leh");
                 }
             } catch (Exception ex) {
             }
