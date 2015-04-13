@@ -29,18 +29,15 @@ public class MainView extends JPanel {
 
     private JButton leaveButton;
     private JButton JoinButton;
-    private JButton Join;
     private JButton Create;
-    private JButton Refresh;
     private JButton SendButton;
-    private JButton logoutButton;
 
     private JFrame mainFrame;
 
     private JLabel headerLabel;
     private JLabel statusLabel;
 
-    private volatile String chatRoomId, previousRoomId;
+    private volatile String chatRoomId, previousChatRoomId;
     private String selectedUser;
     private ConcurrentHashMap<String, String> roomMessages;
 
@@ -49,8 +46,6 @@ public class MainView extends JPanel {
     private Object [] RoomsAvailable;
 
     public MainView(final User user1) {
-//        previousRoomId = "";
-//        previousRoomId.concat(chatRoomId);
         try{
             App.client.loadUserlist();
             Thread.sleep(200);
@@ -174,6 +169,7 @@ public class MainView extends JPanel {
                 //Leaves a chat room the user is in
                 try{
                     App.client.join(chatRoomId);
+                    Thread.sleep(400);
                     App.client.loadChatroomList();
                     App.client.loadUserlist();
                     activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
@@ -194,40 +190,26 @@ public class MainView extends JPanel {
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
-                //Creates a chatroom with user in it
-                //App.client.join();
-                User createWith = App.client.getUserList().users.get(selectedUser);
-                App.client.create("Default", createWith);
+                try{
+                    User createWith = App.client.getUserList().users.get(selectedUser);
+                    App.client.create("Default", createWith);
+                    Thread.sleep(400);
+                    App.client.loadChatroomList();
+                    App.client.loadUserlist();
+                    activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+                    ActiveUsers.setListData(activeUsers);
+
+                    RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+                    ChatRoomJoined.setListData(RoomsJoined);
+
+                    RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+                    Rooms.setListData(RoomsAvailable);
+                }catch(InterruptedException e1){
+
+                }
             }
         });
-//        Refresh.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseReleased(MouseEvent e) {
-//                super.mouseReleased(e);
-//                //refreshes Rooms Chatrooms Joined and Users (Online)
-//                try{
-//                    App.client.loadUserlist();
-//                    Thread.sleep(400);
-//                    App.client.loadChatroomList();
-//                    Thread.sleep(400);
-//                }catch(Exception e3){
-//                    e3.printStackTrace();
-//                }
-//                try {
-//                    activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
-//                    ActiveUsers.setListData(activeUsers);
-//
-//                    RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
-//                    ChatRoomJoined.setListData(RoomsJoined);
-//
-//                    RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
-//                    Rooms.setListData(RoomsAvailable);
-//                } catch (Exception e1) {
-//                    DisplayMessage.setText("No Users are currently online!");
-//                    e1.printStackTrace();
-//                }
-//            }
-//        });
+
         leaveButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
@@ -257,8 +239,22 @@ public class MainView extends JPanel {
                 super.mouseReleased(e);
                 try{
                     chatRoomId = ChatRoomJoined.getSelectedValue().toString();
+                    if(!chatRoomId.equals(previousChatRoomId)){
+                        if(previousChatRoomId != null) {
+                            roomMessages.put(previousChatRoomId, DisplayMessage.getText());
+                            DisplayMessage.setText(roomMessages.get(chatRoomId));
+                        }
+                    }
+                    else{
+                        if(!roomMessages.containsKey(chatRoomId)){
+                            roomMessages.put(chatRoomId,DisplayMessage.getText());
+                        }
+                        else{
+                        }
+                    }
+                    previousChatRoomId = chatRoomId;
                 }catch(NullPointerException e7){
-                    DisplayMessage.append(chatRoomId + " is unavailable\n");
+                    //DisplayMessage.append(chatRoomId + " is unavailable\n");
                 }
             }
         });

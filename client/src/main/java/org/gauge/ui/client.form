@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.gauge.ui.MainView">
-  <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="GridLayoutManager" row-count="7" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="GridLayoutManager" row-count="6" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="451" height="550"/>
+      <xy x="16" y="30" width="310" height="540"/>
     </constraints>
     <properties>
       <preferredSize width="500" height="500"/>
@@ -12,7 +12,9 @@
     <children>
       <component id="5aa45" class="javax.swing.JButton" binding="JoinButton">
         <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="70" height="32"/>
+          </grid>
         </constraints>
         <properties>
           <text value="Join"/>
@@ -20,51 +22,27 @@
       </component>
       <component id="5f568" class="javax.swing.JButton" binding="leaveButton" default-binding="true">
         <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="118" height="32"/>
+          </grid>
         </constraints>
         <properties>
           <text value="Leave"/>
         </properties>
       </component>
-      <component id="555e6" class="javax.swing.JButton" binding="Join">
-        <constraints>
-          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="102" height="32"/>
-          </grid>
-        </constraints>
-        <properties>
-          <text value="Find"/>
-        </properties>
-      </component>
       <component id="7d53" class="javax.swing.JButton" binding="Create">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="86" height="32"/>
+            <preferred-size width="28" height="32"/>
           </grid>
         </constraints>
         <properties>
           <text value="Create"/>
         </properties>
       </component>
-      <component id="5c041" class="javax.swing.JButton" binding="Refresh">
-        <constraints>
-          <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Refresh List"/>
-        </properties>
-      </component>
-      <component id="ae1ff" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="ChatRooms"/>
-        </properties>
-      </component>
       <component id="8b2bf" class="javax.swing.JLabel">
         <constraints>
-          <grid row="3" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="ChatRooms Joined"/>
@@ -72,7 +50,7 @@
       </component>
       <component id="d82e8" class="javax.swing.JLabel">
         <constraints>
-          <grid row="5" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Users (Online)"/>
@@ -80,7 +58,7 @@
       </component>
       <scrollpane id="7bdbc">
         <constraints>
-          <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+          <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="256" height="161"/>
           </grid>
         </constraints>
@@ -90,7 +68,7 @@
           <component id="70a3c" class="javax.swing.JList" binding="Rooms">
             <constraints/>
             <properties>
-              <background color="-13598"/>
+              <background color="-51670"/>
               <model/>
               <selectionMode value="0"/>
             </properties>
@@ -99,7 +77,7 @@
       </scrollpane>
       <scrollpane id="4105e">
         <constraints>
-          <grid row="4" column="5" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="256" height="106"/>
           </grid>
         </constraints>
@@ -109,7 +87,7 @@
           <component id="4fb40" class="javax.swing.JList" binding="ChatRoomJoined">
             <constraints/>
             <properties>
-              <background color="-13598"/>
+              <background color="-51670"/>
               <model/>
             </properties>
           </component>
@@ -117,7 +95,7 @@
       </scrollpane>
       <scrollpane id="f0f6e">
         <constraints>
-          <grid row="6" column="5" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="3" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -125,24 +103,14 @@
           <component id="f62b1" class="javax.swing.JList" binding="ActiveUsers">
             <constraints/>
             <properties>
-              <background color="-13598"/>
+              <background color="-51670"/>
             </properties>
           </component>
         </children>
       </scrollpane>
-      <component id="f1e7a" class="javax.swing.JButton" binding="logoutButton">
-        <constraints>
-          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="100" height="32"/>
-          </grid>
-        </constraints>
-        <properties>
-          <text value="Logout"/>
-        </properties>
-      </component>
       <scrollpane id="a4cad">
         <constraints>
-          <grid row="2" column="0" row-span="3" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+          <grid row="1" column="0" row-span="3" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="0" height="161"/>
           </grid>
         </constraints>
@@ -155,7 +123,7 @@
           <component id="70bd7" class="javax.swing.JTextArea" binding="DisplayMessage">
             <constraints/>
             <properties>
-              <background color="-3414017"/>
+              <background color="-34679"/>
               <doubleBuffered value="false"/>
               <editable value="false"/>
               <enabled value="true"/>
@@ -167,7 +135,7 @@
       </scrollpane>
       <scrollpane id="2bf36">
         <constraints>
-          <grid row="5" column="0" row-span="2" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="0" row-span="2" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -175,12 +143,20 @@
           <component id="516cb" class="javax.swing.JTextField" binding="MessageByUser">
             <constraints/>
             <properties>
-              <background color="-3414017"/>
+              <background color="-34679"/>
               <text value="Enter your messages here"/>
             </properties>
           </component>
         </children>
       </scrollpane>
+      <component id="ae1ff" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="ChatRooms"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>
