@@ -49,8 +49,8 @@ public class MainView extends JPanel {
     private Object [] RoomsAvailable;
 
     public MainView(final User user1) {
-        previousRoomId = "";
-        previousRoomId.concat(chatRoomId);
+//        previousRoomId = "";
+//        previousRoomId.concat(chatRoomId);
         try{
             App.client.loadUserlist();
             Thread.sleep(200);
@@ -255,37 +255,11 @@ public class MainView extends JPanel {
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
-                StringBuilder sb = new StringBuilder();
-                String payload, username, message;
-                JSONObject jsonMessage, jsonUser;
                 try{
                     chatRoomId = ChatRoomJoined.getSelectedValue().toString();
                 }catch(NullPointerException e7){
                     DisplayMessage.append(chatRoomId + " is unavailable\n");
                 }
-
-                DisplayMessage.setText("");
-                LinkedBlockingQueue<Packet> inbox = App.client.getInbox(chatRoomId);
-                while(!inbox.isEmpty()){
-                    payload = inbox.poll().getPayload();
-                    message = username = null;
-                    try{
-                        jsonMessage = new JSONObject(payload);
-                        jsonUser = new JSONObject(jsonMessage.get("user").toString());
-                        message = jsonMessage.get("body").toString();
-                        username = jsonUser.get("username").toString();
-                        if(message != null && username != null) {
-                            sb.append(username);
-                            sb.append(":\n");
-                            sb.append(message);
-                            sb.append("\n\n");
-                        }
-                    }catch(JSONException e3){
-                        e3.printStackTrace();
-                    }
-
-                }
-                DisplayMessage.setText(sb.toString());
             }
         });
         ActiveUsers.addMouseListener(new MouseAdapter() {
