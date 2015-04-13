@@ -32,7 +32,7 @@ public class WebServer {
     }
 
     public WebServer(String csvPath) {
-        this.port = 8020;
+        this.port = 80;
         init(csvPath);
     }
 
