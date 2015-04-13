@@ -211,7 +211,19 @@ public class MainView extends JPanel {
                 super.mouseReleased(e);
                 try{
                     App.client.leave(chatRoomId);
-                }catch(Exception e5){
+                    Thread.sleep(400);
+                    App.client.loadChatroomList();
+                    App.client.loadUserlist();
+                    activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+                    ActiveUsers.setListData(activeUsers);
+
+                    RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+                    ChatRoomJoined.setListData(RoomsJoined);
+
+                    RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+                    Rooms.setListData(RoomsAvailable);
+
+                }catch(Exception e6){
                     DisplayMessage.setText("No chat room selected");
                 }
             }
@@ -264,24 +276,7 @@ public class MainView extends JPanel {
                 }
             }
         });
-        SendButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                //Sends whatever message that is in MessageByUser
-                StringBuilder textInDM = new StringBuilder();
-                String input = MessageByUser.getText();
-                try{
-                    App.client.message(chatRoomId, input);
-                    MessageByUser.setText("");
-                    textInDM.append(DisplayMessage.getText() + "\n");
-                    textInDM.append(user1.getUsername() + ": \n" + input + "\n");
-                    DisplayMessage.setText(textInDM.toString());
-                }catch(Exception e2){
-                    DisplayMessage.setText("Please select user/chat room first");
-                }
-            }
-        });
+
         MessageByUser.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
