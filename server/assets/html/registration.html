@@ -4,27 +4,62 @@
     <title>Test submit form</title>
     <!--<script language="JavaScript" type="text/javascript" src="js/voucher.js"></script>-->
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.1.2/semantic.min.css'/>
     <meta charset="utf-8" />
+    <style>
+        .container {
+            margin: auto;
+            width: 100%;
+            height: 100%;
+            background-color: red;
+            background-image: url("http://cdn.backgroundhost.com/backgrounds/subtlepatterns/batthern.png")
+        }
+
+        .container-inner {
+            margin: auto;
+            position: relative;
+            right: 0;
+            display: table;
+        }
+    </style>
 </head>
 <body>
-<p style="font-size:30px">Gauge Client Registration</p>
-Registered Users: <span id="totalUsers">0</span>
-Online Users: <span id="onlineUsers">0</span>
-<form id="loginForm" name="form" action="register">
-    <div class="form-item">
-        <label>Username:</label>
-        <input type="text" id="username" name="username" maxlength = "30"/>
+<div class="container">
+    <div class="container-inner">
+        <div class="ui hidden divider"></div>
+        <div class="ui center aligned segment card">
+            <p style="font-size:30px">Gauge Client Registration</p>
+            <div class="ui statistic">
+                <div class="value"><span id"onlineUsers">0</span></div>
+                <div class="label">Registered</div>
+            </div>
+            <div class="ui statistic">
+                <div class="value"><span id"onlineUsers">0</span></div>
+                <div class="label">Online</div>
+            </div>
+            <form id="loginForm" name="form" action="register">
+                <div class="form-item ui labeled input">
+                    <label class="ui label">Username:</label>
+                    <input type="text" placeholder="username" id="username" name="username" maxlength = "30"/>
+                </div>
+                <div class="ui hidden divider"></div>
+                <div class="form-item ui labeled input">
+                    <label class="ui label">Password: </label>
+                    <input id="password"  placeholder="password" name="password" type="password" maxlength = "30"/>
+                </div>
+                <div class="ui hidden divider"></div>
+                <div class="form-item ui labeled input">
+                    <label class="ui label">Email:    </label>
+                    <input id="email"  placeholder="email" name="email" type="text" maxlength = "30"/>
+                </div>
+                <div class="ui hidden divider"></div>
+                <input class="ui blue button" type="submit" name="submit" value="Submit" onClick='getData()'/>
+                <div>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="form-item">
-        <label>Password: </label>
-        <input id="password" name="password" type="password" maxlength = "30"/>
-    </div>
-    <div class="form-item">
-        <label>Email:    </label>
-        <input id="email" name="email" type="text" maxlength = "30"/>
-    </div>
-    <input type="submit" name="submit" value="Submit" onClick='getData()'/>
-</form>
+</div>
 </body>
 <script>
     $(document).ready(function () {
@@ -44,15 +79,15 @@ Online Users: <span id="onlineUsers">0</span>
         document.numberUsers = 0;
         setInterval(function() {
             $.ajax({
-	    	url: "/userStats?",
-	    	type: "GET",
-	    	crossDomain: true,
-	    	data: null,
-	    	dataType: "json",
-	    	success: function(data) {
-			$('#totalUsers').html(data.totalUsers + "");
-			$('#onlineUsers').html(data.onlineUsers + "");
-		}
+                url: "/userStats?",
+                type: "GET",
+                crossDomain: true,
+                data: null,
+                dataType: "json",
+                success: function(data) {
+                    $('#totalUsers').html(data.totalUsers + "");
+                    $('#onlineUsers').html(data.onlineUsers + "");
+                }
             });
         }, 1000);
     });
