@@ -29,18 +29,15 @@ public class MainView extends JPanel {
 
     private JButton leaveButton;
     private JButton JoinButton;
-    private JButton Join;
     private JButton Create;
-    private JButton Refresh;
     private JButton SendButton;
-    private JButton logoutButton;
 
     private JFrame mainFrame;
 
     private JLabel headerLabel;
     private JLabel statusLabel;
 
-    private volatile String chatRoomId, previousRoomId;
+    private volatile String chatRoomId, previousChatRoomId;
     private String selectedUser;
     private ConcurrentHashMap<String, String> roomMessages;
 
@@ -49,8 +46,6 @@ public class MainView extends JPanel {
     private Object [] RoomsAvailable;
 
     public MainView(final User user1) {
-//        previousRoomId = "";
-//        previousRoomId.concat(chatRoomId);
         try{
             App.client.loadUserlist();
             Thread.sleep(200);
@@ -244,6 +239,21 @@ public class MainView extends JPanel {
                 super.mouseReleased(e);
                 try{
                     chatRoomId = ChatRoomJoined.getSelectedValue().toString();
+                    if(!chatRoomId.equals(previousChatRoomId)){
+                        if(previousChatRoomId != null) {
+                            String input = DisplayMessage.getText();
+                            roomMessages.put(previousChatRoomId, input);
+                            DisplayMessage.setText("");
+                        }
+                    }
+                    previousChatRoomId = chatRoomId;
+                    if(roomMessages.containsKey(chatRoomId)) {
+                        DisplayMessage.setText("");
+                        DisplayMessage.setText(roomMessages.get(chatRoomId));
+                    }
+                    else{
+                        DisplayMessage.setText("");
+                    }
                 }catch(NullPointerException e7){
                     DisplayMessage.append(chatRoomId + " is unavailable\n");
                 }
