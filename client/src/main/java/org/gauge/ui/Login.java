@@ -11,10 +11,8 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
 import java.util.logging.Logger;
 
 /**
@@ -42,12 +40,11 @@ public class Login {
         user1 = new User();
         user1.setPort(9060);
         try {
-            URL whatismyip = new URL("http://checkip.amazonaws.com");
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    whatismyip.openStream()));
-            String ip = in.readLine(); //you get the IP as a String
+            String ip = getIPv4InetAddress().getHostAddress(); //you get the IP as a String
             user1.setIp(ip);
-        }catch (IOException e){
+        }catch (UnknownHostException e){
+        }catch (SocketException e){
+            e.printStackTrace();
         }
         System.out.println("Local IP:" + user1.getIp());
 
@@ -95,5 +92,24 @@ public class Login {
         }
         else
             textPane1.setText("Either you entered wrong credentials or we are currently suffering from network congestion");
+    }
+    static private InetAddress getIPv4InetAddress() throws SocketException, UnknownHostException {
+
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if(os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0) {
+            NetworkInterface ni = NetworkInterface.getByName("eth0");
+
+            Enumeration<InetAddress> ias = ni.getInetAddresses();
+
+            InetAddress iaddress;
+            do {
+                iaddress = ias.nextElement();
+            } while(!(iaddress instanceof Inet4Address));
+
+            return iaddress;
+        }
+
+        return InetAddress.getLocalHost();  // for Windows and OS X it should work well
     }
 }
