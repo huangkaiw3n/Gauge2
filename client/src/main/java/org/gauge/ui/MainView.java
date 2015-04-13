@@ -254,7 +254,7 @@ public class MainView extends JPanel {
                     }
                     previousChatRoomId = chatRoomId;
                 }catch(NullPointerException e7){
-                    DisplayMessage.append(chatRoomId + " is unavailable\n");
+                    //DisplayMessage.append(chatRoomId + " is unavailable\n");
                 }
             }
         });
