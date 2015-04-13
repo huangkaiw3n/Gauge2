@@ -6,6 +6,13 @@ import java.nio.ByteBuffer;
 
 /**
  * Created by joel on 3/18/15.
+ *
+ * The packet class is the building block for all packets.
+ * It holds three fields and is length delimited, rather
+ * than using tokens.
+ *
+ * It can be serialized and deserialized into a byte array.
+ *
  */
 public class Packet {
 

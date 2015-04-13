@@ -104,9 +104,11 @@ as Packet instances, defined in the core sub-project, as a JSON.  It features a 
 ### Features
 
 - Lightweight
-- Ability to support multiple simultaneous chatrooms at once
+- Ability to support multiple simultaneous chatrooms at once, including simulatenous chat
 - Low dependence on a central server
 - Ability to establish a peer-to-peer based chat
+- Nice CSS-based login form, based on a framework
+- Continuous builds via Codeship to track for broken builds tests during git push of code
 
 
 ## Info
