@@ -100,6 +100,36 @@ public class GaugeClientDaemonTCP extends SimpleClientDaemonTCP {
   }
 
 
+  public GaugeClientDaemonTCP logout(final User u) {
+    if (u == null) return this; // fail silently if no user specified
+    Exchange exchange = new Exchange() {
+      public Packet request() {
+        JSONObject json = null;
+        try {
+          json = createJSONWihHash();
+          json.put("user", u.toJSON());
+        } catch (JSONException e) {
+        }
+        return new Packet("LOGOUT", json.toString());
+      }
+
+      public void response(Packet p) {
+        try {
+          JSONObject jsonRes = new JSONObject(p.getPayload());
+          if (jsonRes == null) return; // pass if invalid / cannot authenticate
+          chatroomDbRef.clear(); // clear chatrooms
+          usersDBRef.clear(); // clear user list
+        } catch (JSONException e) {
+          e.printStackTrace();
+          log.error("Cannot logout!  Invalid hash?");
+        }
+      }
+    };
+    queueExchange(exchange);
+    return this;
+  }
+
+
   /**
    * Returns if the client has been authenticated.
    *

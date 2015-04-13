@@ -155,10 +155,33 @@ public class ChatServer {
       JSONObject resJson = makeJoinRes(packet);
       sendPacket(s, new Packet("JOIN", resJson.toString()));
 
+    } else if (header.equals("LOGOUT")) {
+      JSONObject resJson = makeLogoutRes(packet);
+      sendPacket(s, new Packet("LOGOUT", resJson.toString()));
+
     } else if (header.equals("LEAVE")) {
       JSONObject resJson = makeLeaveRes(packet);
       sendPacket(s, new Packet("LEAVE", resJson.toString()));
     }
+  }
+
+  private JSONObject makeLogoutRes(Packet packet) {
+    String reqString = packet.getPayload();
+    JSONObject jsonReq;
+    JSONObject json = new JSONObject();
+
+    if (isLoggedIn(packet)) {
+      try {
+        jsonReq = new JSONObject(reqString);
+        User u = new User(jsonReq.getJSONObject("user"));
+        db.delete(u.getUsername()); // clear from active users DB
+
+      } catch (JSONException e) {
+        e.printStackTrace();
+        log.error("Invalid JSON for LOGOUT packet.");
+      }
+    }
+    return json;
   }
 
 

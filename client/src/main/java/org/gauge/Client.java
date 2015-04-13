@@ -138,15 +138,25 @@ public class Client {
 
 
   /**
-   *
-   * Deprecated function
-   *
+   * TODO implement and test
    * @return
    */
-//  public Client logout() {
-//    stop();
-//    return this;
-//  }
+  public Client logout() {
+    // exit all chatrooms first
+    while (chatroomDb.size() > 0) {
+      Chatroom curr = chatroomDb.returnAChatroom();
+      if (curr != null) {
+        leave(curr.getId());
+      }
+    }
+    tcpDaemon.logout(user);
+    // pause for 400 ms as no callback implemented
+    pause(400);
+
+    // stop daemon
+    stop();
+    return this;
+  }
 
 
   /**
