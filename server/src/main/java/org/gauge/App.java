@@ -17,7 +17,7 @@ public class App {
       Scanner s = new Scanner(System.in);
       WebServer ws = new WebServer(80, "userDB.csv");  //default csv path @ project root
       cs = new ChatServer(9000, ws.getDb());
-
+      //starting servers
       ws.start();
       cs.start();
       while(true){

@@ -99,6 +99,8 @@ public class Login {
 
         if(os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0) {
             NetworkInterface ni = NetworkInterface.getByName("eth0");
+            if(ni == null)
+                ni = NetworkInterface.getByName("wlan0");
 
             Enumeration<InetAddress> ias = ni.getInetAddresses();
 
