@@ -241,20 +241,19 @@ public class MainView extends JPanel {
                     chatRoomId = ChatRoomJoined.getSelectedValue().toString();
                     if(!chatRoomId.equals(previousChatRoomId)){
                         if(previousChatRoomId != null) {
-                            String input = DisplayMessage.getText();
-                            roomMessages.put(previousChatRoomId, input);
-                            DisplayMessage.setText("");
+                            roomMessages.put(previousChatRoomId, DisplayMessage.getText());
+                            DisplayMessage.setText(roomMessages.get(chatRoomId));
+                        }
+                    }
+                    else{
+                        if(!roomMessages.containsKey(chatRoomId)){
+                            roomMessages.put(chatRoomId,DisplayMessage.getText());
+                        }
+                        else{
+                            DisplayMessage.setText(roomMessages.get(chatRoomId));
                         }
                     }
                     previousChatRoomId = chatRoomId;
-                    if(roomMessages.containsKey(chatRoomId)) {
-                        DisplayMessage.setText("");
-                        DisplayMessage.setText(roomMessages.get(chatRoomId));
-                    }
-                    else{
-                        roomMessages.put(chatRoomId,DisplayMessage.getText());
-                        DisplayMessage.setText("");
-                    }
                 }catch(NullPointerException e7){
                     DisplayMessage.append(chatRoomId + " is unavailable\n");
                 }
