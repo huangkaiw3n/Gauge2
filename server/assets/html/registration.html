@@ -4,7 +4,7 @@
     <title>Test submit form</title>
     <!--<script language="JavaScript" type="text/javascript" src="js/voucher.js"></script>-->
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-    <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.1.2/semantic.min.css'/>
+    <link rel='stylesheet' href='http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.1.2/semantic.min.css'/>
     <meta charset="utf-8" />
     <style>
         .container {
@@ -30,11 +30,11 @@
         <div class="ui center aligned segment card">
             <p style="font-size:30px">Gauge Client Registration</p>
             <div class="ui statistic">
-                <div class="value"><span id"=totalUsers">0</span></div>
+                <div class="value"><span id="totalUsers">0</span></div>
                 <div class="label">Registered</div>
             </div>
             <div class="ui statistic">
-                <div class="value"><span id"=onlineUsers">0</span></div>
+                <div class="value"><span id="onlineUsers">0</span></div>
                 <div class="label">Online</div>
             </div>
             <form id="loginForm" name="form" action="register">
@@ -79,12 +79,13 @@
         document.numberUsers = 0;
         setInterval(function() {
             $.ajax({
-                url: "/userStats?",
+                url: "http://172.28.181.61/userStats?",
                 type: "GET",
                 crossDomain: true,
                 data: null,
                 dataType: "json",
                 success: function(data) {
+                    console.log(data.totalUsers);
                     $('#totalUsers').html(data.totalUsers + "");
                     $('#onlineUsers').html(data.onlineUsers + "");
                 }
