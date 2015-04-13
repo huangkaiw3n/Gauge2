@@ -250,7 +250,6 @@ public class MainView extends JPanel {
                             roomMessages.put(chatRoomId,DisplayMessage.getText());
                         }
                         else{
-                            DisplayMessage.setText(roomMessages.get(chatRoomId));
                         }
                     }
                     previousChatRoomId = chatRoomId;
