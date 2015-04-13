@@ -252,6 +252,7 @@ public class MainView extends JPanel {
                         DisplayMessage.setText(roomMessages.get(chatRoomId));
                     }
                     else{
+                        roomMessages.put(chatRoomId,DisplayMessage.getText());
                         DisplayMessage.setText("");
                     }
                 }catch(NullPointerException e7){
