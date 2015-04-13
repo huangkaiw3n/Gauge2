@@ -211,7 +211,19 @@ public class MainView extends JPanel {
                 super.mouseReleased(e);
                 try{
                     App.client.leave(chatRoomId);
-                }catch(Exception e5){
+                    Thread.sleep(400);
+                    App.client.loadChatroomList();
+                    App.client.loadUserlist();
+                    activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+                    ActiveUsers.setListData(activeUsers);
+
+                    RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+                    ChatRoomJoined.setListData(RoomsJoined);
+
+                    RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+                    Rooms.setListData(RoomsAvailable);
+
+                }catch(Exception e6){
                     DisplayMessage.setText("No chat room selected");
                 }
             }
