@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class WebServer {
     }
 
     public WebServer(String csvPath) {
-        this.port = 80;
+        this.port = 8020;
         init(csvPath);
     }
 
@@ -153,7 +154,9 @@ public class WebServer {
         }
 
         try {
-            socket = new ServerSocket(port);
+            socket = new ServerSocket();
+          socket.setReuseAddress(true);
+          socket.bind(new InetSocketAddress(port));
             Thread.sleep(1000); // give server time to start
         } catch (IOException e) {
             e.printStackTrace();
