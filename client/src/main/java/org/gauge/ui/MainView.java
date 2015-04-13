@@ -9,6 +9,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.DefaultCaret;
 import java.awt.event.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -39,27 +40,29 @@ public class MainView extends JPanel {
     private JLabel headerLabel;
     private JLabel statusLabel;
 
-    private volatile String chatRoomId;
+    private volatile String chatRoomId, previousRoomId;
     private String selectedUser;
+    private ConcurrentHashMap<String, String> roomMessages;
 
-//    private String [] users = {"anli","kaiwen","joel" };
-//    private String [] users2 = {"daniel","wy","lionel"};
     private Object [] activeUsers;
     private Object [] RoomsJoined;
     private Object [] RoomsAvailable;
 
     public MainView(final User user1) {
-
+        previousRoomId = "";
+        previousRoomId.concat(chatRoomId);
         try{
             App.client.loadUserlist();
-            Thread.sleep(400);
+            Thread.sleep(200);
             App.client.loadChatroomList();
-            Thread.sleep(400);
+            Thread.sleep(200);
+
         }catch(Exception e3){
             e3.printStackTrace();
         }
-//        System.out.println("Number of Active Users: " + App.client.getUserList().users.size());
-//        ActiveUsers.setListData(users);
+
+        roomMessages = new ConcurrentHashMap<String, String>();
+
         activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
         ActiveUsers.setListData(activeUsers);
 
@@ -68,6 +71,7 @@ public class MainView extends JPanel {
 
         RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
         Rooms.setListData(RoomsAvailable);
+
         DefaultCaret caret = (DefaultCaret)DisplayMessage.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
@@ -77,6 +81,27 @@ public class MainView extends JPanel {
         frame.pack();
         frame.setVisible(true);
 
+        Runnable autoUpdate = new Runnable(){
+            public void run(){
+                try{
+                    while(true){
+                        Thread.sleep(4000);
+                        App.client.loadUserlist();
+                        App.client.loadChatroomList();
+                        activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+                        ActiveUsers.setListData(activeUsers);
+
+                        RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+                        ChatRoomJoined.setListData(RoomsJoined);
+
+                        RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+                        Rooms.setListData(RoomsAvailable);
+                    }
+                }catch(InterruptedException e9){
+                    e9.printStackTrace();
+                }
+            }
+        };
         Runnable pollInbox = new Runnable() {
             public void run() {
                 LinkedBlockingQueue<Packet> inbox = null;
@@ -113,6 +138,7 @@ public class MainView extends JPanel {
         };
 
         new Thread(pollInbox).start();
+        new Thread(autoUpdate).start();
 
         MessageByUser.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -174,20 +200,43 @@ public class MainView extends JPanel {
                 App.client.create("Default", createWith);
             }
         });
-        Refresh.addMouseListener(new MouseAdapter() {
+//        Refresh.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseReleased(MouseEvent e) {
+//                super.mouseReleased(e);
+//                //refreshes Rooms Chatrooms Joined and Users (Online)
+//                try{
+//                    App.client.loadUserlist();
+//                    Thread.sleep(400);
+//                    App.client.loadChatroomList();
+//                    Thread.sleep(400);
+//                }catch(Exception e3){
+//                    e3.printStackTrace();
+//                }
+//                try {
+//                    activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
+//                    ActiveUsers.setListData(activeUsers);
+//
+//                    RoomsJoined = App.client.getActiveChatrooms().chatrooms.keySet().toArray(new String[0]);
+//                    ChatRoomJoined.setListData(RoomsJoined);
+//
+//                    RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
+//                    Rooms.setListData(RoomsAvailable);
+//                } catch (Exception e1) {
+//                    DisplayMessage.setText("No Users are currently online!");
+//                    e1.printStackTrace();
+//                }
+//            }
+//        });
+        leaveButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
-                //refreshes Rooms Chatrooms Joined and Users (Online)
                 try{
-                    App.client.loadUserlist();
+                    App.client.leave(chatRoomId);
                     Thread.sleep(400);
                     App.client.loadChatroomList();
-                    Thread.sleep(400);
-                }catch(Exception e3){
-                    e3.printStackTrace();
-                }
-                try {
+                    App.client.loadUserlist();
                     activeUsers = App.client.getUserList().users.keySet().toArray(new String[0]);
                     ActiveUsers.setListData(activeUsers);
 
@@ -197,21 +246,7 @@ public class MainView extends JPanel {
                     RoomsAvailable = App.client.getAllChatrooms().chatrooms.keySet().toArray(new String [0]);
                     Rooms.setListData(RoomsAvailable);
 
-//                    System.out.println("Refreshing... : "+ App.client.loadUserlist().users.size());
-//                    ActiveUsers.setListData(users2);
-                } catch (Exception e1) {
-                    DisplayMessage.setText("No Users are currently online!");
-                    e1.printStackTrace();
-                }
-            }
-        });
-        leaveButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                try{
-                    App.client.leave(chatRoomId);
-                }catch(Exception e5){
+                }catch(Exception e6){
                     DisplayMessage.setText("No chat room selected");
                 }
             }
@@ -264,24 +299,7 @@ public class MainView extends JPanel {
                 }
             }
         });
-        SendButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                //Sends whatever message that is in MessageByUser
-                StringBuilder textInDM = new StringBuilder();
-                String input = MessageByUser.getText();
-                try{
-                    App.client.message(chatRoomId, input);
-                    MessageByUser.setText("");
-                    textInDM.append(DisplayMessage.getText() + "\n");
-                    textInDM.append(user1.getUsername() + ": \n" + input + "\n");
-                    DisplayMessage.setText(textInDM.toString());
-                }catch(Exception e2){
-                    DisplayMessage.setText("Please select user/chat room first");
-                }
-            }
-        });
+
         MessageByUser.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
