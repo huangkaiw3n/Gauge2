@@ -10,62 +10,62 @@ public class Registration {
             "    <title>Test submit form</title>\n" +
             "    <!--<script language=\"JavaScript\" type=\"text/javascript\" src=\"js/voucher.js\"></script>-->\n" +
             "    <script src=\"https://code.jquery.com/jquery-1.11.2.min.js\"></script>\n" +
-            "   <link rel='stylesheet' href='http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.1.2/semantic.min.css'/>\n" +
+            "    <link rel='stylesheet' href='http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.1.2/semantic.min.css'/>\n" +
             "    <meta charset=\"utf-8\" />\n" +
-            "<style>\n" +
-            "  .container {\n" +
-            "  margin: auto;\n" +
-            "  width: 100%;\n" +
-            "  height: 100%;\n" +
-            "  background-color: red;\n" +
-            "  background-image: url(\"http://cdn.backgroundhost.com/backgrounds/subtlepatterns/batthern.png\")\n" +
-            "}\n" +
+            "    <style>\n" +
+            "        .container {\n" +
+            "            margin: auto;\n" +
+            "            width: 100%;\n" +
+            "            height: 100%;\n" +
+            "            background-color: red;\n" +
+            "            background-image: url(\"http://cdn.backgroundhost.com/backgrounds/subtlepatterns/batthern.png\")\n" +
+            "        }\n" +
             "\n" +
-            ".container-inner {\n" +
-            "  margin: auto;\n" +
-            "  position: relative;\n" +
-            "  right: 0;\n" +
-            "  display: table;\n" +
-            "}\n" +
-            "</style>\n" +
+            "        .container-inner {\n" +
+            "            margin: auto;\n" +
+            "            position: relative;\n" +
+            "            right: 0;\n" +
+            "            display: table;\n" +
+            "        }\n" +
+            "    </style>\n" +
             "</head>\n" +
             "<body>\n" +
-            "  <div class=\"container\">\n" +
+            "<div class=\"container\">\n" +
             "    <div class=\"container-inner\">\n" +
-            "    <div class=\"ui hidden divider\"></div>  \n" +
-            "    <div class=\"ui center aligned segment card\">\n" +
-            "<p style=\"font-size:30px\">Gauge Client Registration</p>\n" +
-            "      <div class=\"ui statistic\">\n" +
-            "        <div class=\"value\"><span id=\"totalUsers\">0</span></div>\n" +
-            "        <div class=\"label\">Registered</div>\n" +
-            "      </div>\n" +
-            "      <div class=\"ui statistic\">\n" +
-            "        <div class=\"value\"><span id=\"onlineUsers\">0</span></div>\n" +
-            "        <div class=\"label\">Online</div>\n" +
-            "      </div>\n" +
-            "<form id=\"loginForm\" name=\"form\" action=\"register\">\n" +
-            "    <div class=\"form-item ui labeled input\">\n" +
-            "        <label class=\"ui label\">Username:</label>\n" +
-            "        <input type=\"text\" placeholder=\"username\" id=\"username\" name=\"username\" maxlength = \"30\"/>\n" +
+            "        <div class=\"ui hidden divider\"></div>\n" +
+            "        <div class=\"ui center aligned segment card\">\n" +
+            "            <p style=\"font-size:30px\">Gauge Client Registration</p>\n" +
+            "            <div class=\"ui statistic\">\n" +
+            "                <div class=\"value\"><span id=\"totalUsers\">0</span></div>\n" +
+            "                <div class=\"label\">Registered</div>\n" +
+            "            </div>\n" +
+            "            <div class=\"ui statistic\">\n" +
+            "                <div class=\"value\"><span id=\"onlineUsers\">0</span></div>\n" +
+            "                <div class=\"label\">Online</div>\n" +
+            "            </div>\n" +
+            "            <form id=\"loginForm\" name=\"form\" action=\"register\">\n" +
+            "                <div class=\"form-item ui labeled input\">\n" +
+            "                    <label class=\"ui label\">Username:</label>\n" +
+            "                    <input type=\"text\" placeholder=\"username\" id=\"username\" name=\"username\" maxlength = \"30\"/>\n" +
+            "                </div>\n" +
+            "                <div class=\"ui hidden divider\"></div>\n" +
+            "                <div class=\"form-item ui labeled input\">\n" +
+            "                    <label class=\"ui label\">Password: </label>\n" +
+            "                    <input id=\"password\"  placeholder=\"password\" name=\"password\" type=\"password\" maxlength = \"30\"/>\n" +
+            "                </div>\n" +
+            "                <div class=\"ui hidden divider\"></div>\n" +
+            "                <div class=\"form-item ui labeled input\">\n" +
+            "                    <label class=\"ui label\">Email:    </label>\n" +
+            "                    <input id=\"email\"  placeholder=\"email\" name=\"email\" type=\"text\" maxlength = \"30\"/>\n" +
+            "                </div>\n" +
+            "                <div class=\"ui hidden divider\"></div>\n" +
+            "                <input class=\"ui blue button\" type=\"submit\" name=\"submit\" value=\"Submit\" onClick='getData()'/>\n" +
+            "                <div>\n" +
+            "                </div>\n" +
+            "            </form>\n" +
+            "        </div>\n" +
             "    </div>\n" +
-            "    <div class=\"ui hidden divider\"></div>  \n" +
-            "    <div class=\"form-item ui labeled input\">\n" +
-            "        <label class=\"ui label\">Password: </label>\n" +
-            "        <input id=\"password\"  placeholder=\"password\" name=\"password\" type=\"password\" maxlength = \"30\"/>\n" +
-            "    </div>\n" +
-            "    <div class=\"ui hidden divider\"></div>  \n" +
-            "    <div class=\"form-item ui labeled input\">\n" +
-            "        <label class=\"ui label\">Email:    </label>\n" +
-            "        <input id=\"email\"  placeholder=\"email\" name=\"email\" type=\"text\" maxlength = \"30\"/>\n" +
-            "    </div>\n" +
-            "    <div class=\"ui hidden divider\"></div>  \n" +
-            "    <input class=\"ui blue button\" type=\"submit\" name=\"submit\" value=\"Submit\" onClick='getData()'/>\n" +
-            "  <div>\n" +
-            "  </div>\n" +
-            "</form>\n" +
-            " </div>\n" +
-            " </div>\n" +
-            "  </div>\n" +
+            "</div>\n" +
             "</body>\n" +
             "<script>\n" +
             "    $(document).ready(function () {\n" +
@@ -85,16 +85,16 @@ public class Registration {
             "        document.numberUsers = 0;\n" +
             "        setInterval(function() {\n" +
             "            $.ajax({\n" +
-            "\t    \turl: \"http://172.28.181.61/userStats?\",\n" +
-            "\t    \ttype: \"GET\",\n" +
-            "\t    \tcrossDomain: true,\n" +
-            "\t    \tdata: null,\n" +
-            "\t    \tdataType: \"json\",\n" +
-            "\t    \tsuccess: function(data) {\n" +
-            "\t    \t\tconsole.log(data.totalUsers);\n" +
-            "\t\t\t$('#totalUsers').html(data.totalUsers + \"\");\n" +
-            "\t\t\t$('#onlineUsers').html(data.onlineUsers + \"\");\n" +
-            "\t\t}\n" +
+            "                url: \"/userStats?\",\n" +
+            "                type: \"GET\",\n" +
+            "                crossDomain: true,\n" +
+            "                data: null,\n" +
+            "                dataType: \"json\",\n" +
+            "                success: function(data) {\n" +
+            "                    console.log(data.totalUsers);\n" +
+            "                    $('#totalUsers').html(data.totalUsers + \"\");\n" +
+            "                    $('#onlineUsers').html(data.onlineUsers + \"\");\n" +
+            "                }\n" +
             "            });\n" +
             "        }, 1000);\n" +
             "    });\n" +
